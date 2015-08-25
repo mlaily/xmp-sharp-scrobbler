@@ -93,8 +93,8 @@ static void WINAPI SetNowPlaying(BOOL close)
     HWND msnui=0;
 	char *title=NULL;
 	if (!close) {
-		if (msnConf.showCues) title=xmpfmisc->GetTag(-3); // get cue title
-		if (!title) title=xmpfmisc->GetTag(-1); // get track title
+		//if (msnConf.showCues) title=xmpfmisc->GetTag(-3); // get cue title
+		//if (!title) title=xmpfmisc->GetTag(-1); // get track title
 	}
     if (!title) {
 		if (msnConf.keepOnClose) return;
@@ -136,7 +136,7 @@ static LRESULT CALLBACK HookProc(int n, WPARAM w, LPARAM l)
 static void WINAPI DSP_About(HWND win)
 {
 	MessageBox(win,
-		"XMPlay to MSN-Now-Playing Plugin\nCopyright 2005 Elliott Sales de Andrade"
+		"XMPlay éµ to MSN-Now-Playing Plugin\nCopyright 2005 Elliott Sales de Andrade"
 		"\n\nContributors:\nSvante Boberg\nIan Luck",
 		"XMPlay2MSN (rev.7)",
 		MB_ICONINFORMATION);
@@ -225,7 +225,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     if (reason==DLL_PROCESS_ATTACH) {
         ghInstance=hDLL;
         DisableThreadLibraryCalls(hDLL);
-		isUnicode=(int)GetVersion()>=0;
+		isUnicode=true;
     }
     return 1;
 }
