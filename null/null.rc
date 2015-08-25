@@ -1,0 +1,16 @@
+#include <windows.h>
+
+1000 DIALOG DISCARDABLE  0, 0, 250, 175
+STYLE DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg"
+BEGIN
+    GROUPBOX        "",-1,5,3,240,134
+    CONTROL         "Log",10,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | 
+                    WS_TABSTOP,11,3,25,10
+    CONTROL         "",11,"SysListView32",LVS_REPORT | LVS_SINGLESEL | 
+                    LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | 
+                    WS_TABSTOP,10,14,230,102
+    DEFPUSHBUTTON   "Clear",12,190,120,50,12
+    DEFPUSHBUTTON   "Apply",1000,195,142,50,12
+    RTEXT           "rev.1",65534,221,165,27,8
+END
