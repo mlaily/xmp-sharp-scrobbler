@@ -4,23 +4,43 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmp-sharp-scrobbler-native", "native-plugin\xmp-sharp-scrobbler-native.vcxproj", "{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848} = {10238D4E-B185-4CC6-8FB5-D0BC7A19D848}
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2} = {B9BD977A-5527-4BD5-A84C-23E05C8A38B2}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xmp-sharp-scrobbler-managed", "managed-plugin\xmp-sharp-scrobbler-managed.csproj", "{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmp-sharp-scrobbler-wrapper", "xmp-sharp-scrobbler-wrapper\xmp-sharp-scrobbler-wrapper.vcxproj", "{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x64.ActiveCfg = Debug|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x86.ActiveCfg = Debug|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x86.Build.0 = Debug|Win32
+		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x64.ActiveCfg = Release|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x86.ActiveCfg = Release|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x86.Build.0 = Release|Win32
+		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x64.ActiveCfg = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.ActiveCfg = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.Build.0 = Debug|x86
+		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x64.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.Build.0 = Release|x86
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Debug|x64.ActiveCfg = Debug|x64
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Debug|x64.Build.0 = Debug|x64
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Debug|x86.ActiveCfg = Debug|Win32
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Debug|x86.Build.0 = Debug|Win32
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Release|x64.ActiveCfg = Release|x64
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Release|x64.Build.0 = Release|x64
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Release|x86.ActiveCfg = Release|Win32
+		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -44,9 +44,12 @@ Update 1, Svante Boberg
   - Automatically sets MSN now playing when loading plugin
 */
 
+#include <iostream>
 #include <windows.h>
 
 #include "xmpdsp.h" // requires the XMPlay "DSP/general plugin SDK"
+
+#include "YahooAPIWrapper.h"
 
 static XMPFUNC_MISC *xmpfmisc;
 
@@ -84,6 +87,26 @@ static XMPDSP dsp = {
     DSP_GetConfig,
     DSP_SetConfig,
 };
+
+void hello()
+{
+    const char* stock = "GOOG";
+    YahooAPIWrapper yahoo;
+
+    double bid = yahoo.GetBid(stock);
+    double ask = yahoo.GetAsk(stock);
+    const char* capi = yahoo.GetCapitalization(stock);
+
+    const char** bidAskCapi = yahoo.GetValues(stock, "b3b2j1");
+
+    std::cout << "Bid: " << bid << std::endl;
+    std::cout << "Ask: " << ask << std::endl;
+    std::cout << "Capi: " << capi << std::endl;
+
+    std::cout << "BidAskCapi[0]: " << bidAskCapi[0] << std::endl;
+    std::cout << "BidAskCapi[1]: " << bidAskCapi[1] << std::endl;
+    std::cout << "BidAskCapi[2]: " << bidAskCapi[2] << std::endl;
+}
 
 static void WINAPI SetNowPlaying(BOOL close)
 {
@@ -135,6 +158,7 @@ static LRESULT CALLBACK HookProc(int n, WPARAM w, LPARAM l)
 
 static void WINAPI DSP_About(HWND win)
 {
+    hello();
 	MessageBox(win,
 		"XMPlay éµ to MSN-Now-Playing Plugin\nCopyright 2005 Elliott Sales de Andrade"
 		"\n\nContributors:\nSvante Boberg\nIan Luck",
