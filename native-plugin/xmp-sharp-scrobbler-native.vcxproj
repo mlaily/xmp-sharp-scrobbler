@@ -14,6 +14,7 @@
     <ProjectGuid>{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}</ProjectGuid>
     <RootNamespace>xmpsharpscrobbler</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>xmp-sharp-scrobbler-native</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
