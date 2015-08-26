@@ -61,6 +61,7 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;$(SolutionDir)\$(Configuration)\xmp-sharp-scrobbler-wrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\xmp-sdk-headers\xmpdsp.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>xmp-sharp-scrobbler-wrapper.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /RY "$(SolutionDir)xmplay.exe" "$(TargetDir)"</Command>
@@ -83,6 +84,7 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;$(SolutionDir)\$(Configuration)\xmp-sharp-scrobbler-wrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\xmp-sdk-headers\xmpdsp.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>xmp-sharp-scrobbler-wrapper.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
