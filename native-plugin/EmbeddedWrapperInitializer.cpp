@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <windows.h>
 #include <delayimp.h>
 
@@ -14,16 +12,18 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 HMODULE _hEmbeddedWrapper = NULL;
 
+const LPCSTR tempFileNamesPrefix = "XSS";
+
 // read an embedded resource and load it as a library, then return its module handle
 HMODULE ExtractAndLoad(const HMODULE hDll, WORD resourceId)
 {
     // based upon and improved from http://blog.syedgakbar.com/2007/11/embedding-dll-and-binary-files-in-the-executable-applications/
 
     // Get a temporary file name to copy the embedded dll to
-    TCHAR szTempFileName[MAX_PATH];
-    TCHAR lpTempPathBuffer[MAX_PATH];
-    GetTempPath(MAX_PATH, lpTempPathBuffer);
-    GetTempFileName(lpTempPathBuffer, "XSS", 0, szTempFileName);
+    TCHAR tempFileName[MAX_PATH];
+    TCHAR tempPathBuffer[MAX_PATH];
+    GetTempPath(MAX_PATH, tempPathBuffer);
+    GetTempFileName(tempPathBuffer, tempFileNamesPrefix, 0, tempFileName);
 
     // First find and load the required resource
     HRSRC hResource = FindResource(hDll, MAKEINTRESOURCE(resourceId), "BINARY");
@@ -34,7 +34,7 @@ HMODULE ExtractAndLoad(const HMODULE hDll, WORD resourceId)
     DWORD dwSize = SizeofResource(hDll, hResource);
 
     // Open the file and filemap
-    HANDLE hFile = CreateFile(szTempFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE hFile = CreateFile(tempFileName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     HANDLE hFilemap = CreateFileMapping(hFile, NULL, PAGE_READWRITE, 0, dwSize, NULL);
     LPVOID lpBaseAddress = MapViewOfFile(hFilemap, FILE_MAP_WRITE, 0, 0, 0);
 
@@ -47,12 +47,47 @@ HMODULE ExtractAndLoad(const HMODULE hDll, WORD resourceId)
     CloseHandle(hFile);
 
     // Load the extracted dll as a library
-    HMODULE loadResult = LoadLibrary(szTempFileName);
-
-    // Mark the file for deletion once all handles (the one from LoadLibrary) are closed
-    DeleteFile(szTempFileName);
+    HMODULE loadResult = LoadLibrary(tempFileName);
 
     return loadResult;
+}
+
+// Since we cannot delete an extracted file as soon as the program exit,
+// we do the next best thing: remove them on the next run of the program...
+void CleanPreviousExtractions()
+{
+    try
+    {
+        TCHAR tempFileName[MAX_PATH];
+        TCHAR tempPath[MAX_PATH];
+        TCHAR tempPathPattern[MAX_PATH];
+        GetTempPath(MAX_PATH, tempPath);
+
+        strcpy_s(tempPathPattern, tempPath);
+
+        strcat_s(tempPathPattern, MAX_PATH, "\\*");
+
+        WIN32_FIND_DATA ffd;
+        HANDLE hFind = INVALID_HANDLE_VALUE;
+
+        hFind = FindFirstFile(tempPathPattern, &ffd);
+        // loop over all the files in the temp directory with a name starting with the prefix, and try to remove them.
+        do
+        {
+            if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strncmp(ffd.cFileName, tempFileNamesPrefix, strlen(tempFileNamesPrefix)) == 0)
+            {
+                try
+                {
+                    // recreate the full path and try to delete the file
+                    strcpy_s(tempFileName, tempPath);
+                    strcat_s(tempFileName, MAX_PATH, ffd.cFileName);
+                    DeleteFile(tempFileName);
+                }
+                catch (...) {}
+            }
+        } while (FindNextFile(hFind, &ffd) != 0);
+    }
+    catch (...) {}
 }
 
 // hook into the dll delayed loading process to properly find the extracted xmp-sharp-scrobbler-wrapper.dll
@@ -64,6 +99,7 @@ FARPROC WINAPI DliNotifyHook(unsigned dliNotify, PDelayLoadInfo pdli)
         {
             if (_hEmbeddedWrapper == NULL) // first time the wrapper is required. We have to load it...
             {
+                CleanPreviousExtractions();
                 _hEmbeddedWrapper = ExtractAndLoad(HINST_THISCOMPONENT, EMBEDDED_WRAPPER_RESOURCE_ID);
                 // now that we have extracted the wrapper, initialize it!
                 // (this will trigger the dll delayed loading hook since this is the first time we use a method from the wrapper)
