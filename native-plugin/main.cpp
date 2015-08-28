@@ -90,6 +90,7 @@ static XMPDSP dsp = {
 
 void hello()
 {
+    HMODULE res = LoadLibrary("xmp-sharp-scrobbler/xmp-sharp-scrobbler-wrapper.dll");
     const char* stock = "GOOG";
     YahooAPIWrapper yahoo;
 
