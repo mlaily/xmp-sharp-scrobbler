@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExecutableResourceInitializer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +101,7 @@
     <ClInclude Include="..\xmp-sdk-headers\xmpdsp.h" />
     <ClInclude Include="..\xmp-sdk-headers\xmpfunc.h" />
     <ClInclude Include="..\xmp-sharp-scrobbler-wrapper\YahooAPIWrapper.h" />
+    <ClInclude Include="EmbeddedWrapperInitializer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

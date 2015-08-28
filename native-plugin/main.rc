@@ -1,5 +1,7 @@
 #include "windows.h"
 
+#include "EmbeddedWrapperInitializer.h"
+
 1000 DIALOG DISCARDABLE  20, 10, 200, 36
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "XMPlay2MSN config"
@@ -11,6 +13,8 @@ BEGIN
     CONTROL         "Keep song on closing",20,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,5,20,130,10
 END
+
+EMBEDDED_WRAPPER_RESOURCE_ID BINARY MOVEABLE PURE "..\\Debug\\xmp-sharp-scrobbler-wrapper.dll"
 
 1 VERSIONINFO
  FILEVERSION 1,7,0,0

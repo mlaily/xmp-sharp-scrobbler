@@ -49,8 +49,9 @@ Update 1, Svante Boberg
 
 #include "xmpdsp.h" // requires the XMPlay "DSP/general plugin SDK"
 
+#include "EmbeddedWrapperInitializer.h"
+
 #include "YahooAPIWrapper.h"
-#include "AssemblyInitializer.h"
 
 static XMPFUNC_MISC *xmpfmisc;
 
@@ -91,14 +92,12 @@ static XMPDSP dsp = {
 
 void hello()
 {
-    HMODULE res = LoadLibrary("xmp-sharp-scrobbler/xmp-sharp-scrobbler-wrapper.dll");
     const char* stock = "GOOG";
-    InitializeManagedWrapper();
     YahooAPIWrapper yahoo;
 
     double bid = yahoo.GetBid(stock);
     double ask = yahoo.GetAsk(stock);
-    const char* capi = yahoo.GetCapitalization(stock);
+    const char* capi = yahoo.GetCapitalization("éµ");
 
     const char** bidAskCapi = yahoo.GetValues(stock, "b3b2j1");
 
@@ -244,6 +243,12 @@ XMPDSP *WINAPI XMPDSP_GetInterface2(DWORD face, InterfaceProc faceproc)
 {
 	if (face!=XMPDSP_FACE) return NULL;
 	xmpfmisc=(XMPFUNC_MISC*)faceproc(XMPFUNC_MISC_FACE); // import "misc" functions
+
+    // while we are here, initialize the required dependencies for the plugin.
+    // (we do this here because these are things forbidden in the DllMain
+    // such as executing managed code or using LoadLibrary...)
+    InitializeEmbeddedManagedWrapper(ghInstance);
+
 	return &dsp;
 }
 
