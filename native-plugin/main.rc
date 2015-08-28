@@ -14,7 +14,7 @@ BEGIN
                     WS_TABSTOP,5,20,130,10
 END
 
-EMBEDDED_WRAPPER_RESOURCE_ID BINARY MOVEABLE PURE "..\\Debug\\xmp-sharp-scrobbler-wrapper.dll"
+EMBEDDED_WRAPPER_RESOURCE_ID BINARY MOVEABLE PURE "WrapperBuildResult\\xmp-sharp-scrobbler-wrapper.dll"
 
 1 VERSIONINFO
  FILEVERSION 1,7,0,0
