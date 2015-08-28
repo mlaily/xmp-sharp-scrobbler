@@ -1,32 +1,18 @@
 #include <iostream>
+
 #include <windows.h>
 #include <delayimp.h>
 
 #include "EmbeddedWrapperInitializer.h"
 #include "AssemblyInitializer.h"
 
-HMODULE _hEmbeddedWrapper = NULL;
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+// The pseudovariable __ImageBase represents the DOS header of the module, which happens to be what a Win32 module begins with.
+// In other words, it's the base address of the module. And the module base address is the same as its HINSTANCE. 
+// Only works with a Microsoft Linker. see http://blogs.msdn.com/b/oldnewthing/archive/2004/10/25/247180.aspx
+#define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 
-// hook into the dll delayed loading process to properly find the extracted xmp-sharp-scrobbler-wrapper.dll
-FARPROC WINAPI DliNotifyHook(unsigned dliNotify, PDelayLoadInfo pdli)
-{
-    if (dliNotify == dliNotePreLoadLibrary)
-    {
-        if (lstrcmpiA(pdli->szDll, "xmp-sharp-scrobbler-wrapper.dll") == 0)
-        {
-            if (_hEmbeddedWrapper == NULL)
-            {
-                throw std::runtime_error("DliNotifyHook: _hEmbeddedWrapper is NULL! Did you forget to call InitializeEmbeddedManagedWrapper()?");
-            }
-            else
-            {
-                return (FARPROC)_hEmbeddedWrapper;
-            }
-        }
-    }
-    return NULL;
-}
-extern "C" PfnDliHook __pfnDliNotifyHook2 = DliNotifyHook;
+HMODULE _hEmbeddedWrapper = NULL;
 
 // read an embedded resource and load it as a library, then return its module handle
 HMODULE ExtractAndLoad(const HMODULE hDll, WORD resourceId)
@@ -69,10 +55,23 @@ HMODULE ExtractAndLoad(const HMODULE hDll, WORD resourceId)
     return loadResult;
 }
 
-void InitializeEmbeddedManagedWrapper(HMODULE hDll)
+// hook into the dll delayed loading process to properly find the extracted xmp-sharp-scrobbler-wrapper.dll
+FARPROC WINAPI DliNotifyHook(unsigned dliNotify, PDelayLoadInfo pdli)
 {
-    _hEmbeddedWrapper = ExtractAndLoad(hDll, EMBEDDED_WRAPPER_RESOURCE_ID);
-    // now that we have extracted the wrapper, initialize it!
-    // (this will trigger the dll delayed loading hook since this is the first time we use a method from the wrapper)
-    InitializeManagedWrapper();
+    if (dliNotify == dliNotePreLoadLibrary)
+    {
+        if (lstrcmpiA(pdli->szDll, "xmp-sharp-scrobbler-wrapper.dll") == 0)
+        {
+            if (_hEmbeddedWrapper == NULL) // first time the wrapper is required. We have to load it...
+            {
+                _hEmbeddedWrapper = ExtractAndLoad(HINST_THISCOMPONENT, EMBEDDED_WRAPPER_RESOURCE_ID);
+                // now that we have extracted the wrapper, initialize it!
+                // (this will trigger the dll delayed loading hook since this is the first time we use a method from the wrapper)
+                InitializeManagedWrapper();
+            }
+            return (FARPROC)_hEmbeddedWrapper;
+        }
+    }
+    return NULL;
 }
+extern "C" PfnDliHook __pfnDliNotifyHook2 = DliNotifyHook;

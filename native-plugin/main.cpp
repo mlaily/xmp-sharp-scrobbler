@@ -49,8 +49,6 @@ Update 1, Svante Boberg
 
 #include "xmpdsp.h" // requires the XMPlay "DSP/general plugin SDK"
 
-#include "EmbeddedWrapperInitializer.h"
-
 #include "YahooAPIWrapper.h"
 
 static XMPFUNC_MISC *xmpfmisc;
@@ -243,12 +241,6 @@ XMPDSP *WINAPI XMPDSP_GetInterface2(DWORD face, InterfaceProc faceproc)
 {
 	if (face!=XMPDSP_FACE) return NULL;
 	xmpfmisc=(XMPFUNC_MISC*)faceproc(XMPFUNC_MISC_FACE); // import "misc" functions
-
-    // while we are here, initialize the required dependencies for the plugin.
-    // (we do this here because these are things forbidden in the DllMain
-    // such as executing managed code or using LoadLibrary...)
-    InitializeEmbeddedManagedWrapper(ghInstance);
-
 	return &dsp;
 }
 
