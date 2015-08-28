@@ -50,6 +50,7 @@ Update 1, Svante Boberg
 #include "xmpdsp.h" // requires the XMPlay "DSP/general plugin SDK"
 
 #include "YahooAPIWrapper.h"
+#include "AssemblyInitializer.h"
 
 static XMPFUNC_MISC *xmpfmisc;
 
@@ -92,6 +93,7 @@ void hello()
 {
     HMODULE res = LoadLibrary("xmp-sharp-scrobbler/xmp-sharp-scrobbler-wrapper.dll");
     const char* stock = "GOOG";
+    InitializeManagedWrapper();
     YahooAPIWrapper yahoo;
 
     double bid = yahoo.GetBid(stock);
