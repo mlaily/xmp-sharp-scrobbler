@@ -101,7 +101,9 @@ xcopy /RY "$(SolutionDir)\xmp-sharp-scrobbler-wrapper\bin\$(Configuration)\xmp-s
 </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy /RY "$(SolutionDir)xmplay.exe" "$(TargetDir)"</Command>
+      <Command>xcopy /RY "$(SolutionDir)xmplay.exe" "$(TargetDir)"
+mkdir "$(SolutionDir)\Plugin-Release\"
+move /Y "$(TargetPath)" "$(SolutionDir)\Plugin-Release\xmp-sharp-scrobbler.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
