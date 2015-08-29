@@ -1,0 +1,12 @@
+We now have a working base for a plugin written in C#.
+
+Things left to do:
+	. read the last version of last.fm docs about scrobbling
+	. get an event when a new track is played (for the now playing feature)
+	. get the track info
+	. get an event when the track has been played long enough to be scrobbled
+	. transmit all the info to the C# code
+	. implement the scrobbling part in C# (json or xml (?) over http)
+		. we can't reuse an existing library since we don't want any dll dependency
+	. implement the config struct with everything required for the plugin to work
+	. GUI for the configuration
