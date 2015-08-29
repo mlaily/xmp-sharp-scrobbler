@@ -11,3 +11,4 @@ Things left to do:
 	. implement the config struct with everything required for the plugin to work
 	. GUI for the configuration
 	. implement some caching mechanism
+	. implement a log file

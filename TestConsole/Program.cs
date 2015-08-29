@@ -13,12 +13,12 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
-            //var tokenResult = Auth.GetToken().Result;
-            //var url = Auth.GetAuthorizeTokenUrl(tokenResult.Result);
-            //Process.Start(url);
-            //Console.WriteLine("Press enter once the token is authorized in the browser.");
-            //Console.ReadLine();
-            //var sessionResult = Auth.GetSession(tokenResult.Result).Result;
+            var tokenResult = Auth.GetToken().Result;
+            var url = Auth.GetAuthorizeTokenUrl(tokenResult.Result);
+            Process.Start(url);
+            Console.WriteLine("Press enter once the token is authorized in the browser.");
+            Console.ReadLine();
+            var sessionResult = Auth.GetSession(tokenResult.Result).Result;
 
 
             var updateNowPlayingResult = 

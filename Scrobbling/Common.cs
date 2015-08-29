@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Net.Http.Headers;
 
 namespace Scrobbling
 {
@@ -24,7 +25,6 @@ namespace Scrobbling
             HttpClient.DefaultRequestHeaders.ExpectContinue = false;
         }
 
-
         /// <summary>
         /// Execute a GET request.
         /// Signature is optional, depending on the provided method.
@@ -37,12 +37,12 @@ namespace Scrobbling
         /// </param>
         public static async Task<ApiResult<T>> GetAsync<T>(string method, Func<XElement, T> parse, bool addSignature, params ApiArg[] args)
         {
-            var requestString = CreateRequestString(
+            var completeParameters = GetCompleteParameters(
                 method: method,
                 sessionKey: null,
                 addSignature: addSignature,
-                includeBaseAddress: true,
                 args: args);
+            var requestString = CreateGetRequestString(completeParameters);
             using (var response = await HttpClient.GetAsync(requestString))
             {
                 var body = await response.Content.ReadAsStringAsync();
@@ -61,21 +61,38 @@ namespace Scrobbling
         /// </param>
         public static async Task<ApiResult<T>> PostAsync<T>(string method, string sessionKey, Func<XElement, T> parse, params ApiArg[] args)
         {
-            var requestString = CreateRequestString(
+            var completeParameters = GetCompleteParameters(
                 method: method,
                 sessionKey: sessionKey,
                 addSignature: true,
-                includeBaseAddress: false,
                 args: args);
-            var buffer = Encoding.UTF8.GetBytes(requestString);
-            using (var response = await HttpClient.PostAsync(ApiBaseAddress, new ByteArrayContent(buffer)))
+            var content = new FormUrlEncodedContent(completeParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value)));
+            using (var response = await HttpClient.PostAsync(ApiBaseAddress, content))
             {
                 var body = await response.Content.ReadAsStringAsync();
                 return new ApiResult<T>(body, parse);
             }
         }
 
-        private static string CreateRequestString(string method, string sessionKey, bool addSignature, bool includeBaseAddress, params ApiArg[] args)
+        private static string CreateGetRequestString(IEnumerable<ApiArg> args)
+        {
+            // create the request string
+            var sb = new StringBuilder();
+            bool firstArg = true;
+            sb.Append($"{ApiBaseAddress}?");
+            foreach (var arg in args)
+            {
+                if (firstArg == false)
+                {
+                    sb.Append("&");
+                }
+                sb.Append($"{arg.Name}={arg.Value}");
+                firstArg = false;
+            }
+            return sb.ToString();
+        }
+
+        private static IEnumerable<ApiArg> GetCompleteParameters(string method, string sessionKey, bool addSignature, params ApiArg[] args)
         {
             // get all the arguments, taking the signature into account if required
             var allUnsignedArgs = (args ?? Enumerable.Empty<ApiArg>()).Concat(new[]
@@ -94,22 +111,7 @@ namespace Scrobbling
             else
                 finalArgs = allUnsignedArgs;
 
-            // create the request string
-            var sb = new StringBuilder();
-            bool firstArg = true;
-            if (includeBaseAddress)
-                sb.Append($"{ApiBaseAddress}?");
-
-            foreach (var arg in finalArgs)
-            {
-                if (firstArg == false)
-                {
-                    sb.Append("&");
-                }
-                sb.Append($"{arg.Name}={arg.Value}");
-                firstArg = false;
-            }
-            return sb.ToString();
+            return finalArgs;
         }
 
         private static ApiArg GetSignature(IEnumerable<ApiArg> args)
