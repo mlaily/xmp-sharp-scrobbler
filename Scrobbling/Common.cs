@@ -39,15 +39,29 @@ namespace Scrobbling
             }
         }
 
-        public static string CreateRequestString(string method, bool addSignature, params ApiArg[] args)
-        {
-            var methodArg = new ApiArg("method", method);
-            var apiKeyArg = new ApiArg("api_key", ApiKey);
+        public static string CreateAuthenticatedRequestString(string method, string sessionKey, params ApiArg[] args)
+            => CreateRequestStringImplementation(method, sessionKey: sessionKey, addSignature: true, args: args);
 
+        public static string CreateRequestString(string method, bool addSignature, params ApiArg[] args)
+            => CreateRequestStringImplementation(method, sessionKey: null, addSignature: true, args: args);
+
+        private static string CreateRequestStringImplementation(string method, string sessionKey, bool addSignature, params ApiArg[] args)
+        {
             // get all the arguments, taking the signature into account if required
-            var allUnsignedArgs = (args ?? Enumerable.Empty<ApiArg>()).Concat(new[] { methodArg, apiKeyArg });
-            var finalArgs = allUnsignedArgs;
-            if (addSignature) finalArgs = allUnsignedArgs.Concat(new[] { GetSignature(allUnsignedArgs) });
+            var allUnsignedArgs = (args ?? Enumerable.Empty<ApiArg>()).Concat(new[]
+            {
+                new ApiArg("method", method),
+                new ApiArg("api_key", ApiKey),
+            });
+            // append the session key only if it is actually provided
+            if (sessionKey != null)
+                allUnsignedArgs = allUnsignedArgs.Append(new ApiArg("sk", sessionKey));
+
+            IEnumerable<ApiArg> finalArgs;
+            if (addSignature)
+                finalArgs = allUnsignedArgs.Append(GetSignature(allUnsignedArgs));
+            else
+                finalArgs = allUnsignedArgs;
 
             // create the request string
             var sb = new StringBuilder();
