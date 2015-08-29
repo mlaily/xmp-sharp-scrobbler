@@ -21,8 +21,19 @@ namespace TestConsole
             var sessionResult = Auth.GetSession(tokenResult.Result).Result;
 
 
-            var updateNowPlayingResult = 
-                Track.UpdateNowPlaying(sessionKey, artist: "Russ Chimes", track: "Targa (Original Mix)", album: "Midnight Club EP", trackNumber: "1/3", duration: new TimeSpan(0, 5, 16)).Result;
+
+            var scrobble = new Scrobble("Russ Chimes", "Targa (Original Mix)", DateTimeOffset.Now.AddMinutes(-4))
+            {
+                Album = "Midnight Club EP",
+                TrackNumber = "1/3",
+                Duration = new TimeSpan(0, 5, 16)
+            };
+
+            var updateNowPlayingResult = Track.UpdateNowPlaying(sessionKey, scrobble).Result;
+
+            var scrobbleResult = Track.Scrobble(sessionKey, scrobble).Result;
+
+
 
             Console.Read();
         }
