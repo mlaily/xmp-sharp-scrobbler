@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ApiResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
   </ItemGroup>
 </Project>
