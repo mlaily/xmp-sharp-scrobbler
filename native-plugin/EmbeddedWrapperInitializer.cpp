@@ -12,6 +12,9 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 HMODULE _hEmbeddedWrapper = NULL;
 
+volatile static long _isCriticalSectionInitialized = 0;
+static CRITICAL_SECTION _cs;
+
 const LPCSTR tempFileNamesPrefix = "XSS";
 
 // read an embedded resource and load it as a library, then return its module handle
@@ -97,6 +100,17 @@ FARPROC WINAPI DliNotifyHook(unsigned dliNotify, PDelayLoadInfo pdli)
     {
         if (lstrcmpiA(pdli->szDll, "xmp-sharp-scrobbler-wrapper.dll") == 0)
         {
+            // initialize a critical section in a thread safe way
+            if (InterlockedIncrement(&_isCriticalSectionInitialized) == 1)
+            {
+                InitializeCriticalSection(&_cs);
+            }
+            _isCriticalSectionInitialized = 1; // prevent potential overflow from the increment
+
+            EnterCriticalSection(&_cs);
+
+            // FIXME: maybe add a try catch for the critical section? (not sure since we want it to actually crash if it does not succeeed)
+
             if (_hEmbeddedWrapper == NULL) // first time the wrapper is required. We have to load it...
             {
                 CleanPreviousExtractions();
@@ -105,6 +119,9 @@ FARPROC WINAPI DliNotifyHook(unsigned dliNotify, PDelayLoadInfo pdli)
                 // (this will trigger the dll delayed loading hook since this is the first time we use a method from the wrapper)
                 InitializeManagedWrapper();
             }
+
+            LeaveCriticalSection(&_cs);
+
             return (FARPROC)_hEmbeddedWrapper;
         }
     }
