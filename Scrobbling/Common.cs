@@ -25,13 +25,24 @@ namespace Scrobbling
         }
 
 
+        /// <summary>
+        /// Execute a GET request.
+        /// Signature is optional, depending on the provided method.
+        /// Refer to the API documentation for more information.
+        /// </summary>
         /// <param name="parse">
         /// User defined parsing logic.
         /// Given the parsed lfm root node as an <see cref="XElement"/>,
         /// this function is expected to return an instance of <see cref="T"/>.
         /// </param>
-        public static async Task<ApiResult<T>> GetAsync<T>(string requestString, Func<XElement, T> parse)
+        public static async Task<ApiResult<T>> GetAsync<T>(string method, Func<XElement, T> parse, bool addSignature, params ApiArg[] args)
         {
+            var requestString = CreateRequestString(
+                method: method,
+                sessionKey: null,
+                addSignature: addSignature,
+                includeBaseAddress: true,
+                args: args);
             using (var response = await HttpClient.GetAsync(requestString))
             {
                 var body = await response.Content.ReadAsStringAsync();
@@ -39,13 +50,32 @@ namespace Scrobbling
             }
         }
 
-        public static string CreateAuthenticatedRequestString(string method, string sessionKey, params ApiArg[] args)
-            => CreateRequestStringImplementation(method, sessionKey: sessionKey, addSignature: true, args: args);
+        /// <summary>
+        /// Execute a POST request.
+        /// POST requests are always authenticated, so a session key is required.
+        /// </summary>
+        /// <param name="parse">
+        /// User defined parsing logic.
+        /// Given the parsed lfm root node as an <see cref="XElement"/>,
+        /// this function is expected to return an instance of <see cref="T"/>.
+        /// </param>
+        public static async Task<ApiResult<T>> PostAsync<T>(string method, string sessionKey, Func<XElement, T> parse, params ApiArg[] args)
+        {
+            var requestString = CreateRequestString(
+                method: method,
+                sessionKey: sessionKey,
+                addSignature: true,
+                includeBaseAddress: false,
+                args: args);
+            var buffer = Encoding.UTF8.GetBytes(requestString);
+            using (var response = await HttpClient.PostAsync(ApiBaseAddress, new ByteArrayContent(buffer)))
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                return new ApiResult<T>(body, parse);
+            }
+        }
 
-        public static string CreateRequestString(string method, bool addSignature, params ApiArg[] args)
-            => CreateRequestStringImplementation(method, sessionKey: null, addSignature: true, args: args);
-
-        private static string CreateRequestStringImplementation(string method, string sessionKey, bool addSignature, params ApiArg[] args)
+        private static string CreateRequestString(string method, string sessionKey, bool addSignature, bool includeBaseAddress, params ApiArg[] args)
         {
             // get all the arguments, taking the signature into account if required
             var allUnsignedArgs = (args ?? Enumerable.Empty<ApiArg>()).Concat(new[]
@@ -58,6 +88,7 @@ namespace Scrobbling
                 allUnsignedArgs = allUnsignedArgs.Append(new ApiArg("sk", sessionKey));
 
             IEnumerable<ApiArg> finalArgs;
+            // the signature is based on all the args except the signature (obviously)
             if (addSignature)
                 finalArgs = allUnsignedArgs.Append(GetSignature(allUnsignedArgs));
             else
@@ -66,7 +97,9 @@ namespace Scrobbling
             // create the request string
             var sb = new StringBuilder();
             bool firstArg = true;
-            sb.Append($"{ApiBaseAddress}?");
+            if (includeBaseAddress)
+                sb.Append($"{ApiBaseAddress}?");
+
             foreach (var arg in finalArgs)
             {
                 if (firstArg == false)

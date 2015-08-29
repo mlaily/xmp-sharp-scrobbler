@@ -10,19 +10,13 @@ namespace Scrobbling
     public static class Auth
     {
         public static Task<ApiResult<string>> GetToken()
-        {
-            var requestString = Common.CreateRequestString("auth.getToken", addSignature: true);
-            return Common.GetAsync(requestString, x => x.Value);
-        }
+            => Common.GetAsync("auth.getToken", x => x.Value, addSignature: true);
 
         public static string GetAuthorizeTokenUrl(string token)
             => $"http://www.last.fm/api/auth?api_key={Common.ApiKey}&token={token}";
 
         public static Task<ApiResult<Session>> GetSession(string authorizedToken)
-        {
-            var requestString = Common.CreateRequestString("auth.getSession", addSignature: true, args: new ApiArg("token", authorizedToken));
-            return Common.GetAsync(requestString, x => new Session(x));
-        }
+            => Common.GetAsync("auth.getSession", x => new Session(x), addSignature: true, args: new ApiArg("token", authorizedToken));
     }
 
     public class Session
