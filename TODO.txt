@@ -10,3 +10,4 @@ Things left to do:
 		. we can't reuse an existing library since we don't want any dll dependency
 	. implement the config struct with everything required for the plugin to work
 	. GUI for the configuration
+	. implement some caching mechanism

@@ -9,6 +9,8 @@
     <Import_RootNamespace>Scrobbling</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ApiResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common.cs" />
   </ItemGroup>
 </Project>
