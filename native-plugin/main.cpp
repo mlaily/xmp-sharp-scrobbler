@@ -5,17 +5,17 @@
 
 #include "YahooAPIWrapper.h"
 
-static XMPFUNC_MISC *xmpfmisc;
+static XMPFUNC_MISC* xmpfmisc;
 
 static HINSTANCE ghInstance;
 
 static void WINAPI DSP_About(HWND win);
-static void *WINAPI DSP_New(void);
-static void WINAPI DSP_Free(void *inst);
-static const char *WINAPI DSP_GetDescription(void *inst);
-static void WINAPI DSP_Config(void *inst, HWND win);
-static DWORD WINAPI DSP_GetConfig(void *inst, void *config);
-static BOOL WINAPI DSP_SetConfig(void *inst, void *config, DWORD size);
+static void* WINAPI DSP_New(void);
+static void WINAPI DSP_Free(void* inst);
+static const char* WINAPI DSP_GetDescription(void* inst);
+static void WINAPI DSP_Config(void* inst, HWND win);
+static DWORD WINAPI DSP_GetConfig(void* inst, void* config);
+static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size);
 
 // config structure
 typedef struct
@@ -59,38 +59,38 @@ static void WINAPI DSP_About(HWND win)
         MB_ICONINFORMATION);
 }
 
-static const char *WINAPI DSP_GetDescription(void *inst)
+static const char* WINAPI DSP_GetDescription(void* inst)
 {
     return dsp.name;
 }
 
-static void *WINAPI DSP_New()
+static void* WINAPI DSP_New()
 {
     return (void*)1;
 }
 
-static void WINAPI DSP_Free(void *inst)
+static void WINAPI DSP_Free(void* inst)
 {
 }
 
-static void WINAPI DSP_Config(void *inst, HWND win)
+static void WINAPI DSP_Config(void* inst, HWND win)
 {
 }
 
-static DWORD WINAPI DSP_GetConfig(void *inst, void *config)
+static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 {
     memcpy(config, &pluginConf, sizeof(pluginConf));
     return sizeof(pluginConf); // return size of config info
 }
 
-static BOOL WINAPI DSP_SetConfig(void *inst, void *config, DWORD size)
+static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
     memcpy(&pluginConf, config, min(size, sizeof(pluginConf)));
     return TRUE;
 }
 
 // get the plugin's XMPDSP interface
-XMPDSP *WINAPI XMPDSP_GetInterface2(DWORD face, InterfaceProc faceproc)
+XMPDSP* WINAPI XMPDSP_GetInterface2(DWORD face, InterfaceProc faceproc)
 {
     if (face != XMPDSP_FACE) return NULL;
     xmpfmisc = (XMPFUNC_MISC*)faceproc(XMPFUNC_MISC_FACE); // import "misc" functions
