@@ -213,3 +213,6 @@ _Pvt_Extensions/
 ModelManifest.xml
 
 *.vcxproj.filters
+
+WrapperBuildResult/*
+Plugin-Release/*
