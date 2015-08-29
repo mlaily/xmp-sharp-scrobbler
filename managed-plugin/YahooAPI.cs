@@ -40,7 +40,8 @@ public class YahooAPI
 
     public string GetCapitalization(string symbol)
     {
-        return GetDataFromYahoo(symbol, "j1")[0];
+        int fortyTwo = new Scrobbling.Auth().Get42();
+        return symbol + "coucou" + fortyTwo.ToString() + "éµ"; //GetDataFromYahoo(symbol, "j1")[0];
     }
 
     public string[] GetValues(string symbol, string fields)
