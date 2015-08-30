@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public static class Scrobbler
+public class SharpScrobbler
 {
+
     public static void Initialize()
     {
 

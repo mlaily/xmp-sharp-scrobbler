@@ -5,7 +5,7 @@
 #include "xmpdsp.h"
 #include "xmpfunc.h"
 
-#include "ScrobblerWrapper.h"
+#include "SharpScrobblerWrapper.h"
 
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
@@ -81,7 +81,8 @@ static void WINAPI DSP_About(HWND win)
 {
     ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
     {
-        ScrobblerWrapper::Initialize();
+        SharpScrobblerWrapper::Initialize();
+
         int fortytwo = 42;
     });
     MessageBox(win,
@@ -99,7 +100,11 @@ static void* WINAPI DSP_New()
 {
     // force early initialization of the wrapper and the managed assemblies
     // to avoid concurrency errors if we keep the lazy loading behavior
-    ScrobblerWrapper::Initialize();
+    // we still do this on the thread pool to avoid slowing down XMPlay startup
+    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
+    {
+        SharpScrobblerWrapper::Initialize();
+    });
 
     return (void*)1;
 }
