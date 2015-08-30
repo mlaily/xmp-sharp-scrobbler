@@ -5,7 +5,7 @@
 #include "xmpdsp.h"
 #include "xmpfunc.h"
 
-#include "YahooAPIWrapper.h"
+#include "ScrobblerWrapper.h"
 
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
@@ -81,48 +81,9 @@ static void WINAPI DSP_About(HWND win)
 {
     ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
     {
-        const char* stock = "GOOG";
-        YahooAPIWrapper yahoo;
-        double bid = yahoo.GetBid(stock);
-        double ask = yahoo.GetAsk(stock);
-        const char* capi = yahoo.GetCapitalization("éµ");
-
-        const char** bidAskCapi = yahoo.GetValues(stock, "b3b2j1");
+        ScrobblerWrapper::Initialize();
         int fortytwo = 42;
     });
-    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
-    {
-        const char* stock = "GOOG";
-        YahooAPIWrapper yahoo;
-        const char* capi = yahoo.GetCapitalization("éµ");
-
-        int fortytwo = 42;
-    });
-    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
-    {
-        const char* stock = "GOOG";
-        YahooAPIWrapper yahoo;
-        const char* capi = yahoo.GetCapitalization("éµ");
-
-        int fortytwo = 42;
-    });
-    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
-    {
-        const char* stock = "GOOG";
-        YahooAPIWrapper yahoo;
-        const char* capi = yahoo.GetCapitalization("éµ");
-
-        int fortytwo = 42;
-    });
-    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
-    {
-        const char* stock = "GOOG";
-        YahooAPIWrapper yahoo;
-        const char* capi = yahoo.GetCapitalization("éµ");
-
-        int fortytwo = 42;
-    });
-    //hello();
     MessageBox(win,
         "XMPlay éµ\n",
         "XMPlay Sharp Scrobbler",
@@ -138,8 +99,7 @@ static void* WINAPI DSP_New()
 {
     // force early initialization of the wrapper and the managed assemblies
     // to avoid concurrency errors if we keep the lazy loading behavior
-    YahooAPIWrapper yahoo;
-    const char* capi = yahoo.GetCapitalization("éµ");
+    ScrobblerWrapper::Initialize();
 
     return (void*)1;
 }
