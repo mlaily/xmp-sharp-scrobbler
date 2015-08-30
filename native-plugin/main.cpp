@@ -1,5 +1,6 @@
 #include <iostream>
 #include <windows.h>
+#include <functional>
 
 #include "xmpdsp.h"
 #include "xmpfunc.h"
@@ -10,6 +11,11 @@ static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
 
 static HINSTANCE ghInstance;
+
+static HANDLE managedCallsThreadEvent;
+static HANDLE managedCallsThread;
+static bool closeManagedCallsThread = false;
+static std::function<void()> nextWorkLoad = nullptr;
 
 // Sample rate of the current track, by 1000.
 static DWORD xmprateBy1000 = 0;
@@ -71,20 +77,61 @@ static XMPDSP dsp =
     DSP_NewTitle
 };
 
-void hello()
+static DWORD WINAPI ManagedCallsThreadProc(void *param)
 {
-    const char* stock = "GOOG";
-    YahooAPIWrapper yahoo;
+    while (true)
+    {
+        WaitForSingleObject(managedCallsThreadEvent, INFINITE);
+        if (closeManagedCallsThread)
+            break;
 
-    double bid = yahoo.GetBid(stock);
-    double ask = yahoo.GetAsk(stock);
-    const char* capi = yahoo.GetCapitalization("éµ");
+        nextWorkLoad();
+        nextWorkLoad = nullptr;
 
-    const char** bidAskCapi = yahoo.GetValues(stock, "b3b2j1");
+        Sleep(1000);
+
+        // OK, if this was a handshake, it failed since readytosubmit isn't true. Submissions get cached.
+        //while (!readytosubmit && !closeManagedCallsThread) {
+        //    XMP_Log("[DEBUG] Unable to handshake, sleeping before trying again.\n");
+        //    XMP_Log("[WARNING] Handshake with Last.fm server failed.\n");
+        //    Sleep(100000);
+        //    // and try again.
+        //    // x
+        //}
+    }
+    return 1;
+}
+static void InitializeManagedCallsThread()
+{
+    managedCallsThreadEvent = CreateEvent(NULL, false, false, NULL);
+    if (!managedCallsThreadEvent)
+        throw std::runtime_error("Out of Memory!");
+
+    DWORD threadId; // Needed for Win9x
+    managedCallsThread = CreateThread(NULL, 0, ManagedCallsThreadProc, NULL, 0, &threadId);
+    if (!managedCallsThread)
+        throw std::runtime_error("Out of Memory!");
+}
+
+static void ExecuteOnManagedCallsThread(std::function<void()> workLoad)
+{
+    nextWorkLoad = workLoad;
+    SetEvent(managedCallsThreadEvent);
 }
 
 static void WINAPI DSP_About(HWND win)
 {
+    ExecuteOnManagedCallsThread([]()
+    {
+        const char* stock = "GOOG";
+        YahooAPIWrapper yahoo;
+        double bid = yahoo.GetBid(stock);
+        double ask = yahoo.GetAsk(stock);
+        const char* capi = yahoo.GetCapitalization("éµ");
+
+        const char** bidAskCapi = yahoo.GetValues(stock, "b3b2j1");
+        int fortytwo = 42;
+    });
     //hello();
     MessageBox(win,
         "XMPlay éµ\n",
@@ -99,11 +146,14 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 
 static void* WINAPI DSP_New()
 {
+    InitializeManagedCallsThread();
     return (void*)1;
 }
 
 static void WINAPI DSP_Free(void* inst)
 {
+    closeManagedCallsThread = true;
+    SetEvent(managedCallsThreadEvent);
 }
 
 static void WINAPI DSP_Config(void* inst, HWND win)
