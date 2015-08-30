@@ -49,10 +49,9 @@ static void SetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
 // config structure
 typedef struct
 {
-    BOOL showCues;
-    BOOL keepOnClose;
-} PluginConfig;
-static PluginConfig pluginConf;
+    char sessionKey[32];
+} ScrobblerConfig;
+static ScrobblerConfig scrobblerConf;
 
 static XMPDSP dsp =
 {
@@ -113,19 +112,24 @@ static void WINAPI DSP_Free(void* inst)
 {
 }
 
+// Called after a click on the plugin Config button.
 static void WINAPI DSP_Config(void* inst, HWND win)
 {
+    const char* sessionKey = SharpScrobblerWrapper::AskUserForNewAuthorizedSessionKey();
+    memcpy(scrobblerConf.sessionKey, sessionKey, sizeof(scrobblerConf.sessionKey));
 }
 
+// Get config from the plugin. (return size of config data)
 static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 {
-    memcpy(config, &pluginConf, sizeof(pluginConf));
-    return sizeof(pluginConf); // return size of config info
+    memcpy(config, &scrobblerConf, sizeof(ScrobblerConfig));
+    return sizeof(ScrobblerConfig); // return size of config info
 }
 
+// Apply config to the plugin.
 static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
-    memcpy(&pluginConf, config, min(size, sizeof(pluginConf)));
+    memcpy(&scrobblerConf, config, sizeof(ScrobblerConfig));
     return TRUE;
 }
 

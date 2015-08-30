@@ -15,10 +15,10 @@ class __declspec(dllexport) SharpScrobblerWrapper
 {
     private: SharpScrobblerWrapperPrivate* _private;
 
-    public: SharpScrobblerWrapper()
+    public: SharpScrobblerWrapper(const char* sessionKey)
     {
         _private = new SharpScrobblerWrapperPrivate();
-        _private->_SharpScrobbler = gcnew SharpScrobbler();
+        _private->_SharpScrobbler = gcnew SharpScrobbler(gcnew System::String(sessionKey));
     }
 
     public: ~SharpScrobblerWrapper()
@@ -29,5 +29,12 @@ class __declspec(dllexport) SharpScrobblerWrapper
     public: static void Initialize()
     {
         SharpScrobbler::Initialize();
+    }
+
+    public: static const char* AskUserForNewAuthorizedSessionKey()
+    {
+        System::String^ managedResult = SharpScrobbler::AskUserForNewAuthorizedSessionKey();
+
+        return (const char*)Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
     }
 };
