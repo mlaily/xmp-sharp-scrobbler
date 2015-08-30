@@ -164,8 +164,6 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
     if (calculatedPlayedMs < msThresholdForNewTrack)
     {
         // new track starts playing normally
-        // take into account the currently processed data.
-        // we don't use xmpfstatus->GetTime() because it's not perfectly synchronized with the actual position.
         SetExpectedEndOfCurrentTrackInMs(0);
         TrackStartsPlaying();
     }
@@ -182,8 +180,6 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
             ResetForNewTrack();
             // so that we don't risk detecting the new play a second time based on the processed samples count
             msThresholdForNewTrack = 0;
-            // take into account the currently processed data.
-            // we don't use xmpfstatus->GetTime() because it's not perfectly synchronized with the actual position.
             SetExpectedEndOfCurrentTrackInMs(0);
             TrackStartsPlaying();
         }
@@ -240,6 +236,8 @@ static void TrackStartsPlaying()
     char* genre = xmpfmisc->GetTag(TAG_GENRE); // = "genre"
     char* comment = xmpfmisc->GetTag(TAG_COMMENT); // = "comment"
     char* filetype = xmpfmisc->GetTag(TAG_FILETYPE);// = "filetype"
+
+    // TODO: free all the previous resources with xmpfmisc->Free()
 
     const XMPFORMAT* inFormat = xmpfstatus->GetFormat(TRUE);
     const XMPFORMAT* outFormat = xmpfstatus->GetFormat(FALSE);
