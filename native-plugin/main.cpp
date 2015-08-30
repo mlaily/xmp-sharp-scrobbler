@@ -151,7 +151,7 @@ static void WINAPI DSP_NewTitle(void* inst, const char* title) { }
 static void WINAPI DSP_Reset(void* inst)
 {
     double resetPosition = xmpfstatus->GetTime();
-    SetExpectedEndOfCurrentTrackInMs(resetPosition * 1000);
+    SetExpectedEndOfCurrentTrackInMs((int)resetPosition * 1000);
     processedSamplesForCurrentTrackSinceLastReset = 0;
 }
 

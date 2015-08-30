@@ -15,8 +15,8 @@ System::Reflection::Assembly^ currentDomain_AssemblyResolve(System::Object^ send
     try
     {
         System::IO::Stream^ stream = System::Reflection::Assembly::GetExecutingAssembly()->GetManifestResourceStream("xmp-sharp-scrobbler-managed.dll");
-        array<System::Byte>^ buffer = gcnew array<System::Byte>(stream->Length);
-        stream->Read(buffer, 0, stream->Length);
+        array<System::Byte>^ buffer = gcnew array<System::Byte>((int)(stream->Length));
+        stream->Read(buffer, 0, (int)(stream->Length));
 
         //finalPath = gcnew System::String("xmp-sharp-scrobbler/") + args->Name->Substring(0, args->Name->IndexOf(",")) + ".dll";
         System::Reflection::Assembly^ retval = System::Reflection::Assembly::Load(buffer);
