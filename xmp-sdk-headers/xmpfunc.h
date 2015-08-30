@@ -172,6 +172,125 @@ typedef struct { // playback status functions
 #define IPC_GETPLAYLISTFILE 211
 #define IPC_GETPLAYLISTTITLE 212
 
+// The following is from the Winamp SDK headers (wa_ipc.h), along with some samples for XMPlay:
+
+//HWND xmplayWinHandle = xmpfmisc->GetWindow();
+//
+///* SendMessage(hwnd_winamp,WM_WA_IPC,0,IPC_DELETE);
+//** Use this api to clear Winamp's internal playlist.
+//** You should not need to use IPC_DELETE_INT since it is used internally by Winamp when
+//** it is dealing with some lame Windows Explorer issues (hard to believe that!).
+//*/
+//SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_DELETE);
+//
+///* SendMessage(hwnd_winamp,WM_WA_IPC,0,IPC_STARTPLAY);
+//** Sending this will start playback and is almost the same as hitting the play button.
+//** The IPC_STARTPLAY_INT version is used internally and you should not need to use it
+//** since it won't be any fun.
+//*/
+//
+///* SendMessage(hwnd_winamp,WM_WA_IPC,0,IPC_STARTPLAY);
+//** Sending this will start playback and is almost the same as hitting the play button.
+//** The IPC_STARTPLAY_INT version is used internally and you should not need to use it
+//** since it won't be any fun.
+//*/
+//SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_STARTPLAY);
+//
+///* int res = SendMessage(hwnd_winamp,WM_WA_IPC,0,IPC_ISPLAYING);
+//** This is sent to retrieve the current playback state of Winamp.
+//** If it returns 1, Winamp is playing.
+//** If it returns 3, Winamp is paused.
+//** If it returns 0, Winamp is not playing.
+//*/
+//int isPlaying_WinampMsg = SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_ISPLAYING);
+//
+///* int res = SendMessage(hwnd_winamp,WM_WA_IPC,mode,IPC_GETOUTPUTTIME);
+//** This api can return two different sets of information about current playback status.
+//**
+//** If mode = 0 then it will return the position (in ms) of the currently playing track.
+//** Will return -1 if Winamp is not playing.
+//**
+//** If mode = 1 then it will return the current track length (in seconds).
+//** Will return -1 if there are no tracks (or possibly if Winamp cannot get the length).
+//*/
+//int currentPositionMs = SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_GETOUTPUTTIME);
+//int currentTrackLengthSeconds = SendMessage(xmplayWinHandle, WM_WA_IPC, 1, IPC_GETOUTPUTTIME);
+//
+///* (requires Winamp 1.60+)
+//** SendMessage(hwnd_winamp,WM_WA_IPC,ms,IPC_JUMPTOTIME);
+//** This api sets the current position (in milliseconds) for the currently playing song.
+//** The resulting playback position may only be an approximate time since some playback
+//** formats do not provide exact seeking e.g. mp3
+//** This returns -1 if Winamp is not playing, 1 on end of file, or 0 if it was successful.
+//*/
+//SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_JUMPTOTIME);
+//
+///* (requires Winamp 2.0+)
+//** SendMessage(hwnd_winamp,WM_WA_IPC,position,IPC_SETPLAYLISTPOS)
+//** IPC_SETPLAYLISTPOS sets the playlist position to the specified 'position'.
+//** It will not change playback status or anything else. It will just set the current
+//** position in the playlist and will update the playlist view if necessary.
+//**
+//** If you use SendMessage(hwnd_winamp,WM_COMMAND,MAKEWPARAM(WINAMP_BUTTON2,0),0);
+//** after using IPC_SETPLAYLISTPOS then Winamp will start playing the file at 'position'.
+//*/
+//SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_SETPLAYLISTPOS);
+//
+///* (requires Winamp 2.0+)
+//** SendMessage(hwnd_winamp,WM_WA_IPC,volume,IPC_SETVOLUME);
+//** IPC_SETVOLUME sets the volume of Winamp (between the range of 0 to 255).
+//**
+//** If you pass 'volume' as -666 then the message will return the current volume.
+//** int curvol = SendMessage(hwnd_winamp,WM_WA_IPC,-666,IPC_SETVOLUME);
+//*/
+//SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_SETVOLUME);
+//
+///* (requires Winamp 2.0+)
+//** SendMessage(hwnd_winamp,WM_WA_IPC,panning,IPC_SETPANNING);
+//** IPC_SETPANNING sets the panning of Winamp from 0 (left) to 255 (right).
+//**
+//** At least in 5.x+ this works from -127 (left) to 127 (right).
+//**
+//** If you pass 'panning' as -666 to this api then it will return the current panning.
+//** int curpan = SendMessage(hwnd_winamp,WM_WA_IPC,-666,IPC_SETPANNING);
+//*/
+//SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_SETPANNING);
+//
+///* (requires Winamp 2.0+)
+//** int length = SendMessage(hwnd_winamp,WM_WA_IPC,0,IPC_GETLISTLENGTH);
+//** IPC_GETLISTLENGTH returns the length of the current playlist as the number of tracks.
+//*/
+//int playlistTrackCount = SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_GETLISTLENGTH);
+//
+///* (requires Winamp 2.05+)
+//** int pos=SendMessage(hwnd_winamp,WM_WA_IPC,0,IPC_GETLISTPOS);
+//** IPC_GETLISTPOS returns the current playlist position (which is shown in the playlist
+//** editor as a differently coloured text entry e.g is yellow for the classic skin).
+//**
+//** This api is a lot like IPC_WRITEPLAYLIST but a lot faster since it does not have to
+//** write out the whole of the current playlist first.
+//*/
+// ZERO BASED ????
+//int currentPlaylistPosition = SendMessage(xmplayWinHandle, WM_WA_IPC, 0, IPC_GETLISTPOS);
+//
+///* (requires Winamp 2.04+, only usable from plug-ins (not external apps))
+//** char *name=SendMessage(hwnd_winamp,WM_WA_IPC,index,IPC_GETPLAYLISTFILE);
+//** IPC_GETPLAYLISTFILE gets the filename of the playlist entry [index].
+//** returns a pointer to it. returns NULL on error.
+//*/
+//int playlistIndex = 0;
+//char* playlistIndexFileName = (char*)SendMessage(xmplayWinHandle, WM_WA_IPC, playlistIndex, IPC_GETPLAYLISTFILE);
+//
+///* (requires Winamp 2.04+, only usable from plug-ins (not external apps))
+//** char *name=SendMessage(hwnd_winamp,WM_WA_IPC,index,IPC_GETPLAYLISTTITLE);
+//**
+//** IPC_GETPLAYLISTTITLE gets the title of the playlist entry [index].
+//** returns a pointer to it. returns NULL on error.
+//*/
+//int playlistIndex = 0;
+//char* playlistIndexTitle = (char*)SendMessage(xmplayWinHandle, WM_WA_IPC, playlistIndex, IPC_GETPLAYLISTTITLE);
+
+
 #ifdef __cplusplus
 }
 #endif
