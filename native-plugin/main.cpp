@@ -12,11 +12,6 @@ static XMPFUNC_STATUS* xmpfstatus;
 
 static HINSTANCE ghInstance;
 
-static HANDLE managedCallsThreadEvent;
-static HANDLE managedCallsThread;
-static bool closeManagedCallsThread = false;
-static std::function<void()> nextWorkLoad = nullptr;
-
 // Sample rate of the current track, by 1000.
 static DWORD xmprateBy1000 = 0;
 // Total number of samples processed by the DSP for the current track.
@@ -77,51 +72,14 @@ static XMPDSP dsp =
     DSP_NewTitle
 };
 
-static DWORD WINAPI ManagedCallsThreadProc(void *param)
+static void ExecuteOnManagedCallsThread(PTP_SIMPLE_CALLBACK workLoad)
 {
-    while (true)
-    {
-        WaitForSingleObject(managedCallsThreadEvent, INFINITE);
-        if (closeManagedCallsThread)
-            break;
-
-        nextWorkLoad();
-        nextWorkLoad = nullptr;
-
-        Sleep(1000);
-
-        // OK, if this was a handshake, it failed since readytosubmit isn't true. Submissions get cached.
-        //while (!readytosubmit && !closeManagedCallsThread) {
-        //    XMP_Log("[DEBUG] Unable to handshake, sleeping before trying again.\n");
-        //    XMP_Log("[WARNING] Handshake with Last.fm server failed.\n");
-        //    Sleep(100000);
-        //    // and try again.
-        //    // x
-        //}
-    }
-    return 1;
-}
-static void InitializeManagedCallsThread()
-{
-    managedCallsThreadEvent = CreateEvent(NULL, false, false, NULL);
-    if (!managedCallsThreadEvent)
-        throw std::runtime_error("Out of Memory!");
-
-    DWORD threadId; // Needed for Win9x
-    managedCallsThread = CreateThread(NULL, 0, ManagedCallsThreadProc, NULL, 0, &threadId);
-    if (!managedCallsThread)
-        throw std::runtime_error("Out of Memory!");
-}
-
-static void ExecuteOnManagedCallsThread(std::function<void()> workLoad)
-{
-    nextWorkLoad = workLoad;
-    SetEvent(managedCallsThreadEvent);
+    TrySubmitThreadpoolCallback(workLoad, NULL, NULL);
 }
 
 static void WINAPI DSP_About(HWND win)
 {
-    ExecuteOnManagedCallsThread([]()
+    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
     {
         const char* stock = "GOOG";
         YahooAPIWrapper yahoo;
@@ -130,6 +88,38 @@ static void WINAPI DSP_About(HWND win)
         const char* capi = yahoo.GetCapitalization("éµ");
 
         const char** bidAskCapi = yahoo.GetValues(stock, "b3b2j1");
+        int fortytwo = 42;
+    });
+    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
+    {
+        const char* stock = "GOOG";
+        YahooAPIWrapper yahoo;
+        const char* capi = yahoo.GetCapitalization("éµ");
+
+        int fortytwo = 42;
+    });
+    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
+    {
+        const char* stock = "GOOG";
+        YahooAPIWrapper yahoo;
+        const char* capi = yahoo.GetCapitalization("éµ");
+
+        int fortytwo = 42;
+    });
+    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
+    {
+        const char* stock = "GOOG";
+        YahooAPIWrapper yahoo;
+        const char* capi = yahoo.GetCapitalization("éµ");
+
+        int fortytwo = 42;
+    });
+    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
+    {
+        const char* stock = "GOOG";
+        YahooAPIWrapper yahoo;
+        const char* capi = yahoo.GetCapitalization("éµ");
+
         int fortytwo = 42;
     });
     //hello();
@@ -146,14 +136,16 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 
 static void* WINAPI DSP_New()
 {
-    InitializeManagedCallsThread();
+    // force early initialization of the wrapper and the managed assemblies
+    // to avoid concurrency errors if we keep the lazy loading behavior
+    YahooAPIWrapper yahoo;
+    const char* capi = yahoo.GetCapitalization("éµ");
+
     return (void*)1;
 }
 
 static void WINAPI DSP_Free(void* inst)
 {
-    closeManagedCallsThread = true;
-    SetEvent(managedCallsThreadEvent);
 }
 
 static void WINAPI DSP_Config(void* inst, HWND win)
