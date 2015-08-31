@@ -7,10 +7,17 @@
 
 #include "SharpScrobblerWrapper.h"
 
+// > 30 seconds
+#define MIN_TRACK_DURATION_MS 30 * 1000
+// half the track, or 4min, whichever comes first
+#define MIN_TRACK_PLAY_TIME_MS 4 * 60 * 1000
+
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
 
 static HINSTANCE ghInstance;
+
+static SharpScrobblerWrapper* scrobbler = NULL;
 
 // Sample rate of the current track, by 1000.
 static DWORD xmprateBy1000 = 0;
@@ -24,6 +31,10 @@ static int msThresholdForNewTrack = 0;
 // Expected number of ms to the end of the current track from the last reset.
 // (Or from the beginning of the track if there has been no reset)
 static int expectedEndOfCurrentTrackInMs = INT_MAX;
+// Total duration of the current track.
+static int currentTrackDurationMs = 0;
+
+static bool currentTrackScrobbled = false;
 
 /* DSP functions: */
 
@@ -42,9 +53,10 @@ static void WINAPI DSP_NewTitle(void* inst, const char* title);
 
 /* My functions: */
 
-static void TrackStartsPlaying();
 static void ResetForNewTrack();
-static void SetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
+static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
+static void TrackStartsPlaying();
+static void ScrobbleTrack(int playTimeBeforeScrobbleMs);
 
 // config structure
 typedef struct
@@ -97,12 +109,12 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 
 static void* WINAPI DSP_New()
 {
-    // force early initialization of the wrapper and the managed assemblies
-    // to avoid concurrency errors if we keep the lazy loading behavior
-    // we still do this on the thread pool to avoid slowing down XMPlay startup
+    // Force early initialization of the wrapper and the managed assemblies
+    // to avoid concurrency errors if we keep the lazy loading behavior.
+    // We still do this on a new thread to avoid slowing down XMPlay startup
     ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
     {
-        SharpScrobblerWrapper::Initialize();
+        scrobbler = new SharpScrobblerWrapper();
     });
 
     return (void*)1;
@@ -110,6 +122,7 @@ static void* WINAPI DSP_New()
 
 static void WINAPI DSP_Free(void* inst)
 {
+    delete scrobbler;
 }
 
 // Called after a click on the plugin Config button.
@@ -162,21 +175,21 @@ static void WINAPI DSP_NewTitle(void* inst, const char* title) { }
 static void WINAPI DSP_Reset(void* inst)
 {
     double resetPosition = xmpfstatus->GetTime();
-    SetExpectedEndOfCurrentTrackInMs((int)resetPosition * 1000);
+    expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs((int)resetPosition * 1000);
     processedSamplesForCurrentTrackSinceLastReset = 0;
 }
 
 static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
 {
-    // the following code checks whether the processed track is a track just starting to play or not
-
+    // Check whether the processed track is a track just starting to play or not:
     if (processedSamplesForCurrentTrack == 0) msThresholdForNewTrack = count / xmprateBy1000;
     int calculatedPlayedMs = processedSamplesForCurrentTrack / xmprateBy1000;
     if (calculatedPlayedMs < msThresholdForNewTrack)
     {
         // new track starts playing normally
-        SetExpectedEndOfCurrentTrackInMs(0);
+        currentTrackDurationMs = expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs(0);
         TrackStartsPlaying();
+        currentTrackScrobbled = false;
     }
     else
     {
@@ -191,10 +204,24 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
             ResetForNewTrack();
             // so that we don't risk detecting the new play a second time based on the processed samples count
             msThresholdForNewTrack = 0;
-            SetExpectedEndOfCurrentTrackInMs(0);
+            currentTrackDurationMs = expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs(0);
             TrackStartsPlaying();
+            currentTrackScrobbled = false;
+            calculatedPlayedMs = 0;
         }
     }
+
+    // Check whether the current track can be scrobbled:
+    // The track must be longer than 30 seconds.
+    // And the track has been played for at least half its duration, or for 4 minutes(whichever occurs earlier.)
+    if (currentTrackScrobbled == false
+        && currentTrackDurationMs > MIN_TRACK_DURATION_MS
+        && (calculatedPlayedMs > (currentTrackDurationMs / 2) || calculatedPlayedMs >= MIN_TRACK_PLAY_TIME_MS))
+    {
+        currentTrackScrobbled = true;
+        ScrobbleTrack(calculatedPlayedMs);
+    }
+
     processedSamplesForCurrentTrack += count;
     processedSamplesForCurrentTrackSinceLastReset += count;
     return count;
@@ -213,14 +240,14 @@ static void ResetForNewTrack()
 
 // Calculate the expected time until the end of the current track from the desired position,
 // and set it to expectedEndOfCurrentTrackInMs.
-static void SetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
+static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
 {
     // use this instead of GetTag(TAG_LENGTH) so that we have an int directly
     int currentTrackLengthSeconds = SendMessage(xmpfmisc->GetWindow(), WM_WA_IPC, 1, IPC_GETOUTPUTTIME);
     // this is the truncated duration in ms + 1sec to account for the loss of precision
     // so that we don't signal a new track playing before it's actually looped
     int currentTrackMaxExpectedDurationMs = currentTrackLengthSeconds * 1000 + 1000;
-    expectedEndOfCurrentTrackInMs = currentTrackMaxExpectedDurationMs - fromPositionMs;
+    return currentTrackMaxExpectedDurationMs - fromPositionMs;
 }
 
 // Called when a track starts playing.
@@ -228,35 +255,52 @@ static void SetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
 // (That is, if a track loops, this function is called whereas DSP_NewTrack() is not)
 static void TrackStartsPlaying()
 {
-    char* general = xmpfmisc->GetInfoText(XMPINFO_TEXT_GENERAL);
-    char* message = xmpfmisc->GetInfoText(XMPINFO_TEXT_MESSAGE);
-    char* samples = xmpfmisc->GetInfoText(XMPINFO_TEXT_SAMPLES);
+    scrobbler->SetSessionKey(scrobblerConf.sessionKey);
 
-    char* formattedTrackTitle = xmpfmisc->GetTag(TAG_FORMATTED_TITLE); // formatted track title
-    char* filename = xmpfmisc->GetTag(TAG_FILENAME); // filename
-    char* trackTitle = xmpfmisc->GetTag(TAG_TRACK_TITLE);// stream track (or CUE sheet) title
-    char* lengthSeconds = xmpfmisc->GetTag(TAG_LENGTH);// length in seconds
-    char* subsongCount = xmpfmisc->GetTag(TAG_SUBSONGS);// subsong count
     char* subsongNumber = xmpfmisc->GetTag(TAG_SUBSONG);// separated subsong (number/total)
-    char* rating = xmpfmisc->GetTag(TAG_RATING);// user rating
     char* title = xmpfmisc->GetTag(TAG_TITLE);// = "title"
     char* artist = xmpfmisc->GetTag(TAG_ARTIST);// = "artist"
     char* album = xmpfmisc->GetTag(TAG_ALBUM); // = "album"
-    char* date = xmpfmisc->GetTag(TAG_DATE); // = "date"
     char* trackNumber = xmpfmisc->GetTag(TAG_TRACK);// = "track"
-    char* genre = xmpfmisc->GetTag(TAG_GENRE); // = "genre"
-    char* comment = xmpfmisc->GetTag(TAG_COMMENT); // = "comment"
-    char* filetype = xmpfmisc->GetTag(TAG_FILETYPE);// = "filetype"
 
-    // TODO: free all the previous resources with xmpfmisc->Free()
+    char* keptTrackNumber = NULL;
+    if (subsongNumber != NULL)
+        keptTrackNumber = subsongNumber;
+    else
+        keptTrackNumber = trackNumber;
 
-    const XMPFORMAT* inFormat = xmpfstatus->GetFormat(TRUE);
-    const XMPFORMAT* outFormat = xmpfstatus->GetFormat(FALSE);
+    scrobbler->NowPlaying(artist, title, album, currentTrackDurationMs, keptTrackNumber, NULL);
 
-    DWORD latency = xmpfstatus->GetLatency();
-    double time = xmpfstatus->GetTime();
-    QWORD written = xmpfstatus->GetWritten();
-    BOOL isPlaying = xmpfstatus->IsPlaying();
+    xmpfmisc->Free(subsongNumber);
+    xmpfmisc->Free(title);
+    xmpfmisc->Free(artist);
+    xmpfmisc->Free(album);
+    xmpfmisc->Free(trackNumber);
+}
+
+static void ScrobbleTrack(int playTimeBeforeScrobbleMs)
+{
+    scrobbler->SetSessionKey(scrobblerConf.sessionKey);
+
+    char* subsongNumber = xmpfmisc->GetTag(TAG_SUBSONG);// separated subsong (number/total)
+    char* title = xmpfmisc->GetTag(TAG_TITLE);// = "title"
+    char* artist = xmpfmisc->GetTag(TAG_ARTIST);// = "artist"
+    char* album = xmpfmisc->GetTag(TAG_ALBUM); // = "album"
+    char* trackNumber = xmpfmisc->GetTag(TAG_TRACK);// = "track"
+
+    char* keptTrackNumber = NULL;
+    if (subsongNumber != NULL)
+        keptTrackNumber = subsongNumber;
+    else
+        keptTrackNumber = trackNumber;
+
+    scrobbler->Scrobble(artist, title, album, currentTrackDurationMs, playTimeBeforeScrobbleMs, keptTrackNumber, NULL);
+
+    xmpfmisc->Free(subsongNumber);
+    xmpfmisc->Free(title);
+    xmpfmisc->Free(artist);
+    xmpfmisc->Free(album);
+    xmpfmisc->Free(trackNumber);
 }
 
 // get the plugin's XMPDSP interface

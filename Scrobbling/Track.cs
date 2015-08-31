@@ -124,10 +124,11 @@ namespace Scrobbling
         /// </summary>
         public string StringTimestamp => Timestamp.ToUniversalTime().ToUnixTimeSeconds().ToString(NumberFormatInfo.InvariantInfo);
 
-        public Scrobble(string artist, string track, DateTimeOffset timestamp)
+        public Scrobble(string artist, string track, DateTimeOffset timestamp, TimeSpan playTimeBeforeScrobble)
             : base(artist, track)
         {
-            Timestamp = timestamp;
+            // "The time the track started playing"
+            Timestamp = timestamp - playTimeBeforeScrobble;
         }
     }
 }
