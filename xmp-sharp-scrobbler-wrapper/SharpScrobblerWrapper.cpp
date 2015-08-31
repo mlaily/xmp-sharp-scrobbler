@@ -3,38 +3,58 @@
 #include <msclr\auto_gcroot.h>
 
 #using "xmp-sharp-scrobbler-managed.dll"
+#using "System.dll"
 
-using namespace System::Runtime::InteropServices; // Marshal
+using namespace System;
 
-class SharpScrobblerWrapperPrivate
+class SharpScrobblerAdapter
 {
-    public: msclr::auto_gcroot<SharpScrobbler^> _SharpScrobbler;
+public:
+    msclr::auto_gcroot<SharpScrobbler^> Instance;
+
+    SharpScrobblerAdapter() : Instance(gcnew SharpScrobbler()) {}
 };
 
 class __declspec(dllexport) SharpScrobblerWrapper
 {
-    private: SharpScrobblerWrapperPrivate* _private;
+private:
+    SharpScrobblerAdapter* _adapter;
 
-    public: SharpScrobblerWrapper(const char* sessionKey)
+public:
+    SharpScrobblerWrapper()
     {
-        _private = new SharpScrobblerWrapperPrivate();
-        _private->_SharpScrobbler = gcnew SharpScrobbler(gcnew System::String(sessionKey));
+        _adapter = new SharpScrobblerAdapter();
     }
 
-    public: ~SharpScrobblerWrapper()
+    ~SharpScrobblerWrapper()
     {
-        delete _private;
+        delete _adapter;
     }
 
-    public: static void Initialize()
+    void SetSessionKey(const char* sessionKey)
+    {
+        _adapter->Instance->SessionKey = gcnew String(sessionKey);
+    }
+
+    void NowPlaying(const char* artist, const char* track, const char* album, int durationMs, const char* trackNumber, const char* mbid)
+    {
+        _adapter->Instance->NowPlaying(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, gcnew String(trackNumber), gcnew String(mbid));
+    }
+
+    void Scrobble(const char* artist, const char* track, const char* album, int durationMs, int playTimeBeforeScrobbleMs, const char* trackNumber, const char* mbid)
+    {
+        _adapter->Instance->Scrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, playTimeBeforeScrobbleMs, gcnew String(trackNumber), gcnew String(mbid));
+    }
+
+    static void Initialize()
     {
         SharpScrobbler::Initialize();
     }
 
-    public: static const char* AskUserForNewAuthorizedSessionKey()
+    static const char* AskUserForNewAuthorizedSessionKey()
     {
-        System::String^ managedResult = SharpScrobbler::AskUserForNewAuthorizedSessionKey();
+        String^ managedResult = SharpScrobbler::AskUserForNewAuthorizedSessionKey();
 
-        return (const char*)Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
+        return (const char*)Runtime::InteropServices::Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
     }
 };
