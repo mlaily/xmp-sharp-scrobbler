@@ -118,6 +118,7 @@ move /Y "$(TargetPath)" "$(SolutionDir)\Plugin-Release\xmp-sharp-scrobbler.dll"<
     <ClInclude Include="..\xmp-sdk-headers\xmpdsp.h" />
     <ClInclude Include="..\xmp-sdk-headers\xmpfunc.h" />
     <ClInclude Include="EmbeddedWrapperInitializer.h" />
+    <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

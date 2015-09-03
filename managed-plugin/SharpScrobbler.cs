@@ -23,7 +23,7 @@ public class SharpScrobbler
 
     public void Scrobble(string artist, string track, string album, int durationMs, int playTimeBeforeScrobbleMs, string trackNumber, string mbid)
     {
-        Scrobble scrobble = new Scrobble(artist, track, DateTimeOffset.Now, TimeSpan.FromMilliseconds(playTimeBeforeScrobbleMs))
+        Scrobble scrobble = new Scrobble(artist, track, DateTimeOffset.Now - TimeSpan.FromMilliseconds(playTimeBeforeScrobbleMs))
         {
             Album = string.IsNullOrWhiteSpace(album) ? null : album,
             Duration = durationMs <= 0 ? null : new TimeSpan?(TimeSpan.FromMilliseconds(durationMs)),
