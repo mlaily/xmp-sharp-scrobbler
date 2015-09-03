@@ -41,9 +41,9 @@ public:
         _adapter->Instance->NowPlaying(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, gcnew String(trackNumber), gcnew String(mbid));
     }
 
-    void Scrobble(const char* artist, const char* track, const char* album, int durationMs, int playTimeBeforeScrobbleMs, const char* trackNumber, const char* mbid)
+    void Scrobble(const char* artist, const char* track, const char* album, int durationMs, time_t utcUnixTimestamp, const char* trackNumber, const char* mbid)
     {
-        _adapter->Instance->Scrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, playTimeBeforeScrobbleMs, gcnew String(trackNumber), gcnew String(mbid));
+        _adapter->Instance->Scrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, utcUnixTimestamp, gcnew String(trackNumber), gcnew String(mbid));
     }
 
     static void Initialize()

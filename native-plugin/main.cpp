@@ -245,7 +245,7 @@ static void ResetForNewTrack()
     if (scrobbleCurrentTrackInfoOnEnd)
     {
         // scrobble previous track
-        ScrobbleTrack(processedSamplesForCurrentTrack / xmprateBy1000);
+        ScrobbleTrack();
         scrobbleCurrentTrackInfoOnEnd = false;
     }
     processedSamplesForCurrentTrack = 0;
@@ -314,7 +314,7 @@ static void TrackStartsPlaying()
         NULL);
 }
 
-static void ScrobbleTrack(int playTimeBeforeScrobbleMs)
+static void ScrobbleTrack()
 {
     scrobbler->SetSessionKey(scrobblerConf.sessionKey);
     scrobbler->Scrobble(
@@ -322,7 +322,7 @@ static void ScrobbleTrack(int playTimeBeforeScrobbleMs)
         currentTrackInfo->title,
         currentTrackInfo->album,
         currentTrackDurationMs,
-        playTimeBeforeScrobbleMs,
+        currentTrackInfo->playStartTimestamp,
         currentTrackInfo->trackNumber,
         NULL);
 }

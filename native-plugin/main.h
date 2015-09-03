@@ -37,6 +37,6 @@ static void WINAPI DSP_NewTitle(void* inst, const char* title);
 static void ResetForNewTrack();
 static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
 static void TrackStartsPlaying();
-static void ScrobbleTrack(int playTimeBeforeScrobbleMs);
+static void ScrobbleTrack();
 static void InitializeCurrentTrackInfo();
 static void ReleaseTrackInfo(TrackInfo* trackInfo);
