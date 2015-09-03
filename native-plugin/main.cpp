@@ -262,7 +262,7 @@ static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
 {
     char* stringDuration = xmpfmisc->GetTag(TAG_LENGTH);
     double parsed = atof(stringDuration);
-    int currentTrackMaxExpectedDurationMs = parsed * 1000;
+    int currentTrackMaxExpectedDurationMs = (int)(parsed * 1000);
     xmpfmisc->Free(stringDuration);
     return currentTrackMaxExpectedDurationMs - fromPositionMs;
 }
