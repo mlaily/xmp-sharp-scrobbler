@@ -21,7 +21,7 @@ public class SharpScrobbler
         Track.UpdateNowPlaying(SessionKey, nowPlaying).ContinueWith(x => { });
     }
 
-    public void Scrobble(string artist, string track, string album, int durationMs, long utcUnixTimestamp, string trackNumber, string mbid)
+    public void Scrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
     {
         Scrobble scrobble = new Scrobble(artist, track, DateTimeOffset.FromUnixTimeSeconds(utcUnixTimestamp))
         {

@@ -36,14 +36,14 @@ public:
         _adapter->Instance->SessionKey = gcnew String(sessionKey);
     }
 
-    void NowPlaying(const char* artist, const char* track, const char* album, int durationMs, const char* trackNumber, const char* mbid)
+    void NowPlaying(const wchar_t* artist, const wchar_t* track, const wchar_t* album, int durationMs, const wchar_t* trackNumber, const char* mbid)
     {
         _adapter->Instance->NowPlaying(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, gcnew String(trackNumber), gcnew String(mbid));
     }
 
-    void Scrobble(const char* artist, const char* track, const char* album, int durationMs, time_t utcUnixTimestamp, const char* trackNumber, const char* mbid)
+    void Scrobble(const wchar_t* artist, const wchar_t* track, const wchar_t* album, int durationMs, const wchar_t* trackNumber, const char* mbid, time_t utcUnixTimestamp)
     {
-        _adapter->Instance->Scrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, utcUnixTimestamp, gcnew String(trackNumber), gcnew String(mbid));
+        _adapter->Instance->Scrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, gcnew String(trackNumber), gcnew String(mbid), utcUnixTimestamp);
     }
 
     static void Initialize()

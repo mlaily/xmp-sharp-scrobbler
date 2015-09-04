@@ -11,10 +11,10 @@ typedef struct
 typedef struct
 {
     time_t playStartTimestamp;
-    char* title;
-    char* artist;
-    char* album;
-    char* trackNumber;
+    wchar_t* title;
+    wchar_t* artist;
+    wchar_t* album;
+    wchar_t* trackNumber;
 } TrackInfo;
 
 /* DSP functions: */

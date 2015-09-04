@@ -191,7 +191,7 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
             // (a loop is believed to have been detected, followed almost immediately by an actual new track being played)
             // This might be because of gap-less transitions between tracks, the impossibility to precisely detect the length of a track in some file formats, or this might be a bug...
             // Anyway, for now, I trust the XMPlay reported position more than the calculations based on the number of samples having been played.
-            
+
             double trustWorthyPosition = xmpfstatus->GetTime();
             if (isnan(lastMeasuredTrackPosition))
             {
@@ -201,7 +201,7 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
             else
             {
                 // we've already been here...
-                if (trustWorthyPosition >= lastMeasuredTrackPosition) 
+                if (trustWorthyPosition >= lastMeasuredTrackPosition)
                 {
                     // ...and the position increased, so we're not done yet playing the track.
                     lastMeasuredTrackPosition = trustWorthyPosition;
@@ -267,21 +267,57 @@ static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
     return currentTrackMaxExpectedDurationMs - fromPositionMs;
 }
 
+// Get a wide string from an ansi string (don't forget to free it)
+static wchar_t* GetStringW(const char* string)
+{
+    if (string == NULL)
+    {
+        return NULL;
+    }
+    else
+    {
+        size_t requiredSize = Utf2Uni(string, -1, NULL, 0);
+        wchar_t* buffer = new wchar_t[requiredSize];
+        Utf2Uni(string, -1, buffer, requiredSize);
+        return buffer;
+    }
+}
+
+// Get an XMPlay tag as a wide string (don't forget to free it)
+static wchar_t* GetTagW(const char* tag)
+{
+    char* value = xmpfmisc->GetTag(tag);
+    wchar_t* wValue = NULL;
+    if (value != NULL)
+    {
+        wValue = GetStringW(value);
+        xmpfmisc->Free(value);
+    }
+    return wValue;
+}
+
 static void InitializeCurrentTrackInfo()
 {
     ReleaseTrackInfo(currentTrackInfo);
 
     TrackInfo* trackInfo = new TrackInfo();
     trackInfo->playStartTimestamp = time(NULL);
-    trackInfo->title = xmpfmisc->GetTag(TAG_TITLE);
-    trackInfo->artist = xmpfmisc->GetTag(TAG_ARTIST);
-    trackInfo->album = xmpfmisc->GetTag(TAG_ALBUM);
+    trackInfo->title = GetTagW(TAG_TITLE);
+    trackInfo->artist = GetTagW(TAG_ARTIST);
+    trackInfo->album = GetTagW(TAG_ALBUM);
 
+    // If the subsong tag is set, we use it instead of the track tag,
+    // because inside a multi-track, the subsong number is more accurate.
     char* subsongNumber = xmpfmisc->GetTag(TAG_SUBSONG);// separated subsong (number/total)
     if (subsongNumber != NULL)
-        trackInfo->trackNumber = subsongNumber;
+    {
+        trackInfo->trackNumber = GetStringW(subsongNumber);
+        xmpfmisc->Free(subsongNumber);
+    }
     else
-        trackInfo->trackNumber = xmpfmisc->GetTag(TAG_TRACK);;
+    {
+        trackInfo->trackNumber = GetTagW(TAG_TRACK);
+    }
 
     currentTrackInfo = trackInfo;
 }
@@ -290,10 +326,10 @@ static void ReleaseTrackInfo(TrackInfo* trackInfo)
 {
     if (trackInfo != NULL)
     {
-        xmpfmisc->Free(trackInfo->title);
-        xmpfmisc->Free(trackInfo->artist);
-        xmpfmisc->Free(trackInfo->album);
-        xmpfmisc->Free(trackInfo->trackNumber);
+        delete trackInfo->title;
+        delete trackInfo->artist;
+        delete trackInfo->album;
+        delete trackInfo->trackNumber;
         delete trackInfo;
         trackInfo = NULL;
     }
@@ -322,9 +358,9 @@ static void ScrobbleTrack()
         currentTrackInfo->title,
         currentTrackInfo->album,
         currentTrackDurationMs,
-        currentTrackInfo->playStartTimestamp,
         currentTrackInfo->trackNumber,
-        NULL);
+        NULL,
+        currentTrackInfo->playStartTimestamp);
 }
 
 // get the plugin's XMPDSP interface
