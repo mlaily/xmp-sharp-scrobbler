@@ -326,10 +326,10 @@ static void ReleaseTrackInfo(TrackInfo* trackInfo)
 {
     if (trackInfo != NULL)
     {
-        delete trackInfo->title;
-        delete trackInfo->artist;
-        delete trackInfo->album;
-        delete trackInfo->trackNumber;
+        delete[] trackInfo->title;
+        delete[] trackInfo->artist;
+        delete[] trackInfo->album;
+        delete[] trackInfo->trackNumber;
         delete trackInfo;
         trackInfo = NULL;
     }
