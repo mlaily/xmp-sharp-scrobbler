@@ -177,7 +177,8 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
     {
         // in the middle of a track. Before continuing, we check whether the track has looped without XMPlay telling us
         int calculatedPlayedMsSinceLastReset = processedSamplesForCurrentTrackSinceLastReset / xmprateBy1000;
-        if (calculatedPlayedMsSinceLastReset > expectedEndOfCurrentTrackInMs)
+        // If the track duration is 0, this is a stream. It's useless to check for a loop in that case, so we skip all the next part.
+        if (currentTrackDurationMs != 0 && calculatedPlayedMsSinceLastReset > expectedEndOfCurrentTrackInMs)
         {
             // the calculated play time, based on the number of samples actually played,
             // is superior to the length of the track, but XMPlay did not signal a new track.
