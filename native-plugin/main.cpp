@@ -336,12 +336,25 @@ static void ReleaseTrackInfo(TrackInfo* trackInfo)
     }
 }
 
+static bool HasTrackInfoEnoughInfoForScrobble(TrackInfo* trackInfo)
+{
+    return currentTrackInfo->title != NULL
+        && wcslen(currentTrackInfo->title) > 0
+        && currentTrackInfo->artist != NULL
+        && wcslen(currentTrackInfo->artist) > 0;
+}
+
 // Called when a track starts playing.
 // This differs from DSP_NewTrack() in that it correctly accounts for looped tracks.
 // (That is, if a track loops, this function is called whereas DSP_NewTrack() is not)
 static void TrackStartsPlaying()
 {
     scrobbler->SetSessionKey(scrobblerConf.sessionKey);
+    if (!HasTrackInfoEnoughInfoForScrobble(currentTrackInfo))
+    {
+        // Not enough info to scrobble the track...
+        return;
+    }
     scrobbler->NowPlaying(
         currentTrackInfo->artist,
         currentTrackInfo->title,
@@ -354,6 +367,11 @@ static void TrackStartsPlaying()
 static void ScrobbleTrack()
 {
     scrobbler->SetSessionKey(scrobblerConf.sessionKey);
+    if (!HasTrackInfoEnoughInfoForScrobble(currentTrackInfo))
+    {
+        // Not enough info to scrobble the track...
+        return;
+    }
     scrobbler->Scrobble(
         currentTrackInfo->artist,
         currentTrackInfo->title,
