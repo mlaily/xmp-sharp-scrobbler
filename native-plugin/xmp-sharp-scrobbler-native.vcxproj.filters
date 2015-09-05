@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="EmbeddedWrapperInitializer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\xmp-sdk-headers\xmpdsp.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\xmp-sdk-headers\xmpfunc.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="EmbeddedWrapperInitializer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{83cba4ef-0202-457f-a1d6-d1796df1342a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\xmp-sdk-headers\xmpdsp.def">
+      <Filter>Headers</Filter>
+    </None>
+    <None Include="WrapperBuildResult\xmp-sharp-scrobbler-wrapper.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+</Project>

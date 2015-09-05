@@ -4,7 +4,6 @@ syntax: glob
 
 # User-specific files
 *.suo
-*.user
 *.userosscache
 *.sln.docstates
 
@@ -211,8 +210,6 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
-
-*.vcxproj.filters
 
 WrapperBuildResult/*
 Plugin-Release/*
