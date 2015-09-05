@@ -6,6 +6,7 @@
 #using "System.dll"
 
 using namespace System;
+using namespace xmp_sharp_scrobbler_managed;
 
 class SharpScrobblerAdapter
 {
