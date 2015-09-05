@@ -69,9 +69,8 @@
       <Command>xcopy /RY "$(SolutionDir)xmplay.exe" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>xcopy /RY "$(SolutionDir)\xmp-sharp-scrobbler-wrapper\bin\$(Configuration)\xmp-sharp-scrobbler-wrapper.dll" "$(ProjectDir)\WrapperBuildResult\"
-xcopy /RY "$(SolutionDir)\xmp-sharp-scrobbler-wrapper\bin\$(Configuration)\xmp-sharp-scrobbler-wrapper.lib" "$(ProjectDir)\WrapperBuildResult\"
-</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

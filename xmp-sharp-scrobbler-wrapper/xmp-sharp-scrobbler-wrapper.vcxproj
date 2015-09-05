@@ -66,6 +66,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies />
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-wrapper.dll" "$(SolutionDir)\native-plugin\WrapperBuildResult\"
+xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-wrapper.lib" "$(SolutionDir)\native-plugin\WrapperBuildResult\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,6 +82,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies />
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-wrapper.dll" "$(SolutionDir)\native-plugin\WrapperBuildResult\"
+xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-wrapper.lib" "$(SolutionDir)\native-plugin\WrapperBuildResult\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="System" />
