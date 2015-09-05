@@ -1,0 +1,46 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// BINARY
+//
+
+EMBEDDED_WRAPPER_RESOURCE_ID BINARY                  "WrapperBuildResult\\xmp-sharp-scrobbler-wrapper.dll"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+ FILEVERSION 0,1,0,0
+ PRODUCTVERSION 0,1,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x3L
+#else
+ FILEFLAGS 0x2L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040004b0"
+        BEGIN
+            VALUE "CompanyName", "Melvyn Laïly"
+            VALUE "FileDescription", "XMPlay scrobbling plugin"
+            VALUE "FileVersion", "0.1.0.0"
+            VALUE "LegalCopyright", "Copyright (C) Melvyn Laïly 2015"
+            VALUE "ProductName", "XMPlay Sharp Scrobbler"
+            VALUE "ProductVersion", "0.1.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x400, 1200
+    END
+END
