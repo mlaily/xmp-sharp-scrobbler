@@ -74,7 +74,10 @@ static void WINAPI DSP_About(HWND win)
         int fortytwo = 42;
     });
     MessageBox(win,
-        "XMPlay éµ\n",
+        "XMPlay Sharp Scrobbler\n\n"
+        "A Last.fm scrobbling plugin.\n\n"
+        "Version " PLUGIN_VERSION_STRING "\n"
+        "Melvyn Laïly 2015",
         "XMPlay Sharp Scrobbler",
         MB_ICONINFORMATION);
 }

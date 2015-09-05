@@ -2,6 +2,9 @@
 
 #include "time.h"
 
+#define PLUGIN_VERSION          0,1,0,0
+#define PLUGIN_VERSION_STRING   "0.1.0.0"
+
 // config structure
 typedef struct
 {
