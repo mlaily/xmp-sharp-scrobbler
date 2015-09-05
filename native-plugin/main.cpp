@@ -87,7 +87,8 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 static void* WINAPI DSP_New()
 {
     // Force early initialization of the wrapper and the managed assemblies
-    // to avoid concurrency errors if we keep the lazy loading behavior.
+    // to avoid concurrency errors further on, when multiple threads
+    // at the same time might trigger the lazy initialization of the assemblies...
     // We still do this on a new thread to avoid slowing down XMPlay startup
     ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
     {
@@ -106,7 +107,7 @@ static void WINAPI DSP_Free(void* inst)
 // Called after a click on the plugin Config button.
 static void WINAPI DSP_Config(void* inst, HWND win)
 {
-    const char* sessionKey = SharpScrobblerWrapper::AskUserForNewAuthorizedSessionKey();
+    const char* sessionKey = SharpScrobblerWrapper::AskUserForNewAuthorizedSessionKey(win);
     memcpy(scrobblerConf.sessionKey, sessionKey, sizeof(scrobblerConf.sessionKey));
 }
 

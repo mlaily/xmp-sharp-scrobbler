@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace xmp_sharp_scrobbler_managed
 {
@@ -41,8 +42,13 @@ namespace xmp_sharp_scrobbler_managed
 
         }
 
-        public static string AskUserForNewAuthorizedSessionKey()
+        public static string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
         {
+            Configuration configurationForm = new Configuration();
+            if (configurationForm.ShowDialog(new Win32Window(ownerWindowHandle)) == System.Windows.Forms.DialogResult.OK)
+            {
+
+            }
             throw new NotImplementedException();
         }
     }

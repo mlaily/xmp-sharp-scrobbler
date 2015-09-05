@@ -1,5 +1,5 @@
 #include "Stdafx.h"
-
+#include <windows.h>
 #include <msclr\auto_gcroot.h>
 
 #using "xmp-sharp-scrobbler-managed.dll"
@@ -52,9 +52,9 @@ public:
         SharpScrobbler::Initialize();
     }
 
-    static const char* AskUserForNewAuthorizedSessionKey()
+    static const char* AskUserForNewAuthorizedSessionKey(HWND ownerWindowHandle)
     {
-        String^ managedResult = SharpScrobbler::AskUserForNewAuthorizedSessionKey();
+        String^ managedResult = SharpScrobbler::AskUserForNewAuthorizedSessionKey(IntPtr(ownerWindowHandle));
 
         return (const char*)Runtime::InteropServices::Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
     }
