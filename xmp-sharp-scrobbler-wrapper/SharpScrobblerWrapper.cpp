@@ -47,15 +47,9 @@ public:
         _adapter->Instance->Scrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, gcnew String(trackNumber), gcnew String(mbid), utcUnixTimestamp);
     }
 
-    static void Initialize()
+    const char* AskUserForNewAuthorizedSessionKey(HWND ownerWindowHandle)
     {
-        SharpScrobbler::Initialize();
-    }
-
-    static const char* AskUserForNewAuthorizedSessionKey(HWND ownerWindowHandle)
-    {
-        String^ managedResult = SharpScrobbler::AskUserForNewAuthorizedSessionKey(IntPtr(ownerWindowHandle));
-
+        String^ managedResult = _adapter->Instance->AskUserForNewAuthorizedSessionKey(IntPtr(ownerWindowHandle));
         return (const char*)Runtime::InteropServices::Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
     }
 };

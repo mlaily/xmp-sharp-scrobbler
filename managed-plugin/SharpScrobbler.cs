@@ -36,20 +36,15 @@ namespace xmp_sharp_scrobbler_managed
             Track.Scrobble(SessionKey, scrobble).ContinueWith(x => { });
         }
 
-
-        public static void Initialize()
-        {
-
-        }
-
-        public static string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
+        public string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
         {
             Configuration configurationForm = new Configuration();
             if (configurationForm.ShowDialog(new Win32Window(ownerWindowHandle)) == System.Windows.Forms.DialogResult.OK)
             {
-
+                // refresh with the new session key
+                SessionKey = configurationForm.SessionKey;
             }
-            throw new NotImplementedException();
+            return SessionKey;
         }
     }
 }

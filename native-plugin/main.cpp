@@ -67,12 +67,6 @@ static void ExecuteOnManagedCallsThread(PTP_SIMPLE_CALLBACK workLoad)
 
 static void WINAPI DSP_About(HWND win)
 {
-    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
-    {
-        SharpScrobblerWrapper::Initialize();
-
-        int fortytwo = 42;
-    });
     MessageBox(win,
         "XMPlay Sharp Scrobbler\n\n"
         "A Last.fm scrobbling plugin.\n\n"
@@ -92,11 +86,7 @@ static void* WINAPI DSP_New()
     // Force early initialization of the wrapper and the managed assemblies
     // to avoid concurrency errors further on, when multiple threads
     // at the same time might trigger the lazy initialization of the assemblies...
-    // We still do this on a new thread to avoid slowing down XMPlay startup
-    ExecuteOnManagedCallsThread([](PTP_CALLBACK_INSTANCE, void *)
-    {
-        scrobbler = new SharpScrobblerWrapper();
-    });
+    scrobbler = new SharpScrobblerWrapper();
 
     return (void*)1;
 }
@@ -110,8 +100,13 @@ static void WINAPI DSP_Free(void* inst)
 // Called after a click on the plugin Config button.
 static void WINAPI DSP_Config(void* inst, HWND win)
 {
-    const char* sessionKey = SharpScrobblerWrapper::AskUserForNewAuthorizedSessionKey(win);
-    memcpy(scrobblerConf.sessionKey, sessionKey, sizeof(scrobblerConf.sessionKey));
+    const char* sessionKey = scrobbler->AskUserForNewAuthorizedSessionKey(win);
+    if (sessionKey != NULL)
+    {
+        // If the new session key is valid, save it.
+        memcpy(scrobblerConf.sessionKey, sessionKey, sizeof(scrobblerConf.sessionKey));
+        scrobbler->SetSessionKey(scrobblerConf.sessionKey);
+    }
 }
 
 // Get config from the plugin. (return size of config data)
@@ -125,6 +120,7 @@ static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
     memcpy(&scrobblerConf, config, sizeof(ScrobblerConfig));
+    scrobbler->SetSessionKey(scrobblerConf.sessionKey);
     return TRUE;
 }
 
@@ -353,7 +349,6 @@ static bool HasTrackInfoEnoughInfoForScrobble(TrackInfo* trackInfo)
 // (That is, if a track loops, this function is called whereas DSP_NewTrack() is not)
 static void TrackStartsPlaying()
 {
-    scrobbler->SetSessionKey(scrobblerConf.sessionKey);
     if (!HasTrackInfoEnoughInfoForScrobble(currentTrackInfo))
     {
         // Not enough info to scrobble the track...
@@ -370,7 +365,6 @@ static void TrackStartsPlaying()
 
 static void ScrobbleTrack()
 {
-    scrobbler->SetSessionKey(scrobblerConf.sessionKey);
     if (!HasTrackInfoEnoughInfoForScrobble(currentTrackInfo))
     {
         // Not enough info to scrobble the track...
