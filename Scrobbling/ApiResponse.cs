@@ -16,7 +16,7 @@ namespace Scrobbling
         }
     }
 
-    public class ApiResult<T>
+    public class ApiResponse<T>
     {
         /// <summary>
         /// True if the response status is "ok", False if the response status is "failed".
@@ -42,7 +42,7 @@ namespace Scrobbling
         /// User defined parsing logic.
         /// Given the parsed lfm root node as an <see cref="XElement"/>,
         /// this function is expected to return an instance of <see cref="T"/>.</param>
-        public ApiResult(string rawResponse, Func<XElement, T> parse)
+        public ApiResponse(string rawResponse, Func<XElement, T> parse)
         {
             RawResponse = rawResponse;
             // parse the <lfm> wrapper node

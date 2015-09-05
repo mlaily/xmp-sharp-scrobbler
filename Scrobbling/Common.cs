@@ -35,7 +35,7 @@ namespace Scrobbling
         /// Given the parsed lfm root node as an <see cref="XElement"/>,
         /// this function is expected to return an instance of <see cref="T"/>.
         /// </param>
-        public static async Task<ApiResult<T>> GetAsync<T>(string method, Func<XElement, T> parse, bool addSignature, params ApiArg[] args)
+        public static async Task<ApiResponse<T>> GetAsync<T>(string method, Func<XElement, T> parse, bool addSignature, params ApiArg[] args)
         {
             var completeParameters = GetCompleteParameters(
                 method: method,
@@ -46,7 +46,7 @@ namespace Scrobbling
             using (var response = await HttpClient.GetAsync(requestString))
             {
                 var body = await response.Content.ReadAsStringAsync();
-                return new ApiResult<T>(body, parse);
+                return new ApiResponse<T>(body, parse);
             }
         }
 
@@ -59,7 +59,7 @@ namespace Scrobbling
         /// Given the parsed lfm root node as an <see cref="XElement"/>,
         /// this function is expected to return an instance of <see cref="T"/>.
         /// </param>
-        public static async Task<ApiResult<T>> PostAsync<T>(string method, string sessionKey, Func<XElement, T> parse, params ApiArg[] args)
+        public static async Task<ApiResponse<T>> PostAsync<T>(string method, string sessionKey, Func<XElement, T> parse, params ApiArg[] args)
         {
             var completeParameters = GetCompleteParameters(
                 method: method,
@@ -70,7 +70,7 @@ namespace Scrobbling
             using (var response = await HttpClient.PostAsync(ApiBaseAddress, content))
             {
                 var body = await response.Content.ReadAsStringAsync();
-                return new ApiResult<T>(body, parse);
+                return new ApiResponse<T>(body, parse);
             }
         }
 

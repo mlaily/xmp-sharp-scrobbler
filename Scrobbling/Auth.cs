@@ -9,13 +9,13 @@ namespace Scrobbling
 {
     public static class Auth
     {
-        public static Task<ApiResult<string>> GetToken()
+        public static Task<ApiResponse<string>> GetToken()
             => Common.GetAsync("auth.getToken", x => x.Value, addSignature: true);
 
         public static string GetAuthorizeTokenUrl(string token)
             => $"http://www.last.fm/api/auth?api_key={Common.ApiKey}&token={token}";
 
-        public static Task<ApiResult<Session>> GetSession(string authorizedToken)
+        public static Task<ApiResponse<Session>> GetSession(string authorizedToken)
             => Common.GetAsync("auth.getSession", x => new Session(x), addSignature: true, args: new ApiArg("token", authorizedToken));
     }
 

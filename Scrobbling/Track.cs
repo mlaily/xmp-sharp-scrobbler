@@ -12,7 +12,7 @@ namespace Scrobbling
     public static class Track
     {
         /// <param name="sessionKey">authentication token.</param>
-        public static Task<ApiResult<string>> UpdateNowPlaying(string sessionKey, NowPlaying nowPlaying)
+        public static Task<ApiResponse<string>> UpdateNowPlaying(string sessionKey, NowPlaying nowPlaying)
         {
             if (sessionKey == null) throw new ArgumentNullException(nameof(sessionKey));
             if (nowPlaying == null) throw new ArgumentNullException(nameof(nowPlaying));
@@ -33,7 +33,7 @@ namespace Scrobbling
             return Common.PostAsync("track.updateNowPlaying", sessionKey, x => x.Value, args.ToArray());
         }
 
-        public static Task<ApiResult<string>> Scrobble(string sessionKey, IEnumerable<Scrobble> scrobbles)
+        public static Task<ApiResponse<string>> Scrobble(string sessionKey, IEnumerable<Scrobble> scrobbles)
         {
             if (sessionKey == null) throw new ArgumentNullException(nameof(sessionKey));
             if (scrobbles == null) throw new ArgumentNullException(nameof(scrobbles));
@@ -63,7 +63,7 @@ namespace Scrobbling
             return Common.PostAsync("track.scrobble", sessionKey, x => x.Value, args.ToArray());
         }
 
-        public static Task<ApiResult<string>> Scrobble(string sessionKey, Scrobble scrobble)
+        public static Task<ApiResponse<string>> Scrobble(string sessionKey, Scrobble scrobble)
             => Scrobble(sessionKey, new[] { scrobble });
     }
 
