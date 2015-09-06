@@ -57,6 +57,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\xmp-sharp-scrobbler-wrapper;$(SolutionDir)\xmp-sdk-headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>

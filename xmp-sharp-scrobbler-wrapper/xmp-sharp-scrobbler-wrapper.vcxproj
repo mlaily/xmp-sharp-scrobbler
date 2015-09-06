@@ -61,6 +61,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalUsingDirectories>$(SolutionDir)\managed-plugin\build;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -77,6 +78,7 @@ xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-wrapper.lib" "$(SolutionDir)\native-p
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalUsingDirectories>$(SolutionDir)\managed-plugin\build;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -89,8 +91,6 @@ xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-wrapper.lib" "$(SolutionDir)\native-p
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssemblyInitializer.h" />
