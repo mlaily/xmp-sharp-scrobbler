@@ -12,15 +12,6 @@ namespace xmp_sharp_scrobbler_managed
     {
         public string SessionKey { get; set; }
 
-        private static Scrobble CreateScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp = 0)
-            => new Scrobble(artist, track, DateTimeOffset.FromUnixTimeSeconds(utcUnixTimestamp))
-            {
-                Album = string.IsNullOrWhiteSpace(album) ? null : album,
-                Duration = durationMs <= 0 ? null : new TimeSpan?(TimeSpan.FromMilliseconds(durationMs)),
-                TrackNumber = string.IsNullOrWhiteSpace(trackNumber) ? null : trackNumber,
-                Mbid = string.IsNullOrWhiteSpace(mbid) ? null : mbid,
-            };
-
         public async void NowPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
         {
             NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
@@ -54,5 +45,14 @@ namespace xmp_sharp_scrobbler_managed
             }
             return SessionKey;
         }
+
+        private static Scrobble CreateScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp = 0)
+    => new Scrobble(artist, track, DateTimeOffset.FromUnixTimeSeconds(utcUnixTimestamp))
+    {
+        Album = string.IsNullOrWhiteSpace(album) ? null : album,
+        Duration = durationMs <= 0 ? null : new TimeSpan?(TimeSpan.FromMilliseconds(durationMs)),
+        TrackNumber = string.IsNullOrWhiteSpace(trackNumber) ? null : trackNumber,
+        Mbid = string.IsNullOrWhiteSpace(mbid) ? null : mbid,
+    };
     }
 }

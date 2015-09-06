@@ -6,13 +6,13 @@
 #using "System.dll"
 
 using namespace System;
+using namespace Runtime::InteropServices;
 using namespace xmp_sharp_scrobbler_managed;
 
 class SharpScrobblerAdapter
 {
 public:
     msclr::auto_gcroot<SharpScrobbler^> Instance;
-
     SharpScrobblerAdapter() : Instance(gcnew SharpScrobbler()) {}
 };
 
@@ -26,7 +26,6 @@ public:
     {
         _adapter = new SharpScrobblerAdapter();
     }
-
     ~SharpScrobblerWrapper()
     {
         delete _adapter;
@@ -50,6 +49,6 @@ public:
     const char* AskUserForNewAuthorizedSessionKey(HWND ownerWindowHandle)
     {
         String^ managedResult = _adapter->Instance->AskUserForNewAuthorizedSessionKey(IntPtr(ownerWindowHandle));
-        return (const char*)Runtime::InteropServices::Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
+        return (const char*)Marshal::StringToHGlobalAnsi(managedResult).ToPointer();
     }
 };

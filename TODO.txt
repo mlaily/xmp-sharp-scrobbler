@@ -8,9 +8,8 @@ Things left to do:
 	V	transmit all the info to the C# code
 	V	implement the scrobbling part in C# (json or xml (?) over http)
 	V		we can't reuse an existing library since we don't want any dll dependency
-	\	implement the config struct with everything required for the plugin to work
-	.	GUI for the configuration
+	V	implement the config struct with everything required for the plugin to work
+	V	GUI for the configuration
 	.	implement some caching mechanism
 	.	implement a log file
 	V	support unicode
-	.	support scrobbling from stream with unknown duration
