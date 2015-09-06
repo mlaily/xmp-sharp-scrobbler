@@ -10,6 +10,7 @@ namespace xmp_sharp_scrobbler_managed
 {
     public class SharpScrobbler
     {
+        private static readonly TimeSpan ErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
         public string SessionKey { get; set; }
 
         public async void NowPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
@@ -20,6 +21,7 @@ namespace xmp_sharp_scrobbler_managed
                 var response = await Track.UpdateNowPlaying(SessionKey, nowPlaying);
                 if (!response.Success)
                 {
+                    Util.ShowInfoBubble($"XMPlay Sharp Scrobbler: Error! {response.Error.Message}", ErrorBubbleDisplayTime);
                     // TODO: log
                 }
             }

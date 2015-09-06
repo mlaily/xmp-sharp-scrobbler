@@ -60,9 +60,9 @@ static XMPDSP dsp =
     DSP_NewTitle
 };
 
-static void ExecuteOnManagedCallsThread(PTP_SIMPLE_CALLBACK workLoad)
+static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs)
 {
-    TrySubmitThreadpoolCallback(workLoad, NULL, NULL);
+    xmpfmisc->ShowBubble(text, displayTimeMs);
 }
 
 static void WINAPI DSP_About(HWND win)
@@ -87,7 +87,7 @@ static void* WINAPI DSP_New()
     // to avoid concurrency errors further on, when multiple threads
     // at the same time might trigger the lazy initialization of the assemblies...
     scrobbler = new SharpScrobblerWrapper();
-
+    SharpScrobblerWrapper::InitializeShowBubbleInfo(ShowInfoBubble);
     return (void*)1;
 }
 

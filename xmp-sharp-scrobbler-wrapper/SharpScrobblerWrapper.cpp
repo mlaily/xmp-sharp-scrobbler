@@ -9,6 +9,16 @@ using namespace System;
 using namespace Runtime::InteropServices;
 using namespace xmp_sharp_scrobbler_managed;
 
+// Create a managed proxy function for a native function pointer
+// to allow the C# part to call a native function:
+
+static void(WINAPI *_NativeShowInfoBubble)(const char* text, int displayTimeMs);
+static void _ShowInfoBubble(String^ text, int displayTimeMs)
+{
+    const char* nativeText = (const char*)Marshal::StringToHGlobalAnsi(text).ToPointer();
+    _NativeShowInfoBubble(nativeText, displayTimeMs);
+};
+
 class SharpScrobblerAdapter
 {
 public:
@@ -29,6 +39,12 @@ public:
     ~SharpScrobblerWrapper()
     {
         delete _adapter;
+    }
+
+    static void InitializeShowBubbleInfo(void(WINAPI *showBubbleInfo)(const char* text, int displayTimeMs))
+    {
+        _NativeShowInfoBubble = showBubbleInfo;
+        Util::InitializeShowBubbleInfo(gcnew ShowInfoBubbleHandler(_ShowInfoBubble));
     }
 
     void SetSessionKey(const char* sessionKey)

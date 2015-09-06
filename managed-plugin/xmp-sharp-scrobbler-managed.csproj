@@ -49,6 +49,7 @@
     <Compile Include="Configuration.Designer.cs">
       <DependentUpon>Configuration.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util.cs" />
     <Compile Include="Win32Window.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharpScrobbler.cs" />
