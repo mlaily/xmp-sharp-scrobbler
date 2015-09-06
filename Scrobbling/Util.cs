@@ -17,5 +17,13 @@ namespace Scrobbling
             }
             yield return element;
         }
+
+        public static bool ParseApiBool(string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value.Trim() == "1") return true;
+            if (value.Trim() == "0") return false;
+            return bool.Parse(value);
+        }
     }
 }

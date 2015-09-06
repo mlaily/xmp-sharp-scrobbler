@@ -23,14 +23,14 @@ namespace Scrobbling
     {
         public string UserName { get; }
         public string Key { get; }
-        public int Subscriber { get; }
+        public bool Subscriber { get; }
 
         public Session(XElement xml)
         {
             var sessionElement = xml.Element("session");
             UserName = sessionElement.Element("name").Value;
             Key = sessionElement.Element("key").Value;
-            Subscriber = int.Parse(sessionElement.Element("subscriber").Value);
+            Subscriber = Util.ParseApiBool(sessionElement.Element("subscriber").Value);
         }
     }
 }
