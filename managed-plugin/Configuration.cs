@@ -14,6 +14,18 @@ namespace xmp_sharp_scrobbler_managed
 {
     public partial class Configuration : Form
     {
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                // Without this flag, the window does not stay on top of the other app's windows when the app is focused.
+                const int WS_POPUP = unchecked((int)0x80000000);
+                var baseParams = base.CreateParams;
+                baseParams.Style |= WS_POPUP;
+                return baseParams;
+            }
+        }
+
         public string SessionKey { get; private set; }
 
         public Configuration()
