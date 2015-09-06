@@ -1,7 +1,6 @@
 #include <iostream>
 #include <time.h> 
 #include <windows.h>
-#include <functional>
 
 #include "xmpdsp.h"
 #include "xmpfunc.h"
@@ -9,10 +8,13 @@
 #include "SharpScrobblerWrapper.h"
 #include "main.h"
 
-// > 30 seconds
-#define TRACK_DURATION_THRESHOLD_MS 30 * 1000
-// half the track, or 4min, whichever comes first
-#define TRACK_PLAY_TIME_THRESHOLD_MS 4 * 60 * 1000
+// > 30 seconds ?
+#define TRACK_DURATION_THRESHOLD_MS     30 * 1000
+// Half the track, or 4 minutes, whichever comes first.
+#define TRACK_PLAY_TIME_THRESHOLD_MS    4 * 60 * 1000
+// Magic number for MultiByteToWideChar()
+// to auto detect the length of a null terminated source string
+#define AUTO_NULL_TERMINATED_LENGTH     -1
 
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
@@ -39,13 +41,13 @@ static int expectedEndOfCurrentTrackInMs = INT_MAX;
 static double lastMeasuredTrackPosition = NAN;
 // Total duration of the current track.
 static int currentTrackDurationMs = 0;
-//
+// When set to true, the current track will be scrobbled as soon as it ends.
 static bool scrobbleCurrentTrackInfoOnEnd = false;
 
 static XMPDSP dsp =
 {
     XMPDSP_FLAG_NODSP,
-    "XMPlay Sharp Scrobbler",
+    PLUGIN_FRIENDLY_NAME,
     DSP_About,
     DSP_New,
     DSP_Free,
@@ -68,24 +70,21 @@ static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs)
 static void WINAPI DSP_About(HWND win)
 {
     MessageBox(win,
-        "XMPlay Sharp Scrobbler\n\n"
+        PLUGIN_FRIENDLY_NAME "\n\n"
         "A Last.fm scrobbling plugin.\n\n"
         "Version " PLUGIN_VERSION_STRING "\n"
         "Melvyn Laïly 2015",
-        "XMPlay Sharp Scrobbler",
+        PLUGIN_FRIENDLY_NAME,
         MB_ICONINFORMATION);
 }
 
 static const char* WINAPI DSP_GetDescription(void* inst)
 {
-    return dsp.name;
+    return PLUGIN_FRIENDLY_NAME;
 }
 
 static void* WINAPI DSP_New()
 {
-    // Force early initialization of the wrapper and the managed assemblies
-    // to avoid concurrency errors further on, when multiple threads
-    // at the same time might trigger the lazy initialization of the assemblies...
     scrobbler = new SharpScrobblerWrapper();
     SharpScrobblerWrapper::InitializeShowBubbleInfo(ShowInfoBubble);
     return (void*)1;
@@ -113,7 +112,7 @@ static void WINAPI DSP_Config(void* inst, HWND win)
 static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 {
     memcpy(config, &scrobblerConf, sizeof(ScrobblerConfig));
-    return sizeof(ScrobblerConfig); // return size of config info
+    return sizeof(ScrobblerConfig);
 }
 
 // Apply config to the plugin.
@@ -125,25 +124,21 @@ static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 }
 
 // Called when a track has been opened or closed.
-// (file will be NULL in the later case)
+// (file will be NULL in the latter case)
 static void WINAPI DSP_NewTrack(void* inst, const char* file)
 {
-    ResetForNewTrack();
+    CompleteCurrentTrack();
 }
 
 // Called when a format is set (because of a new track for example)
 // (if form is NULL, output stopped)
 static void WINAPI DSP_SetFormat(void* inst, const XMPFORMAT* form)
 {
-    ResetForNewTrack();
+    CompleteCurrentTrack();
     if (form != NULL)
-    {
         xmprateBy1000 = form->rate / 1000;
-    }
     else
-    {
         xmprateBy1000 = 0;
-    }
 }
 
 // This is apparently useless as I have never seen it called once.
@@ -160,6 +155,9 @@ static void WINAPI DSP_Reset(void* inst)
     lastMeasuredTrackPosition = NAN;
 }
 
+// Strictly speaking, this plugin doesn't do any "processing", and always let the data untouched.
+// Nonetheless, this function is useful to count every sample played and keep track of the play time,
+// And also to detect tracks starting or looping, and act accordingly...
 static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
 {
     // Check whether the processed track is a track just starting to play or not:
@@ -167,58 +165,51 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
     int calculatedPlayedMs = processedSamplesForCurrentTrack / xmprateBy1000;
     if (calculatedPlayedMs < msThresholdForNewTrack)
     {
-        // new track starts playing normally
-        currentTrackDurationMs = expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs(0);
-        InitializeCurrentTrackInfo();
+        // New track starts playing normally.
         TrackStartsPlaying();
-        scrobbleCurrentTrackInfoOnEnd = false;
     }
     else
     {
-        // in the middle of a track. Before continuing, we check whether the track has looped without XMPlay telling us
+        // In the middle of a track. Before continuing, we check whether the track has looped without XMPlay telling us.
         int calculatedPlayedMsSinceLastReset = processedSamplesForCurrentTrackSinceLastReset / xmprateBy1000;
-        // If the track duration is 0, this is a stream. It's useless to check for a loop in that case, so we skip all the next part.
+        // If the track duration is 0, this is a stream. It's useless to check for a loop in that case, so we skip the next part entirely.
         if (currentTrackDurationMs != 0 && calculatedPlayedMsSinceLastReset > expectedEndOfCurrentTrackInMs)
         {
-            // the calculated play time, based on the number of samples actually played,
+            // The calculated play time based on the number of samples actually played
             // is superior to the length of the track, but XMPlay did not signal a new track.
-            // this means the track was looped, so this is effectively a new play.
-            // so we reset everything like if it were a new track:
+            // This means the track is looping, so this is effectively a new play.
+            // So we reset everything like if it were a new track:
 
             // BUT
             // before doing that, we check the actual position reported by XMPlay.
-            // (unlike the track duration, the position seems to be correctly synchronized to the current sample being processed)
+            // (Unlike the track duration, the position seems to be correctly synchronized to the sample currently being processed)
             // We do that because otherwise, even with a full second being added to expectedEndOfCurrentTrackInMs to account for errors, the loop detection is often off by a few samples.
-            // (a loop is believed to have been detected, followed almost immediately by an actual new track being played)
-            // This might be because of gap-less transitions between tracks, the impossibility to precisely detect the length of a track in some file formats, or this might be a bug...
+            // (A loop is believed to have been detected, followed almost immediately by an actual new track being played)
+            // This might be because of gap-less transitions between tracks, the impossibility to precisely detect the length of a track in some file formats, or this might simply be a bug...
             // Anyway, for now, I trust the XMPlay reported position more than the calculations based on the number of samples having been played.
 
             double trustWorthyPosition = xmpfstatus->GetTime();
             if (isnan(lastMeasuredTrackPosition))
             {
-                // this is the first time we get here.
+                // This is the first time we get here.
                 lastMeasuredTrackPosition = trustWorthyPosition;
             }
             else
             {
-                // we've already been here...
+                // We've already been here...
                 if (trustWorthyPosition >= lastMeasuredTrackPosition)
                 {
-                    // ...and the position increased, so we're not done yet playing the track.
+                    // ...and the position has increased, so we're not done yet playing the track.
                     lastMeasuredTrackPosition = trustWorthyPosition;
                     // Nothing to see here, this is not a looping yet...
                 }
                 else
                 {
                     // ...and the position reset, this is an actual loop!
-                    ResetForNewTrack();
-                    // so that we don't risk detecting the new play a second time based on the processed samples count
-                    msThresholdForNewTrack = 0;
-                    currentTrackDurationMs = expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs(0);
-                    InitializeCurrentTrackInfo();
+                    CompleteCurrentTrack();
+                    msThresholdForNewTrack = 0; // So that we don't risk detecting the new play a second time based on the processed samples count.
+                    calculatedPlayedMs = 0; // So that we don' risk scrobbling the track. (see below)
                     TrackStartsPlaying();
-                    scrobbleCurrentTrackInfoOnEnd = false;
-                    calculatedPlayedMs = 0;
                 }
             }
         }
@@ -226,7 +217,7 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
 
     // Check whether the current track can be scrobbled:
     // The track must be longer than 30 seconds.
-    // And the track has been played for at least half its duration, or for 4 minutes(whichever occurs earlier.)
+    // And the track must have been played for at least half its duration, or for 4 minutes(whichever occurs earlier.)
     if (scrobbleCurrentTrackInfoOnEnd == false
         && currentTrackDurationMs > TRACK_DURATION_THRESHOLD_MS
         && (calculatedPlayedMs > (currentTrackDurationMs / 2) || calculatedPlayedMs >= TRACK_PLAY_TIME_THRESHOLD_MS))
@@ -234,71 +225,49 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
         scrobbleCurrentTrackInfoOnEnd = true;
     }
 
+    // Keep track of the time the track has played.
     processedSamplesForCurrentTrack += count;
     processedSamplesForCurrentTrackSinceLastReset += count;
     return count;
 }
 
-// Prepare everything for a new current track.
-// (current number of processed samples, expected end of track...)
-static void ResetForNewTrack()
+// Complete playing the current track.
+// Scrobble it if needed then reset everything for a new track.
+static void CompleteCurrentTrack()
 {
     if (scrobbleCurrentTrackInfoOnEnd)
     {
-        // scrobble previous track
-        ScrobbleTrack();
+        // Do we have enough information to scrobble?
+        if (CanScrobble(currentTrackInfo))
+        {
+            scrobbler->Scrobble(
+                currentTrackInfo->artist,
+                currentTrackInfo->title,
+                currentTrackInfo->album,
+                currentTrackDurationMs,
+                currentTrackInfo->trackNumber,
+                NULL,
+                currentTrackInfo->playStartTimestamp);
+        }
         scrobbleCurrentTrackInfoOnEnd = false;
     }
     processedSamplesForCurrentTrack = 0;
     processedSamplesForCurrentTrackSinceLastReset = 0;
     lastMeasuredTrackPosition = NAN;
-    // temporary safe upper value
-    // (we might not have a track playing yet, so we can't calculate the correct value)
+    // Set the expected end of the new track to a temporary safe upper value.
+    // (We might not have a track playing yet, so we can't calculate the correct value)
     expectedEndOfCurrentTrackInMs = INT_MAX;
 }
 
-// Calculate the expected time until the end of the current track from the desired position,
-// and set it to expectedEndOfCurrentTrackInMs.
-static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
+// Called when a track starts playing.
+// This differs from DSP_NewTrack() in that it correctly accounts for looped tracks.
+// (That is, if a track loops, this function is called whereas DSP_NewTrack() is not)
+static void TrackStartsPlaying()
 {
-    char* stringDuration = xmpfmisc->GetTag(TAG_LENGTH);
-    double parsed = atof(stringDuration);
-    int currentTrackMaxExpectedDurationMs = (int)(parsed * 1000);
-    xmpfmisc->Free(stringDuration);
-    return currentTrackMaxExpectedDurationMs - fromPositionMs;
-}
+    currentTrackDurationMs = expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs(0);
+    scrobbleCurrentTrackInfoOnEnd = false;
 
-// Get a wide string from an ansi string (don't forget to free it)
-static wchar_t* GetStringW(const char* string)
-{
-    if (string == NULL)
-    {
-        return NULL;
-    }
-    else
-    {
-        size_t requiredSize = Utf2Uni(string, -1, NULL, 0);
-        wchar_t* buffer = new wchar_t[requiredSize];
-        Utf2Uni(string, -1, buffer, requiredSize);
-        return buffer;
-    }
-}
-
-// Get an XMPlay tag as a wide string (don't forget to free it)
-static wchar_t* GetTagW(const char* tag)
-{
-    char* value = xmpfmisc->GetTag(tag);
-    wchar_t* wValue = NULL;
-    if (value != NULL)
-    {
-        wValue = GetStringW(value);
-        xmpfmisc->Free(value);
-    }
-    return wValue;
-}
-
-static void InitializeCurrentTrackInfo()
-{
+    // (Re)initialize currentTrackInfo:
     ReleaseTrackInfo(currentTrackInfo);
 
     TrackInfo* trackInfo = new TrackInfo();
@@ -306,10 +275,9 @@ static void InitializeCurrentTrackInfo()
     trackInfo->title = GetTagW(TAG_TITLE);
     trackInfo->artist = GetTagW(TAG_ARTIST);
     trackInfo->album = GetTagW(TAG_ALBUM);
-
     // If the subsong tag is set, we use it instead of the track tag,
     // because inside a multi-track, the subsong number is more accurate.
-    char* subsongNumber = xmpfmisc->GetTag(TAG_SUBSONG);// separated subsong (number/total)
+    char* subsongNumber = xmpfmisc->GetTag(TAG_SUBSONG); // separated subsong (number/total)
     if (subsongNumber != NULL)
     {
         trackInfo->trackNumber = GetStringW(subsongNumber);
@@ -321,8 +289,41 @@ static void InitializeCurrentTrackInfo()
     }
 
     currentTrackInfo = trackInfo;
+
+    // Do we have enough information to scrobble?
+    if (CanScrobble(currentTrackInfo))
+    {
+        scrobbler->NowPlaying(
+            currentTrackInfo->artist,
+            currentTrackInfo->title,
+            currentTrackInfo->album,
+            currentTrackDurationMs,
+            currentTrackInfo->trackNumber,
+            NULL);
+    }
 }
 
+// Calculate the expected time until the end of the current track from the desired position.
+static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs)
+{
+    // FIXME: an accurate AND strongly typed duration would be nice...
+    char* stringDuration = xmpfmisc->GetTag(TAG_LENGTH);
+    double parsed = atof(stringDuration);
+    xmpfmisc->Free(stringDuration);
+    int currentTrackMaxExpectedDurationMs = (int)(parsed * 1000);
+    return currentTrackMaxExpectedDurationMs - fromPositionMs;
+}
+
+// Return a value indicating whether the given TrackInfo contains enough information to be scrobbled.
+static bool CanScrobble(TrackInfo* trackInfo)
+{
+    return currentTrackInfo->title != NULL
+        && wcslen(currentTrackInfo->title) > 0
+        && currentTrackInfo->artist != NULL
+        && wcslen(currentTrackInfo->artist) > 0;
+}
+
+// Free an instance of TrackInfo.
 static void ReleaseTrackInfo(TrackInfo* trackInfo)
 {
     if (trackInfo != NULL)
@@ -336,56 +337,37 @@ static void ReleaseTrackInfo(TrackInfo* trackInfo)
     }
 }
 
-static bool HasTrackInfoEnoughInfoForScrobble(TrackInfo* trackInfo)
+// Get a wide string from an ansi string. (Don't forget to free it)
+static wchar_t* GetStringW(const char* string)
 {
-    return currentTrackInfo->title != NULL
-        && wcslen(currentTrackInfo->title) > 0
-        && currentTrackInfo->artist != NULL
-        && wcslen(currentTrackInfo->artist) > 0;
-}
-
-// Called when a track starts playing.
-// This differs from DSP_NewTrack() in that it correctly accounts for looped tracks.
-// (That is, if a track loops, this function is called whereas DSP_NewTrack() is not)
-static void TrackStartsPlaying()
-{
-    if (!HasTrackInfoEnoughInfoForScrobble(currentTrackInfo))
+    if (string != NULL)
     {
-        // Not enough info to scrobble the track...
-        return;
+        size_t requiredSize = Utf2Uni(string, AUTO_NULL_TERMINATED_LENGTH, NULL, 0);
+        wchar_t* buffer = new wchar_t[requiredSize];
+        Utf2Uni(string, AUTO_NULL_TERMINATED_LENGTH, buffer, requiredSize);
+        return buffer;
     }
-    scrobbler->NowPlaying(
-        currentTrackInfo->artist,
-        currentTrackInfo->title,
-        currentTrackInfo->album,
-        currentTrackDurationMs,
-        currentTrackInfo->trackNumber,
-        NULL);
+    else return NULL;
 }
 
-static void ScrobbleTrack()
+// Get an XMPlay tag as a wide string. (Don't forget to free it)
+static wchar_t* GetTagW(const char* tag)
 {
-    if (!HasTrackInfoEnoughInfoForScrobble(currentTrackInfo))
-    {
-        // Not enough info to scrobble the track...
-        return;
-    }
-    scrobbler->Scrobble(
-        currentTrackInfo->artist,
-        currentTrackInfo->title,
-        currentTrackInfo->album,
-        currentTrackDurationMs,
-        currentTrackInfo->trackNumber,
-        NULL,
-        currentTrackInfo->playStartTimestamp);
+    char* value = xmpfmisc->GetTag(tag);
+    wchar_t* wValue = NULL;
+    if (value != NULL)
+        wValue = GetStringW(value);
+    xmpfmisc->Free(value);
+    return wValue;
 }
 
-// get the plugin's XMPDSP interface
+
+// Get the plugin's XMPDSP interface.
 XMPDSP* WINAPI XMPDSP_GetInterface2(DWORD face, InterfaceProc faceproc)
 {
     if (face != XMPDSP_FACE) return NULL;
-    xmpfmisc = (XMPFUNC_MISC*)faceproc(XMPFUNC_MISC_FACE); // import misc functions
-    xmpfstatus = (XMPFUNC_STATUS*)faceproc(XMPFUNC_STATUS_FACE); // import playback status functions
+    xmpfmisc = (XMPFUNC_MISC*)faceproc(XMPFUNC_MISC_FACE); // Import misc functions.
+    xmpfstatus = (XMPFUNC_STATUS*)faceproc(XMPFUNC_STATUS_FACE); // Import playback status functions.
     return &dsp;
 }
 

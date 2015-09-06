@@ -2,15 +2,18 @@
 
 #include "time.h"
 
+#define PLUGIN_FRIENDLY_NAME    "XMPlay Sharp Scrobbler"
 #define PLUGIN_VERSION          0,1,0,0
 #define PLUGIN_VERSION_STRING   "0.1.0.0"
 
-// config structure
+// Config structure, as stored by XMPlay.
 typedef struct
 {
     char sessionKey[32];
 } ScrobblerConfig;
 
+// Gather information required to scrobble a track.
+// All the text fields are expected to be UTF-16.
 typedef struct
 {
     time_t playStartTimestamp;
@@ -37,9 +40,11 @@ static void WINAPI DSP_NewTitle(void* inst, const char* title);
 
 /* Plugin functions: */
 
-static void ResetForNewTrack();
-static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
+static void CompleteCurrentTrack();
 static void TrackStartsPlaying();
-static void ScrobbleTrack();
-static void InitializeCurrentTrackInfo();
+static bool CanScrobble(TrackInfo* trackInfo);
 static void ReleaseTrackInfo(TrackInfo* trackInfo);
+static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
+static wchar_t* GetStringW(const char* string);
+static wchar_t* GetTagW(const char* tag);
+static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs);
