@@ -16,9 +16,20 @@ namespace xmp_sharp_scrobbler_managed
         public async void NowPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
         {
             NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
+            await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(SessionKey, nowPlaying));
+        }
+
+        public async void Scrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
+        {
+            Scrobble scrobble = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid, utcUnixTimestamp);
+            await ShowBubbleOnErrorAsync(Track.Scrobble(SessionKey, scrobble));
+        }
+
+        private async Task ShowBubbleOnErrorAsync<T>(Task<ApiResponse<T>> request)
+        {
             try
             {
-                var response = await Track.UpdateNowPlaying(SessionKey, nowPlaying);
+                var response = await request;
                 if (!response.Success)
                 {
                     Util.ShowInfoBubble($"XMPlay Sharp Scrobbler: Error! {response.Error.Message}", ErrorBubbleDisplayTime);
@@ -29,12 +40,6 @@ namespace xmp_sharp_scrobbler_managed
             {
                 // TODO: log
             }
-        }
-
-        public void Scrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
-        {
-            Scrobble scrobble = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid, utcUnixTimestamp);
-            Track.Scrobble(SessionKey, scrobble).ContinueWith(x => { });
         }
 
         public string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
