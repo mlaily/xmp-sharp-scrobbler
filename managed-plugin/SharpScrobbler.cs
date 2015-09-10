@@ -13,13 +13,13 @@ namespace xmp_sharp_scrobbler_managed
         private static readonly TimeSpan ErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
         public string SessionKey { get; set; }
 
-        public async void NowPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
+        public async void OnTrackStartsPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
         {
             NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
             await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(SessionKey, nowPlaying));
         }
 
-        public async void Scrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
+        public async void OnTrackCanScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
         {
             Scrobble scrobble = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid, utcUnixTimestamp);
             await ShowBubbleOnErrorAsync(Track.Scrobble(SessionKey, scrobble));

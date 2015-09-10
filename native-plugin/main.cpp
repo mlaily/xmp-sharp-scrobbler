@@ -240,7 +240,7 @@ static void CompleteCurrentTrack()
         // Do we have enough information to scrobble?
         if (CanScrobble(currentTrackInfo))
         {
-            scrobbler->Scrobble(
+            scrobbler->OnTrackCanScrobble(
                 currentTrackInfo->artist,
                 currentTrackInfo->title,
                 currentTrackInfo->album,
@@ -293,7 +293,7 @@ static void TrackStartsPlaying()
     // Do we have enough information to scrobble?
     if (CanScrobble(currentTrackInfo))
     {
-        scrobbler->NowPlaying(
+        scrobbler->OnTrackStartsPlaying(
             currentTrackInfo->artist,
             currentTrackInfo->title,
             currentTrackInfo->album,
