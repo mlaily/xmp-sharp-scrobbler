@@ -62,6 +62,11 @@ public:
         _adapter->Instance->OnTrackCanScrobble(gcnew String(artist), gcnew String(track), gcnew String(album), durationMs, gcnew String(trackNumber), gcnew String(mbid), utcUnixTimestamp);
     }
 
+    void OnTrackCompletes()
+    {
+        _adapter->Instance->OnTrackCompletes();
+    }
+
     const char* AskUserForNewAuthorizedSessionKey(HWND ownerWindowHandle)
     {
         String^ managedResult = _adapter->Instance->AskUserForNewAuthorizedSessionKey(IntPtr(ownerWindowHandle));

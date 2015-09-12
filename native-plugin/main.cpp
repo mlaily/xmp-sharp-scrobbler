@@ -42,6 +42,7 @@ static double lastMeasuredTrackPosition = NAN;
 // Total duration of the current track.
 static int currentTrackDurationMs = 0;
 // When set to true, the current track will be scrobbled as soon as it ends.
+// Used to debounce the calls to OnTrackCompletes()
 static bool scrobbleCurrentTrackInfoOnEnd = false;
 
 static XMPDSP dsp =
@@ -222,6 +223,18 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
         && currentTrackDurationMs > TRACK_DURATION_THRESHOLD_MS
         && (calculatedPlayedMs > (currentTrackDurationMs / 2) || calculatedPlayedMs >= TRACK_PLAY_TIME_THRESHOLD_MS))
     {
+        // Do we have enough information to scrobble?
+        if (CanScrobble(currentTrackInfo))
+        {
+            scrobbler->OnTrackCanScrobble(
+                currentTrackInfo->artist,
+                currentTrackInfo->title,
+                currentTrackInfo->album,
+                currentTrackDurationMs,
+                currentTrackInfo->trackNumber,
+                NULL,
+                currentTrackInfo->playStartTimestamp);
+        }
         scrobbleCurrentTrackInfoOnEnd = true;
     }
 
@@ -237,18 +250,7 @@ static void CompleteCurrentTrack()
 {
     if (scrobbleCurrentTrackInfoOnEnd)
     {
-        // Do we have enough information to scrobble?
-        if (CanScrobble(currentTrackInfo))
-        {
-            scrobbler->OnTrackCanScrobble(
-                currentTrackInfo->artist,
-                currentTrackInfo->title,
-                currentTrackInfo->album,
-                currentTrackDurationMs,
-                currentTrackInfo->trackNumber,
-                NULL,
-                currentTrackInfo->playStartTimestamp);
-        }
+        scrobbler->OnTrackCompletes();
         scrobbleCurrentTrackInfoOnEnd = false;
     }
     processedSamplesForCurrentTrack = 0;
