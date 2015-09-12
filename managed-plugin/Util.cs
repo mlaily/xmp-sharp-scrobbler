@@ -16,4 +16,9 @@ namespace xmp_sharp_scrobbler_managed
         public static void ShowInfoBubble(string text, TimeSpan? displayTime = null)
             => _ShowInfoBubble?.Invoke(text, displayTime == null ? 0 : (int)displayTime.Value.TotalMilliseconds);
     }
+
+    /// <summary>
+    /// The object equivalent of void.
+    /// </summary>
+    public struct Unit { }
 }
