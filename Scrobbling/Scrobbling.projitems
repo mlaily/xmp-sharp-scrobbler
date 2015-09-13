@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ApiResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrackModels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Track.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Auth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common.cs" />
