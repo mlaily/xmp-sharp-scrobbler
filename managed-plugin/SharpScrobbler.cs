@@ -42,21 +42,31 @@ namespace xmp_sharp_scrobbler_managed
         public async void OnTrackCanScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
         {
             Scrobble scrobble = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid, utcUnixTimestamp);
+            // Cache the scrobble and wait for the end of the track to actually send it.
+            try
+            {
+                await cache.StoreAsync(scrobble);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorBubble(ex);
+            }
+        }
 
-            await HandleScrobblingAsync(isSingleNewScrobble: true, scrobbles: new[] { scrobble });
-
-            // Now we try and see if we can scrobble the cache content.
+        public async void OnTrackCompletes()
+        {
+            // Try to scrobble the cache content.
             try
             {
                 var cachedScrobbles = await cache.RetrieveAsync();
                 if (cachedScrobbles.Any())
                 {
                     // We have something!
-                    var partitions = cachedScrobbles.Batch(50);// We can only scrobble 50 tracks at the same time.
+                    var partitions = cachedScrobbles.Batch(50); // We can only scrobble 50 tracks at the same time.
                     foreach (var partition in partitions)
                     {
                         var eagerPartition = partition.ToList();
-                        var success = await HandleScrobblingAsync(isSingleNewScrobble: false, scrobbles: eagerPartition);
+                        var success = await HandleScrobblingAsync(eagerPartition);
                         if (success)
                         {
                             // Now we need to remove the successfully scrobbled tracks from the cache.
@@ -72,12 +82,8 @@ namespace xmp_sharp_scrobbler_managed
             }
         }
 
-        private async Task<bool> HandleScrobblingAsync(bool isSingleNewScrobble, IEnumerable<Scrobble> scrobbles)
+        private async Task<bool> HandleScrobblingAsync(IEnumerable<Scrobble> scrobbles)
         {
-            Scrobble newScrobble = null;
-            // If this is a new single scrobble, we will have to cache it on error.
-            if (isSingleNewScrobble) newScrobble = scrobbles.Single();
-
             try
             {
                 // Try scrobbling the current scrobble(s).
@@ -93,7 +99,6 @@ namespace xmp_sharp_scrobbler_managed
                     if (scrobblingResult.Error.Code == 9)
                     {
                         ShowErrorBubble(scrobblingResult.Error.Message);
-                        if (isSingleNewScrobble) await cache.StoreAsync(newScrobble);
                         // Useless to continue until we have a valid session key.
                         return false;
                     }
@@ -102,7 +107,6 @@ namespace xmp_sharp_scrobbler_managed
                     else if (scrobblingResult.Error.Code == 11 || scrobblingResult.Error.Code == 16)
                     {
                         // TODO: log
-                        if (isSingleNewScrobble) await cache.StoreAsync(newScrobble);
                         // Useless to continue right now.
                         return false;
                     }
@@ -117,16 +121,9 @@ namespace xmp_sharp_scrobbler_managed
             catch (Exception)
             {
                 // TODO: log
-                // Probably a networking error - cache the scrobble for later.
-                if (isSingleNewScrobble) await cache.StoreAsync(newScrobble);
-                // Useless to continue right now.
+                // Probably a networking error, useless to continue right now.
                 return false;
             }
-        }
-
-        public void OnTrackCompletes()
-        {
-
         }
 
         private async Task ShowBubbleOnErrorAsync<T>(Task<ApiResponse<T>> request)
@@ -142,7 +139,7 @@ namespace xmp_sharp_scrobbler_managed
             }
             catch (Exception ex)
             {
-                ShowErrorBubble($"{ex?.GetType()?.Name + " - " ?? ""}{ex.Message}");
+                ShowErrorBubble(ex);
                 // TODO: log
             }
         }
@@ -150,6 +147,10 @@ namespace xmp_sharp_scrobbler_managed
         private static void ShowErrorBubble(string message)
         {
             Util.ShowInfoBubble($"XMPlay Sharp Scrobbler: Error! {message}", DefaultErrorBubbleDisplayTime);
+        }
+        private static void ShowErrorBubble(Exception ex)
+        {
+            Util.ShowInfoBubble($"XMPlay Sharp Scrobbler: Error! {ex?.GetType()?.Name + " - " ?? ""}{ex.Message}", DefaultErrorBubbleDisplayTime);
         }
 
         private static Scrobble CreateScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp = 0)
