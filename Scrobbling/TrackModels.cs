@@ -37,10 +37,11 @@ namespace Scrobbling
         public TimeSpan? Duration { get; set; }
 
         /// <summary>
-        /// Properly formatted read-only duration.
+        /// Properly formatted read-only duration in full (integer) seconds.
         /// Return null if <see cref="Duration"/> is null.
         /// </summary>
-        public string StringDuration => Duration?.TotalSeconds.ToString(NumberFormatInfo.InvariantInfo);
+        public string StringDuration
+            => Duration == null ? null : ((int)Math.Round(Duration.Value.TotalSeconds, MidpointRounding.AwayFromZero)).ToString();
 
         public NowPlaying(string artist, string track)
         {
@@ -76,11 +77,11 @@ namespace Scrobbling
             if (ReferenceEquals(x, y)) return true;
             if (x == null ^ y == null) return false;
 
-            return x.Track == y.Track
-                && x.Artist == y.Artist
-                && x.Album == y.Album
-                && x.AlbumArtist == y.AlbumArtist
-                && x.Mbid == y.Mbid
+            return (x.Track ?? "") == (y.Track ?? "")
+                && (x.Artist ?? "") == (y.Artist ?? "")
+                && (x.Album ?? "") == (y.Album ?? "")
+                && (x.AlbumArtist ?? "") == (y.AlbumArtist ?? "")
+                && (x.Mbid ?? "") == (y.Mbid ?? "")
                 && x.Timestamp == y.Timestamp;
         }
 
@@ -89,11 +90,11 @@ namespace Scrobbling
             unchecked
             {
                 int hash = 17;
-                hash = hash * 23 + (obj.Track?.GetHashCode() ?? 0);
-                hash = hash * 23 + (obj.Artist?.GetHashCode() ?? 0);
-                hash = hash * 23 + (obj.Album?.GetHashCode() ?? 0);
-                hash = hash * 23 + (obj.AlbumArtist?.GetHashCode() ?? 0);
-                hash = hash * 23 + (obj.Mbid?.GetHashCode() ?? 0);
+                hash = hash * 23 + (string.IsNullOrEmpty(obj.Track) ? 0 : obj.Track.GetHashCode());
+                hash = hash * 23 + (string.IsNullOrEmpty(obj.Artist) ? 0 : obj.Artist.GetHashCode());
+                hash = hash * 23 + (string.IsNullOrEmpty(obj.Album) ? 0 : obj.Album.GetHashCode());
+                hash = hash * 23 + (string.IsNullOrEmpty(obj.AlbumArtist) ? 0 : obj.AlbumArtist.GetHashCode());
+                hash = hash * 23 + (string.IsNullOrEmpty(obj.Mbid) ? 0 : obj.Mbid.GetHashCode());
                 hash = hash * 23 + obj.Timestamp.GetHashCode();
                 return hash;
             }
