@@ -43,7 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncLock.cs" />
+    <Compile Include="Misc\AsyncLock.cs" />
+    <Compile Include="Misc\Batch.cs" />
     <Compile Include="Cache.cs" />
     <Compile Include="Configuration.cs">
       <SubType>Form</SubType>
@@ -53,7 +54,7 @@
     </Compile>
     <Compile Include="ScrobbleSerializer.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="Win32Window.cs" />
+    <Compile Include="Misc\Win32Window.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharpScrobbler.cs" />
   </ItemGroup>
