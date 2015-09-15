@@ -10,6 +10,9 @@ Things left to do:
 	V		we can't reuse an existing library since we don't want any dll dependency
 	V	implement the config struct with everything required for the plugin to work
 	V	GUI for the configuration
-	.	implement some caching mechanism
+	V	implement some caching mechanism
 	.	implement a log file
 	V	support unicode
+	.	document required environment (.Net 4.6...)
+	.	add license
+	.	release!
