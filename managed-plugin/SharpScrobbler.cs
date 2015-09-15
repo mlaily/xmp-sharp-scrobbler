@@ -14,6 +14,8 @@ namespace xmp_sharp_scrobbler_managed
         private static readonly TimeSpan DefaultErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
 
         private Cache cache;
+        private Scrobble lastPotentialScrobbleInCaseOfCacheFailure;
+        private object lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
 
         public string SessionKey { get; set; }
 
@@ -49,12 +51,39 @@ namespace xmp_sharp_scrobbler_managed
             }
             catch (Exception ex)
             {
+                lock (lastPotentialScrobbleInCaseOfCacheFailureLock)
+                {
+                    lastPotentialScrobbleInCaseOfCacheFailure = scrobble;
+                }
                 ShowErrorBubble(ex);
             }
         }
 
         public async void OnTrackCompletes()
         {
+            // If caching failed and we have a track only in memory waiting to be scrobbled, try to do it now.
+            // We copy the reference atomically to avoid locking while we try to execute the web request.
+            Scrobble fromLastPotentialScrobbleInCaseOfCacheFailure = null;
+            lock (lastPotentialScrobbleInCaseOfCacheFailureLock)
+            {
+                if (lastPotentialScrobbleInCaseOfCacheFailure != null)
+                {
+                    fromLastPotentialScrobbleInCaseOfCacheFailure = lastPotentialScrobbleInCaseOfCacheFailure;
+                    lastPotentialScrobbleInCaseOfCacheFailure = null;
+                }
+            }
+            if (fromLastPotentialScrobbleInCaseOfCacheFailure != null)
+            {
+                // We don't even try to catch any potential exception since this code path is
+                // already a fallback in case the cache file cannot be accessed.
+                // If this scrobble fails, it will be lost anyway.
+                try
+                {
+                    await Track.Scrobble(SessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
+                }
+                catch { }
+            }
+
             // Try to scrobble the cache content.
             try
             {
