@@ -19,8 +19,6 @@ namespace xmp_sharp_scrobbler_managed
     /// In the worst case, a scrobble might be scrobbled twice
     /// (Last.fm ignore double scrobbles based on the timestamp, so this is ok)
     /// but it should never be lost.
-    /// Also, if the file cannot be accessed, the cache will not work (obviously),
-    /// but operations will succeed nonetheless to avoid blocking the scrobbling process.
     /// </remarks>
     public class Cache : IDisposable
     {
@@ -66,12 +64,20 @@ namespace xmp_sharp_scrobbler_managed
         public Cache(string location = null)
         {
             Location = location ?? GetDefaultPath();
-            TryAcquireFileLock();
+            try
+            {
+                // Try to acquire a file lock as soon as possible.
+                EnsureFileLockIsAcquired();
+            }
+            catch
+            {
+                // Throwing in the constructor is not a really nice thing to do ;)
+            }
         }
 
         public async Task StoreAsync(Scrobble scrobble)
         {
-            if (!TryAcquireFileLock()) return;
+            EnsureFileLockIsAcquired();
 
             using (await fileOperationAsyncLock.LockAsync())
             {
@@ -97,7 +103,7 @@ namespace xmp_sharp_scrobbler_managed
 
         public async Task<IReadOnlyCollection<Scrobble>> RetrieveAsync()
         {
-            if (!TryAcquireFileLock()) return new Scrobble[0];
+            EnsureFileLockIsAcquired();
 
             using (await fileOperationAsyncLock.LockAsync())
             {
@@ -139,7 +145,7 @@ namespace xmp_sharp_scrobbler_managed
 
         public async Task RemoveScrobblesAsync(IReadOnlyCollection<Scrobble> scrobbles)
         {
-            if (!TryAcquireFileLock()) return;
+            EnsureFileLockIsAcquired();
 
             using (await fileOperationAsyncLock.LockAsync())
             {
@@ -234,11 +240,9 @@ namespace xmp_sharp_scrobbler_managed
 
         /// <summary>
         /// Try to (re)acquire a file lock on the cache file.
-        /// If a file lock is already acquired, simply return true.
-        /// This method does not throw.
+        /// If a file lock is already acquired, does nothing.
         /// </summary>
-        /// <returns></returns>
-        private bool TryAcquireFileLock()
+        private void EnsureFileLockIsAcquired()
         {
             lock (accquireFileLockLocker)
             {
@@ -250,24 +254,14 @@ namespace xmp_sharp_scrobbler_managed
                 if (fileLockAcquired)
                 {
                     // We already have a file lock.
-                    return true;
+                    return;
                 }
                 else
                 {
-                    try
-                    {
-                        // Try to acquire an exclusive lock on the file.
-                        var fs = new FileStream(Location, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                        fileStream = fs;
-                        fileLockAcquired = true;
-                        return true;
-                    }
-                    catch (Exception)
-                    {
-                        // TODO: log
-                        fileLockAcquired = false;
-                        return false;
-                    }
+                    // Try to acquire an exclusive lock on the file.
+                    var fs = new FileStream(Location, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                    fileStream = fs;
+                    fileLockAcquired = true;
                 }
             }
         }
