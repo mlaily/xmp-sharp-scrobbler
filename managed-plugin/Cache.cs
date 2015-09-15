@@ -13,6 +13,9 @@ namespace xmp_sharp_scrobbler_managed
     /// <summary>
     /// Implements synchronized read/write access to a cache file
     /// to persist scrobbles across plugin restarts.
+    /// The class implements <see cref="IDisposable"/>
+    /// and locks the underlying file until <see cref="Dispose"/> is called
+    /// or the instance is garbage collected.
     /// </summary>
     /// <remarks>
     /// Everything is done so that a scrobble is never lost.
@@ -53,14 +56,13 @@ namespace xmp_sharp_scrobbler_managed
         /// Path to the underlying cache file.
         /// </summary>
         public string Location { get; }
-        /// <summary>
-        /// Is the cache file actually being used?
-        /// If the file cannot be accessed, this will return false,
-        /// but operations will still return without exceptions.
-        /// Return true when everything works as expected.
-        /// </summary>
-        public bool IsOperational => fileLockAcquired;
 
+        /// <summary>
+        /// Creates an instance of <see cref="Cache"/> and try to acquire an exclusive lock on the underlying file.
+        /// If the file cannot be locked, no exception is thrown in the ctor, but the instance will be virtually useless until the file can be locked.
+        /// All the <see cref="Cache"/> public operations will try to reacquire the lock when called, and will throw if it then fails.
+        /// </summary>
+        /// <param name="location">Full path to the desired cache file, or null to use the default location.</param>
         public Cache(string location = null)
         {
             Location = location ?? GetDefaultPath();
@@ -75,6 +77,11 @@ namespace xmp_sharp_scrobbler_managed
             }
         }
 
+        /// <summary>
+        /// Asynchronously stores a scrobble in the underlying cache file.
+        /// Will throw an exception if the cache file cannot be accessed.
+        /// This method is thread safe.
+        /// </summary>
         public async Task StoreAsync(Scrobble scrobble)
         {
             EnsureFileLockIsAcquired();
@@ -101,6 +108,11 @@ namespace xmp_sharp_scrobbler_managed
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves all the scrobbles stored in the underlying cache file.
+        /// Will throw an exception if the cache file cannot be accessed.
+        /// This method is thread safe.
+        /// </summary>
         public async Task<IReadOnlyCollection<Scrobble>> RetrieveAsync()
         {
             EnsureFileLockIsAcquired();
@@ -114,7 +126,28 @@ namespace xmp_sharp_scrobbler_managed
         }
 
         /// <summary>
-        /// Read lines from the current position to the end of the file.
+        /// Asynchronously removes scrobbles from the underlying cache file.
+        /// Will throw an exception if the cache file cannot be accessed.
+        /// This method is thread safe.
+        /// </summary>
+        public async Task RemoveScrobblesAsync(IReadOnlyCollection<Scrobble> scrobbles)
+        {
+            EnsureFileLockIsAcquired();
+
+            using (await fileOperationAsyncLock.LockAsync())
+            {
+                await EnsureCorrectHeaderAndGetFileVersionAsync(fileStream);
+
+                // Find the scrobbles in the file not picked for deletion, that we have to rewrite.
+                var cachedScrobbles = await RetrieveInternalAsync(fileStream);
+                var remainingScrobbles = cachedScrobbles.Except(scrobbles, new ScrobbleEqualityComparer());
+                // Rewrite the cache file entirely.
+                await OverwriteFileAsync(fileStream, remainingScrobbles);
+            }
+        }
+
+        /// <summary>
+        /// Reads lines from the current position to the end of the file.
         /// </summary>
         private static async Task<IReadOnlyCollection<Scrobble>> RetrieveInternalAsync(FileStream fs)
         {
@@ -143,24 +176,8 @@ namespace xmp_sharp_scrobbler_managed
             return result;
         }
 
-        public async Task RemoveScrobblesAsync(IReadOnlyCollection<Scrobble> scrobbles)
-        {
-            EnsureFileLockIsAcquired();
-
-            using (await fileOperationAsyncLock.LockAsync())
-            {
-                await EnsureCorrectHeaderAndGetFileVersionAsync(fileStream);
-
-                // Find the scrobbles in the file not picked for deletion, that we have to rewrite.
-                var cachedScrobbles = await RetrieveInternalAsync(fileStream);
-                var remainingScrobbles = cachedScrobbles.Except(scrobbles, new ScrobbleEqualityComparer());
-                // Rewrite the cache file entirely.
-                await OverwriteFileAsync(fileStream, remainingScrobbles);
-            }
-        }
-
         /// <summary>
-        /// Erase the file, write a new header, then write the scrobbles.
+        /// Erases the file, write a new header, then write the scrobbles.
         /// </summary>
         private static async Task OverwriteFileAsync(FileStream fs, IEnumerable<Scrobble> scrobbles)
         {
@@ -186,7 +203,7 @@ namespace xmp_sharp_scrobbler_managed
         }
 
         /// <summary>
-        /// Reset the <see cref="FileStream"/> position to the beginning then parse the first line of the file.
+        /// Resets the <see cref="FileStream"/> position to the beginning then parse the first line of the file.
         /// If the file is empty, the header is created.
         /// If the header is invalid or the version of the file is unknown, an exception is thrown.
         /// Before returning, the stream position is set to the end of the header.
@@ -231,7 +248,7 @@ namespace xmp_sharp_scrobbler_managed
         }
 
         /// <summary>
-        /// Get a <see cref="StreamReader"/> for the specified <see cref="FileStream"/>.
+        /// Gets a <see cref="StreamReader"/> for the specified <see cref="FileStream"/>.
         /// The encoding is set to <see cref="Encoding.UTF8"/> and the underlying <see cref="FileStream"/>
         /// is left open when the <see cref="StreamReader"/> is closed.
         /// </summary>
@@ -239,8 +256,18 @@ namespace xmp_sharp_scrobbler_managed
             => new StreamReader(fs, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
 
         /// <summary>
-        /// Try to (re)acquire a file lock on the cache file.
+        /// Returns the default cache file path based on the current process executable file location.
+        /// </summary>
+        public static string GetDefaultPath()
+        {
+            var currentDirectory = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
+            return Path.Combine(currentDirectory, DefaultFileName);
+        }
+
+        /// <summary>
+        /// Tries to (re)acquire a file lock on the cache file.
         /// If a file lock is already acquired, does nothing.
+        /// Throws an exception in case of failure.
         /// </summary>
         private void EnsureFileLockIsAcquired()
         {
@@ -267,16 +294,7 @@ namespace xmp_sharp_scrobbler_managed
         }
 
         /// <summary>
-        /// Returns the default cache file path based on the current process executable file location.
-        /// </summary>
-        public static string GetDefaultPath()
-        {
-            var currentDirectory = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            return Path.Combine(currentDirectory, DefaultFileName);
-        }
-
-        /// <summary>
-        /// Dispose of the underlying file handle.
+        /// Disposes of the underlying file handle.
         /// </summary>
         public void Dispose()
         {
