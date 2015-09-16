@@ -87,11 +87,11 @@ namespace xmp_sharp_scrobbler_managed
             // Try to scrobble the cache content.
             try
             {
-                var cachedScrobbles = await cache.RetrieveAsync();
-                if (cachedScrobbles.Any())
+                var retrievalResult = await cache.RetrieveAsync();
+                if (retrievalResult.Scrobbles.Any())
                 {
                     // We have something!
-                    var partitions = cachedScrobbles.Batch(50); // We can only scrobble 50 tracks at the same time.
+                    var partitions = retrievalResult.Scrobbles.Batch(50); // We can only scrobble 50 tracks at the same time.
                     foreach (var partition in partitions)
                     {
                         var eagerPartition = partition.ToList();

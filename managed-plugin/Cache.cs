@@ -113,7 +113,7 @@ namespace xmp_sharp_scrobbler_managed
         /// Will throw an exception if the cache file cannot be accessed.
         /// This method is thread safe.
         /// </summary>
-        public async Task<IReadOnlyCollection<Scrobble>> RetrieveAsync()
+        public async Task<CacheRetrievalResult> RetrieveAsync()
         {
             EnsureFileLockIsAcquired();
 
@@ -139,8 +139,8 @@ namespace xmp_sharp_scrobbler_managed
                 await EnsureCorrectHeaderAndGetFileVersionAsync(fileStream);
 
                 // Find the scrobbles in the file not picked for deletion, that we have to rewrite.
-                var cachedScrobbles = await RetrieveInternalAsync(fileStream);
-                var remainingScrobbles = cachedScrobbles.Except(scrobbles, new ScrobbleEqualityComparer());
+                var retrievalResult = await RetrieveInternalAsync(fileStream);
+                var remainingScrobbles = retrievalResult.Scrobbles.Except(scrobbles, new ScrobbleEqualityComparer());
                 // Rewrite the cache file entirely.
                 await OverwriteFileAsync(fileStream, remainingScrobbles);
             }
@@ -149,9 +149,10 @@ namespace xmp_sharp_scrobbler_managed
         /// <summary>
         /// Reads lines from the current position to the end of the file.
         /// </summary>
-        private static async Task<IReadOnlyCollection<Scrobble>> RetrieveInternalAsync(FileStream fs)
+        private static async Task<CacheRetrievalResult> RetrieveInternalAsync(FileStream fs)
         {
             List<Scrobble> result = new List<Scrobble>();
+            List<string> failedLines = new List<string>();
             using (var reader = GetReader(fs))
             {
                 while (!reader.EndOfStream)
@@ -165,15 +166,14 @@ namespace xmp_sharp_scrobbler_managed
                             var scrobble = ScrobbleSerializer.Deserialize(line);
                             result.Add(scrobble);
                         }
-                        catch (Exception)
+                        catch
                         {
-                            continue;
-                            // TODO: log
+                            failedLines.Add(line);
                         }
                     }
                 }
             }
-            return result;
+            return new CacheRetrievalResult(result, failedLines);
         }
 
         /// <summary>
@@ -316,6 +316,17 @@ namespace xmp_sharp_scrobbler_managed
         ~Cache()
         {
             Dispose();
+        }
+    }
+
+    public class CacheRetrievalResult
+    {
+        public IReadOnlyCollection<Scrobble> Scrobbles { get; }
+        public IReadOnlyCollection<string> FailedLines { get; }
+        public CacheRetrievalResult(IReadOnlyCollection<Scrobble> scrobbles, IReadOnlyCollection<string> failedLines)
+        {
+            Scrobbles = scrobbles;
+            FailedLines = failedLines;
         }
     }
 }
