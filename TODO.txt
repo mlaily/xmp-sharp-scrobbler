@@ -14,5 +14,5 @@ Things left to do:
 	.	implement a log file
 	V	support unicode
 	.	document required environment (.Net 4.6...)
-	.	add license
+	V	add license
 	.	release!
