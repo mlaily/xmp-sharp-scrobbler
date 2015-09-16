@@ -94,7 +94,7 @@ static void WINAPI DSP_About(HWND win)
         PLUGIN_FRIENDLY_NAME "\n\n"
         "A Last.fm scrobbling plugin.\n\n"
         "Version " PLUGIN_VERSION_STRING "\n"
-        "Melvyn Laïly 2015",
+        "By Melvyn Laïly - 2015",
         PLUGIN_FRIENDLY_NAME,
         MB_ICONINFORMATION);
 }
