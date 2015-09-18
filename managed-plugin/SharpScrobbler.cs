@@ -31,6 +31,7 @@ namespace xmp_sharp_scrobbler_managed
 {
     public class SharpScrobbler
     {
+        private const string NullSessionKeyErrorMessage = "Please authenticate with Last.fm!";
         private static readonly TimeSpan DefaultErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
 
         private Cache cache;
@@ -58,7 +59,14 @@ namespace xmp_sharp_scrobbler_managed
         public async void OnTrackStartsPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
         {
             NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
-            await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(SessionKey, nowPlaying));
+            if (SessionKey != null)
+            {
+                await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(SessionKey, nowPlaying));
+            }
+            else
+            {
+                ShowErrorBubble(NullSessionKeyErrorMessage);
+            }
         }
 
         public async void OnTrackCanScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
@@ -99,6 +107,11 @@ namespace xmp_sharp_scrobbler_managed
                 // If this scrobble fails, it will be lost anyway.
                 try
                 {
+                    if (SessionKey == null)
+                    {
+                        ShowErrorBubble(NullSessionKeyErrorMessage);
+                        return;
+                    }
                     await Track.Scrobble(SessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
                 }
                 catch { }
@@ -133,6 +146,11 @@ namespace xmp_sharp_scrobbler_managed
 
         private async Task<bool> HandleScrobblingAsync(IEnumerable<Scrobble> scrobbles)
         {
+            if (SessionKey == null)
+            {
+                ShowErrorBubble(NullSessionKeyErrorMessage);
+                return false;
+            }
             try
             {
                 // Try scrobbling the current scrobble(s).
@@ -195,11 +213,11 @@ namespace xmp_sharp_scrobbler_managed
 
         private static void ShowErrorBubble(string message)
         {
-            Util.ShowInfoBubble($"XMPlay Sharp Scrobbler: Error! {message}", DefaultErrorBubbleDisplayTime);
+            Util.ShowInfoBubble($"Scrobbler Error! {message}", DefaultErrorBubbleDisplayTime);
         }
         private static void ShowErrorBubble(Exception ex)
         {
-            Util.ShowInfoBubble($"XMPlay Sharp Scrobbler: Error! {ex?.GetType()?.Name + " - " ?? ""}{ex.Message}", DefaultErrorBubbleDisplayTime);
+            Util.ShowInfoBubble($"Scrobbler Error! {ex?.GetType()?.Name + " - " ?? ""}{ex.Message}", DefaultErrorBubbleDisplayTime);
         }
 
         private static Scrobble CreateScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp = 0)
