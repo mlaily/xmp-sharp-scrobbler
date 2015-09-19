@@ -21,6 +21,7 @@
 #include <iostream>
 #include <time.h> 
 #include <windows.h>
+#include "Commctrl.h"
 
 #include "xmpdsp.h"
 #include "xmpfunc.h"
@@ -35,6 +36,8 @@
 // Magic number for MultiByteToWideChar()
 // to auto detect the length of a null terminated source string
 #define AUTO_NULL_TERMINATED_LENGTH     -1
+
+static HINSTANCE hDll;
 
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
@@ -90,13 +93,41 @@ static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs)
 
 static void WINAPI DSP_About(HWND win)
 {
-    MessageBox(win,
-        PLUGIN_FRIENDLY_NAME "\n\n"
-        "A Last.fm scrobbling plugin.\n\n"
-        "Version " PLUGIN_VERSION_STRING "\n"
-        "By Melvyn Laïly - 2015",
-        PLUGIN_FRIENDLY_NAME,
-        MB_ICONINFORMATION);
+    DialogBox(hDll, MAKEINTRESOURCE(IDD_ABOUT), win, &AboutDialogProc);
+}
+
+static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg)
+    {
+    case WM_INITDIALOG:
+        SetDlgItemText(hWnd, IDC_ABOUT_DOTNET_LINK, ABOUT_DIALOG_TEXT);
+        break;
+    case WM_NOTIFY:
+    {
+        LPNMHDR pnmh = (LPNMHDR)lParam;
+        if (pnmh->idFrom == IDC_ABOUT_DOTNET_LINK)
+        {
+            // Check for click or return key.
+            if ((pnmh->code == NM_CLICK) || (pnmh->code == NM_RETURN))
+            {
+                // Take the user to the .Net 4.6 offline installer download page.
+                ShellExecute(NULL, "open", "http://www.microsoft.com/en-us/download/details.aspx?id=48137", NULL, NULL, SW_SHOWNORMAL);
+            }
+        }
+        break;
+    }
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+        case IDCANCEL:
+            EndDialog(hWnd, 0);
+            break;
+        }
+        break;
+    }
+    return FALSE;
 }
 
 static const char* WINAPI DSP_GetDescription(void* inst)
@@ -398,6 +429,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     if (reason == DLL_PROCESS_ATTACH)
     {
         DisableThreadLibraryCalls(hDLL);
+        hDll = hDLL;
     }
     return 1;
 }
