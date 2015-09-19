@@ -13,6 +13,8 @@ Things left to do:
 	V	implement some caching mechanism
 	.	implement a log file
 	V	support unicode
-	.	document required environment (.Net 4.6...)
+	V	document required environment (.Net 4.6...)
 	V	add license
-	.	release!
+	V	list features
+	V	release!
+	

@@ -93,6 +93,7 @@ static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs)
 
 static void WINAPI DSP_About(HWND win)
 {
+    // Native dialog allowing to download .Net
     DialogBox(hDll, MAKEINTRESOURCE(IDD_ABOUT), win, &AboutDialogProc);
 }
 
