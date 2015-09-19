@@ -3,12 +3,12 @@
 #include "time.h"
 
 #define PLUGIN_FRIENDLY_NAME    "XMPlay Sharp Scrobbler"
-#define PLUGIN_VERSION          0,1,0,0
-#define PLUGIN_VERSION_STRING   "0.1.0.0"
+#define PLUGIN_VERSION          0,2,0,0
+#define PLUGIN_VERSION_STRING   "0.2.0.0"
 #define IDD_ABOUT               1001
 #define IDC_ABOUT_DOTNET_LINK   1002
 #define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING \
-" - 2015\nBy Melvyn Laïly\n\nThis plugin requires the .Net Framework 4.6 to be installed to run.\n\n<a>Download .Net 4.6</a>"
+" - 2015\n\nBy Melvyn Laïly\n\nThis plugin requires the .Net Framework 4.6 to be installed to run.\n\n<a>Download .Net 4.6</a>"
 
 
 // Config structure, as stored by XMPlay.
