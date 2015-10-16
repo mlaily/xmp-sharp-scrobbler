@@ -12,6 +12,8 @@ Things left to do:
 	V	GUI for the configuration
 	V	implement some caching mechanism
 	.	implement a log file
+	.	use mbid when present
+	.	better support for cue track lists?
 	V	support unicode
 	V	document required environment (.Net 4.6...)
 	V	add license
