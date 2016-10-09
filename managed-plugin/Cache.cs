@@ -67,7 +67,7 @@ namespace xmp_sharp_scrobbler_managed
         private bool fileLockAcquired = false;
         /// <summary>
         /// Global FileStream for the cache file.
-        /// The underlying handle prevents access to the file from other processes.
+        /// The underlying handle prevents write access to the file from other processes.
         /// The lock is maintained for the life of the current instance.
         /// </summary>
         private FileStream fileStream = null;
@@ -306,7 +306,7 @@ namespace xmp_sharp_scrobbler_managed
                 else
                 {
                     // Try to acquire an exclusive lock on the file.
-                    var fs = new FileStream(Location, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                    var fs = new FileStream(Location, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
                     fileStream = fs;
                     fileLockAcquired = true;
                 }
