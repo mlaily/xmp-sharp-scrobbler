@@ -8,7 +8,7 @@
 #define IDD_ABOUT               1001
 #define IDC_ABOUT_DOTNET_LINK   1002
 #define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING \
-" - 2015\n\nBy Melvyn Laïly\n\nThis plugin requires the .Net Framework 4.6 to be installed to run.\n\n<a>Download .Net 4.6</a>"
+" - 2016\n\nBy Melvyn Laïly\n\nThis plugin requires the .Net Framework 4.6 to be installed to run.\n\n<a>Download .Net 4.6</a>"
 
 
 // Config structure, as stored by XMPlay.
@@ -26,6 +26,7 @@ typedef struct
     wchar_t* artist;
     wchar_t* album;
     wchar_t* trackNumber;
+    wchar_t* mbid;
 } TrackInfo;
 
 /* DSP functions: */

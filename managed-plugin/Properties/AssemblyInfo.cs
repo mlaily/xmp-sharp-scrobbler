@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("xmp-sharp-scrobbler-managed")]
-[assembly: AssemblyCopyright("Copyright © Melvyn Laïly 2015")]
+[assembly: AssemblyCopyright("Copyright © Melvyn Laïly 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
