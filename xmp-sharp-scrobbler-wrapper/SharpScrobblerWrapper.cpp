@@ -47,6 +47,16 @@ public:
         Util::InitializeShowBubbleInfo(gcnew ShowInfoBubbleHandler(_ShowInfoBubble));
     }
 
+    static void LogMessage(const char* message)
+    {
+        Logger::Log(LogLevel::Info, gcnew String(message));
+    }
+    
+        static void LogMessage(const wchar_t* message)
+    {
+        Logger::Log(LogLevel::Info, gcnew String(message));
+    }
+
     void SetSessionKey(const char* sessionKey)
     {
         _adapter->Instance->SessionKey = gcnew String(sessionKey);

@@ -46,6 +46,8 @@ static ScrobblerConfig scrobblerConf;
 
 static SharpScrobblerWrapper* scrobbler = NULL;
 
+static const char* currentFilePath = NULL;
+
 static TrackInfo* currentTrackInfo = NULL;
 
 // Sample rate of the current track, by 1000.
@@ -140,6 +142,8 @@ static void* WINAPI DSP_New()
 {
     scrobbler = new SharpScrobblerWrapper();
     SharpScrobblerWrapper::InitializeShowBubbleInfo(ShowInfoBubble);
+    SharpScrobblerWrapper::LogMessage("****************************************************************************************************");
+    SharpScrobblerWrapper::LogMessage(PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
     return (void*)1;
 }
 
@@ -180,6 +184,7 @@ static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 // (file will be NULL in the latter case)
 static void WINAPI DSP_NewTrack(void* inst, const char* file)
 {
+    currentFilePath = file;
     CompleteCurrentTrack();
 }
 
@@ -344,6 +349,8 @@ static void TrackStartsPlaying()
 
     currentTrackInfo = trackInfo;
 
+    wchar_t* wFilePath = GetStringW(currentFilePath);
+
     // Do we have enough information to scrobble?
     if (CanScrobble(currentTrackInfo))
     {
@@ -354,7 +361,28 @@ static void TrackStartsPlaying()
             currentTrackDurationMs,
             currentTrackInfo->trackNumber,
             NULL);
+
+        if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
+        {
+            SharpScrobblerWrapper::LogMessage(
+                (std::wstring(L"The file '") + NullCheck(wFilePath)
+                    + L"', track: '" + NullCheck(currentTrackInfo->title)
+                    + L"', artist: '" + NullCheck(currentTrackInfo->artist)
+                    + L"', album: '" + NullCheck(currentTrackInfo->album)
+                    + L"' is too short (must be longer than 30 seconds) and will not be scrobbled.").c_str());
+        }
     }
+    else
+    {
+        SharpScrobblerWrapper::LogMessage(
+            (std::wstring(L"The file '") + NullCheck(wFilePath)
+                + L"', track: '" + NullCheck(currentTrackInfo->title)
+                + L"', artist: '" + NullCheck(currentTrackInfo->artist)
+                + L"', album: '" + NullCheck(currentTrackInfo->album)
+                + L"' is missing mandatory information and will not be scrobbled.").c_str());
+    }
+
+    delete[] wFilePath;
 }
 
 // Calculate the expected time until the end of the current track from the desired position.
@@ -413,6 +441,11 @@ static wchar_t* GetTagW(const char* tag)
         wValue = GetStringW(value);
     xmpfmisc->Free(value);
     return wValue;
+}
+
+static std::wstring NullCheck(wchar_t* string)
+{
+    return string ? std::wstring(string) : std::wstring();
 }
 
 

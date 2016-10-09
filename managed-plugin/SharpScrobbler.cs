@@ -59,12 +59,16 @@ namespace xmp_sharp_scrobbler_managed
         public async void OnTrackStartsPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
         {
             NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
+
+            Logger.Log(LogLevel.Info, $"Track starts playing: '{track}', artist: '{artist}', album: '{album}'");
+
             if (SessionKey != null)
             {
                 await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(SessionKey, nowPlaying));
             }
             else
             {
+                Logger.Log(LogLevel.Warn, $"Invalid session key. {NullSessionKeyErrorMessage}");
                 ShowErrorBubble(NullSessionKeyErrorMessage);
             }
         }
@@ -72,6 +76,9 @@ namespace xmp_sharp_scrobbler_managed
         public async void OnTrackCanScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
         {
             Scrobble scrobble = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid, utcUnixTimestamp);
+
+            Logger.Log(LogLevel.Info, $"Track played on {scrobble.Timestamp.ToLocalTime():s} ready to scrobble: '{track}', artist: '{artist}', album: '{album}'");
+
             // Cache the scrobble and wait for the end of the track to actually send it.
             try
             {
@@ -83,6 +90,7 @@ namespace xmp_sharp_scrobbler_managed
                 {
                     lastPotentialScrobbleInCaseOfCacheFailure = scrobble;
                 }
+                Logger.Log(LogLevel.Warn, $"An error occured while trying to store a scrobble into the cache file: {ex}");
                 ShowErrorBubble(ex);
             }
         }
@@ -114,7 +122,11 @@ namespace xmp_sharp_scrobbler_managed
                     }
                     await Track.Scrobble(SessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
                 }
-                catch { }
+                catch
+                {
+                    Logger.Log(LogLevel.Warn,
+                        $"An error occured while trying to scrobble the track '{fromLastPotentialScrobbleInCaseOfCacheFailure.Track}'. The cache is disabled, so the scrobble will be lost.");
+                }
             }
 
             // Try to scrobble the cache content.
@@ -124,6 +136,8 @@ namespace xmp_sharp_scrobbler_managed
                 if (retrievalResult.Scrobbles.Any())
                 {
                     // We have something!
+                    Logger.Log(LogLevel.Vrbs, $"{retrievalResult.Scrobbles.Count} scrobble{(retrievalResult.Scrobbles.Count > 1 ? "s" : "")} found in the cache.");
+
                     var partitions = retrievalResult.Scrobbles.Batch(50); // We can only scrobble 50 tracks at the same time.
                     foreach (var partition in partitions)
                     {
@@ -137,14 +151,14 @@ namespace xmp_sharp_scrobbler_managed
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Cache error (Scrobbling errors are catched inside HandleScrobblingAsync())
-                // TODO: log
+                Logger.Log(LogLevel.Warn, $"An error occured while trying to retrieve scrobbles from the cache: {ex}");
             }
         }
 
-        private async Task<bool> HandleScrobblingAsync(IEnumerable<Scrobble> scrobbles)
+        private async Task<bool> HandleScrobblingAsync(IReadOnlyCollection<Scrobble> scrobbles)
         {
             if (SessionKey == null)
             {
@@ -154,6 +168,7 @@ namespace xmp_sharp_scrobbler_managed
             try
             {
                 // Try scrobbling the current scrobble(s).
+                Logger.Log(LogLevel.Vrbs, $"Sending {scrobbles.Count} scrobble{(scrobbles.Count > 1 ? "s" : "")}.");
                 var scrobblingResult = await Track.Scrobble(SessionKey, scrobbles);
                 if (scrobblingResult.Success)
                 {
@@ -161,6 +176,7 @@ namespace xmp_sharp_scrobbler_managed
                 }
                 else
                 {
+                    Logger.Log(LogLevel.Warn, $"Error received from Last.fm: {scrobblingResult.Error.Code}. {scrobblingResult.Error.Message}");
                     // Check the error reported by Last.fm.
                     // 9. Invalid session key - Please re-authenticate
                     if (scrobblingResult.Error.Code == 9)
@@ -173,21 +189,19 @@ namespace xmp_sharp_scrobbler_managed
                     // 16.The service is temporarily unavailable, please try again.
                     else if (scrobblingResult.Error.Code == 11 || scrobblingResult.Error.Code == 16)
                     {
-                        // TODO: log
                         // Useless to continue right now.
                         return false;
                     }
                     else
                     {
                         // Unknown error code: failure, the scrobble is probably invalid
-                        // TODO: log
                         return false;
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: log
+                Logger.Log(LogLevel.Warn, $"An error occured while trying to send the scrobbles: {ex}");
                 // Probably a networking error, useless to continue right now.
                 return false;
             }

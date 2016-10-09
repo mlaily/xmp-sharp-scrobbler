@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logger.cs" />
     <Compile Include="Misc\AsyncLock.cs" />
     <Compile Include="Misc\Batch.cs" />
     <Compile Include="Cache.cs" />

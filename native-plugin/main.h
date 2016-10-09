@@ -53,6 +53,7 @@ static void ReleaseTrackInfo(TrackInfo* trackInfo);
 static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
 static wchar_t* GetStringW(const char* string);
 static wchar_t* GetTagW(const char* tag);
+static std::wstring NullCheck(wchar_t* string);
 static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs);
 
 static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
