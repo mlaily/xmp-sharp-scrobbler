@@ -47,14 +47,22 @@ public:
         Util::InitializeShowBubbleInfo(gcnew ShowInfoBubbleHandler(_ShowInfoBubble));
     }
 
-    static void LogMessage(const char* message)
+    static void LogInfo(const char* message)
     {
         Logger::Log(LogLevel::Info, gcnew String(message));
     }
-    
-        static void LogMessage(const wchar_t* message)
+    static void LogInfo(const wchar_t* message)
     {
         Logger::Log(LogLevel::Info, gcnew String(message));
+    }
+
+    static void LogWarning(const char* message)
+    {
+        Logger::Log(LogLevel::Warn, gcnew String(message));
+    }
+    static void LogWarning(const wchar_t* message)
+    {
+        Logger::Log(LogLevel::Warn, gcnew String(message));
     }
 
     void SetSessionKey(const char* sessionKey)

@@ -11,8 +11,11 @@ public:
 
     static void InitializeShowBubbleInfo(void(WINAPI *showBubbleInfo)(const char* text, int displayTimeMs));
 
-    static void LogMessage(const char* message);
-    static void LogMessage(const wchar_t* message);
+    static void LogInfo(const char* message);
+    static void LogInfo(const wchar_t* message);
+
+    static void LogWarning(const char* message);
+    static void LogWarning(const wchar_t* message);
 
     void SetSessionKey(const char* sessionKey);
 

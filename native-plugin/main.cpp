@@ -142,8 +142,8 @@ static void* WINAPI DSP_New()
 {
     scrobbler = new SharpScrobblerWrapper();
     SharpScrobblerWrapper::InitializeShowBubbleInfo(ShowInfoBubble);
-    SharpScrobblerWrapper::LogMessage("****************************************************************************************************");
-    SharpScrobblerWrapper::LogMessage(PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
+    SharpScrobblerWrapper::LogInfo("****************************************************************************************************");
+    SharpScrobblerWrapper::LogInfo(PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
     return (void*)1;
 }
 
@@ -364,7 +364,7 @@ static void TrackStartsPlaying()
 
         if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
         {
-            SharpScrobblerWrapper::LogMessage(
+            SharpScrobblerWrapper::LogWarning(
                 (std::wstring(L"The file '") + NullCheck(wFilePath)
                     + L"', track: '" + NullCheck(currentTrackInfo->title)
                     + L"', artist: '" + NullCheck(currentTrackInfo->artist)
@@ -374,7 +374,7 @@ static void TrackStartsPlaying()
     }
     else
     {
-        SharpScrobblerWrapper::LogMessage(
+        SharpScrobblerWrapper::LogWarning(
             (std::wstring(L"The file '") + NullCheck(wFilePath)
                 + L"', track: '" + NullCheck(currentTrackInfo->title)
                 + L"', artist: '" + NullCheck(currentTrackInfo->artist)
