@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace xmp_sharp_scrobbler_managed
 {
-    public class Win32Window : IWin32Window
+    internal class Win32Window : IWin32Window
     {
         public IntPtr Handle { get; }
         public Win32Window(IntPtr handle)

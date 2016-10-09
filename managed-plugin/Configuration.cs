@@ -32,7 +32,7 @@ using System.Windows.Forms;
 
 namespace xmp_sharp_scrobbler_managed
 {
-    public partial class Configuration : Form
+    internal partial class Configuration : Form
     {
         protected override CreateParams CreateParams
         {

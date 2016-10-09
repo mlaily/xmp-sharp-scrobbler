@@ -43,7 +43,7 @@ namespace xmp_sharp_scrobbler_managed
     /// (Last.fm ignore double scrobbles based on the timestamp, so this is ok)
     /// but it should never be lost.
     /// </remarks>
-    public class Cache : IDisposable
+    internal class Cache : IDisposable
     {
         public const string DefaultFileName = "SharpScrobbler.cache";
         private const string HeaderSignature = "XSSCache";

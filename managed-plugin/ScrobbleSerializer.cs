@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace xmp_sharp_scrobbler_managed
 {
-    public static class ScrobbleSerializer
+    internal static class ScrobbleSerializer
     {
         private const char FieldSeparator = '&';
         public static string Serialize(Scrobble scrobble)

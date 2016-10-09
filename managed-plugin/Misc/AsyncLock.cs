@@ -14,7 +14,7 @@ namespace xmp_sharp_scrobbler_managed
     /// <remarks>
     /// Warning: unlike the lock keyword, this lock is not reentrant.
     /// </remarks>
-    public class AsyncLock
+    internal class AsyncLock
     {
         private readonly AsyncSemaphore m_semaphore;
         private readonly Task<Releaser> m_releaser;
