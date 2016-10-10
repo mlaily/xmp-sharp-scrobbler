@@ -60,7 +60,7 @@ namespace xmp_sharp_scrobbler_managed
         {
             NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
 
-            Logger.Log(LogLevel.Info, $"Track starts playing: '{track}', artist: '{artist}', album: '{album}'");
+            Logger.Log(LogLevel.Info, $"Now playing: '{track}', artist: '{artist}', album: '{album}'");
 
             if (SessionKey != null)
             {
