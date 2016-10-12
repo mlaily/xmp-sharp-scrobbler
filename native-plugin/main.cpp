@@ -69,6 +69,9 @@ static int currentTrackDurationMs = 0;
 // When set to true, the current track will be scrobbled as soon as it ends.
 // Used to debounce the calls to OnTrackCompletes()
 static bool scrobbleCurrentTrackInfoOnEnd = false;
+// When set to true, a log will be added when a new track starts playing
+// to indicate the current track was not played long enough to be scrobbled.
+static bool logCurrentTrackWontScrobbleOnNextTrack = false;
 
 static XMPDSP dsp =
 {
@@ -310,6 +313,12 @@ static void CompleteCurrentTrack()
         scrobbler->OnTrackCompletes();
         scrobbleCurrentTrackInfoOnEnd = false;
     }
+    else if (logCurrentTrackWontScrobbleOnNextTrack)
+    {
+        SharpScrobblerWrapper::LogInfo("The previous track did not play long enough to be scrobbled.");
+    }
+
+    logCurrentTrackWontScrobbleOnNextTrack = false;
     processedSamplesForCurrentTrack = 0;
     processedSamplesForCurrentTrackSinceLastReset = 0;
     lastMeasuredTrackPosition = NAN;
@@ -349,6 +358,8 @@ static void TrackStartsPlaying()
 
     currentTrackInfo = trackInfo;
 
+    logCurrentTrackWontScrobbleOnNextTrack = true;
+
     wchar_t* wFilePath = GetStringW(currentFilePath);
 
     // Do we have enough information to scrobble?
@@ -370,6 +381,8 @@ static void TrackStartsPlaying()
                     + L"', artist: '" + NullCheck(currentTrackInfo->artist)
                     + L"', album: '" + NullCheck(currentTrackInfo->album)
                     + L"' is too short (must be longer than 30 seconds) and will not be scrobbled.").c_str());
+            // We don't want to log the same message twice...
+            logCurrentTrackWontScrobbleOnNextTrack = false;
         }
     }
     else
@@ -380,6 +393,8 @@ static void TrackStartsPlaying()
                 + L"', artist: '" + NullCheck(currentTrackInfo->artist)
                 + L"', album: '" + NullCheck(currentTrackInfo->album)
                 + L"' is missing mandatory information and will not be scrobbled.").c_str());
+        // We don't want to log the same message twice...
+        logCurrentTrackWontScrobbleOnNextTrack = false;
     }
 
     delete[] wFilePath;
