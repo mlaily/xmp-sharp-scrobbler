@@ -376,11 +376,11 @@ static void TrackStartsPlaying()
         if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
         {
             SharpScrobblerWrapper::LogWarning(
-                (std::wstring(L"The file '") + NullCheck(wFilePath)
-                    + L"', track: '" + NullCheck(currentTrackInfo->title)
+                (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
                     + L"', artist: '" + NullCheck(currentTrackInfo->artist)
                     + L"', album: '" + NullCheck(currentTrackInfo->album)
-                    + L"' is too short (must be longer than 30 seconds) and will not be scrobbled.").c_str());
+                    + L"', from file '" + NullCheck(wFilePath)
+                    + L"' is too short (it must be longer than 30 seconds) and will not be scrobbled.").c_str());
             // We don't want to log the same message twice...
             logCurrentTrackWontScrobbleOnNextTrack = false;
         }
@@ -388,11 +388,11 @@ static void TrackStartsPlaying()
     else
     {
         SharpScrobblerWrapper::LogWarning(
-            (std::wstring(L"The file '") + NullCheck(wFilePath)
-                + L"', track: '" + NullCheck(currentTrackInfo->title)
+            (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
                 + L"', artist: '" + NullCheck(currentTrackInfo->artist)
                 + L"', album: '" + NullCheck(currentTrackInfo->album)
-                + L"' is missing mandatory information and will not be scrobbled.").c_str());
+                + L"', from file '" + NullCheck(wFilePath)
+                + L"'is missing mandatory information and will not be scrobbled.").c_str());
         // We don't want to log the same message twice...
         logCurrentTrackWontScrobbleOnNextTrack = false;
     }
