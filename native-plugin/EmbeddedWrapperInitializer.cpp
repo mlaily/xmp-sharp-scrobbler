@@ -1,4 +1,4 @@
-// Copyright(c) 2015 Melvyn La�ly
+﻿// Copyright(c) 2015 Melvyn Laïly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -75,7 +75,7 @@ HMODULE ExtractAndLoad(const HMODULE hDll, WORD resourceId)
     return loadResult;
 }
 
-// Since we cannot delete an extracted file as soon as the program exit,
+// Since we cannot delete extracted files as soon as the program exit,
 // we do the next best thing: remove them on the next run of the program...
 void CleanPreviousExtractions()
 {
@@ -94,7 +94,7 @@ void CleanPreviousExtractions()
         HANDLE hFind = INVALID_HANDLE_VALUE;
 
         hFind = FindFirstFile(tempPathPattern, &ffd);
-        // loop over all the files in the temp directory with a name starting with the prefix, and try to remove them.
+        // loop over all of the files in the temp directory with a name starting with the prefix, and try to remove them.
         do
         {
             if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strncmp(ffd.cFileName, tempFileNamesPrefix, strlen(tempFileNamesPrefix)) == 0)
@@ -147,4 +147,5 @@ FARPROC WINAPI DliNotifyHook(unsigned dliNotify, PDelayLoadInfo pdli)
     }
     return NULL;
 }
-extern "C" PfnDliHook __pfnDliNotifyHook2 = DliNotifyHook;
+// https://msdn.microsoft.com/en-us/library/z9h1h6ty.aspx
+extern "C" const PfnDliHook __pfnDliNotifyHook2 = DliNotifyHook;
