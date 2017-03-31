@@ -64,7 +64,7 @@ namespace xmp_sharp_scrobbler_managed
 
                 Action<string> showFatalError = (string message) =>
                 {
-                    MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtStatus.Text = "Authentication aborted.";
                 };
 
