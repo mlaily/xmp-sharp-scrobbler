@@ -51,7 +51,7 @@ BEGIN
             VALUE "CompanyName", "Melvyn Laïly"
             VALUE "FileDescription", "XMPlay scrobbling plugin"
             VALUE "FileVersion", PLUGIN_VERSION_STRING
-            VALUE "LegalCopyright", "Copyright (C) Melvyn Laïly 2016"
+            VALUE "LegalCopyright", "Copyright (C) Melvyn Laïly 2016-2017"
             VALUE "ProductName", PLUGIN_FRIENDLY_NAME
             VALUE "ProductVersion", PLUGIN_VERSION_STRING
         END
