@@ -145,7 +145,14 @@ namespace xmp_sharp_scrobbler_managed
         private void openLogLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var startInfo = new ProcessStartInfo(Logger.GetDefaultPath()) { UseShellExecute = true };
-            Process.Start(startInfo);
+            try
+            {
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogLevel.Warn, $"Unable to open log file from the configuration window: {ex.Message}");
+            }
         }
     }
 }
