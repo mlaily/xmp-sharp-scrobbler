@@ -34,8 +34,8 @@ namespace Scrobbling
     {
         private const string ApiBaseAddress = "http://ws.audioscrobbler.com/2.0/";
 
-        public const string ApiKey = "e5d0abaff24f1f12261ab21930c49499";
-        private const string ApiSecret = "dcd2bf56f2f163fd5ae17af96a5299c1";
+        public const string ApiKey = "8014919ad10b3da4a2b8fe3c9de79fde";
+        private const string ApiSecret = "702efc7dabba3a8bf6340284f7de925e";
 
         private static HttpClient HttpClient { get; }
 
