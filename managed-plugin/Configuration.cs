@@ -141,5 +141,11 @@ namespace xmp_sharp_scrobbler_managed
             DialogResult = DialogResult.Cancel;
             Close();
         }
+
+        private void openLogLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var startInfo = new ProcessStartInfo(Logger.GetDefaultPath()) { UseShellExecute = true };
+            Process.Start(startInfo);
+        }
     }
 }

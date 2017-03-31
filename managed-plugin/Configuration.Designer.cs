@@ -33,6 +33,7 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.txtStatus = new System.Windows.Forms.Label();
             this.btnGetSessionKey = new System.Windows.Forms.Button();
+            this.openLogLink = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // btnReAuth
@@ -87,6 +88,18 @@
             this.btnGetSessionKey.Text = "Complete authentication";
             this.btnGetSessionKey.UseVisualStyleBackColor = true;
             // 
+            // openLogLink
+            // 
+            this.openLogLink.AutoSize = true;
+            this.openLogLink.LinkColor = System.Drawing.Color.RoyalBlue;
+            this.openLogLink.Location = new System.Drawing.Point(12, 141);
+            this.openLogLink.Name = "openLogLink";
+            this.openLogLink.Size = new System.Drawing.Size(66, 13);
+            this.openLogLink.TabIndex = 5;
+            this.openLogLink.TabStop = true;
+            this.openLogLink.Text = "Open log file";
+            this.openLogLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.openLogLink_LinkClicked);
+            // 
             // Configuration
             // 
             this.AcceptButton = this.btnSave;
@@ -94,6 +107,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(327, 172);
+            this.Controls.Add(this.openLogLink);
             this.Controls.Add(this.btnGetSessionKey);
             this.Controls.Add(this.txtStatus);
             this.Controls.Add(this.btnCancel);
@@ -118,5 +132,6 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label txtStatus;
         private System.Windows.Forms.Button btnGetSessionKey;
+        private System.Windows.Forms.LinkLabel openLogLink;
     }
 }
