@@ -3,8 +3,8 @@
 #include "time.h"
 
 #define PLUGIN_FRIENDLY_NAME    "XMPlay Sharp Scrobbler"
-#define PLUGIN_VERSION          0,4,0,0
-#define PLUGIN_VERSION_STRING   "0.4.0.0"
+#define PLUGIN_VERSION          0,5,0,0
+#define PLUGIN_VERSION_STRING   "0.5.0.0"
 #define IDD_ABOUT               1001
 #define IDC_ABOUT_DOTNET_LINK   1002
 #define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING \
