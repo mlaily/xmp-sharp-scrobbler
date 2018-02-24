@@ -22,6 +22,8 @@ This plugin was developed with the XMPlay 3.8 API. It is likely to work with an 
 
 ## Features ##
 
+(compared to the original xmp-scrobbler plugin)
+
 - Uses the up to date, still maintained by Last.fm, and unlikely to break scrobbling web API
 - Does not require you to enter your username or password in clear text in the configuration (OAuth support)
 - Correctly updates the Now Playing track in real time on your Last.fm profile
