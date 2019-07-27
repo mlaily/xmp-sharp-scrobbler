@@ -1,4 +1,4 @@
-// Copyright(c) 2015-2016 Melvyn Laïly
+// Copyright(c) 2015-2016 Melvyn LaÃ¯ly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -283,6 +283,11 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
         && currentTrackDurationMs > TRACK_DURATION_THRESHOLD_MS
         && (calculatedPlayedMs > (currentTrackDurationMs / 2) || calculatedPlayedMs >= TRACK_PLAY_TIME_THRESHOLD_MS))
     {
+        // In some cases (e.g. with some files, the first time the track is streamed from http)
+        // The tags are null when the track starts playing.
+        // Retrying here is a workaround to double check whether we actually have the tags or not...
+        InitializeCurrentTrackInfo();
+
         // Do we have enough information to scrobble?
         if (CanScrobble(currentTrackInfo))
         {
@@ -294,6 +299,23 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
                 currentTrackInfo->trackNumber,
                 NULL,
                 currentTrackInfo->playStartTimestamp);
+        }
+        else
+        {
+            // This was initially in TrackStartsPlaying(),
+            // but because of the aforementioned problem (in some cases we don't have the tags at this moment)
+            // we were logging false positives.
+            // Doing it here should work all the time.
+            wchar_t* wFilePath = GetStringW(currentFilePath);
+            SharpScrobblerWrapper::LogWarning(
+                (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
+                    + L"', artist: '" + NullCheck(currentTrackInfo->artist)
+                    + L"', album: '" + NullCheck(currentTrackInfo->album)
+                    + L"', from file '" + NullCheck(wFilePath)
+                    + L"'is missing mandatory information and will not be scrobbled. (This might)").c_str());
+            // We don't want to log the same message twice...
+            logCurrentTrackWontScrobbleOnNextTrack = false;
+            delete[] wFilePath;
         }
         scrobbleCurrentTrackInfoOnEnd = true;
     }
@@ -335,6 +357,39 @@ static void TrackStartsPlaying()
     currentTrackDurationMs = expectedEndOfCurrentTrackInMs = GetExpectedEndOfCurrentTrackInMs(0);
     scrobbleCurrentTrackInfoOnEnd = false;
 
+    InitializeCurrentTrackInfo();
+
+    logCurrentTrackWontScrobbleOnNextTrack = true;
+
+    // Do we have enough information to scrobble?
+    if (CanScrobble(currentTrackInfo))
+    {
+        scrobbler->OnTrackStartsPlaying(
+            currentTrackInfo->artist,
+            currentTrackInfo->title,
+            currentTrackInfo->album,
+            currentTrackDurationMs,
+            currentTrackInfo->trackNumber,
+            NULL);
+
+        if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
+        {
+            wchar_t* wFilePath = GetStringW(currentFilePath);
+            SharpScrobblerWrapper::LogWarning(
+                (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
+                    + L"', artist: '" + NullCheck(currentTrackInfo->artist)
+                    + L"', album: '" + NullCheck(currentTrackInfo->album)
+                    + L"', from file '" + NullCheck(wFilePath)
+                    + L"' is too short (it must be longer than 30 seconds) and will not be scrobbled.").c_str());
+            // We don't want to log the same message twice...
+            logCurrentTrackWontScrobbleOnNextTrack = false;
+            delete[] wFilePath;
+        }
+    }
+}
+
+static void InitializeCurrentTrackInfo()
+{
     // (Re)initialize currentTrackInfo:
     ReleaseTrackInfo(currentTrackInfo);
 
@@ -357,47 +412,6 @@ static void TrackStartsPlaying()
     }
 
     currentTrackInfo = trackInfo;
-
-    logCurrentTrackWontScrobbleOnNextTrack = true;
-
-    wchar_t* wFilePath = GetStringW(currentFilePath);
-
-    // Do we have enough information to scrobble?
-    if (CanScrobble(currentTrackInfo))
-    {
-        scrobbler->OnTrackStartsPlaying(
-            currentTrackInfo->artist,
-            currentTrackInfo->title,
-            currentTrackInfo->album,
-            currentTrackDurationMs,
-            currentTrackInfo->trackNumber,
-            NULL);
-
-        if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
-        {
-            SharpScrobblerWrapper::LogWarning(
-                (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
-                    + L"', artist: '" + NullCheck(currentTrackInfo->artist)
-                    + L"', album: '" + NullCheck(currentTrackInfo->album)
-                    + L"', from file '" + NullCheck(wFilePath)
-                    + L"' is too short (it must be longer than 30 seconds) and will not be scrobbled.").c_str());
-            // We don't want to log the same message twice...
-            logCurrentTrackWontScrobbleOnNextTrack = false;
-        }
-    }
-    else
-    {
-        SharpScrobblerWrapper::LogWarning(
-            (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
-                + L"', artist: '" + NullCheck(currentTrackInfo->artist)
-                + L"', album: '" + NullCheck(currentTrackInfo->album)
-                + L"', from file '" + NullCheck(wFilePath)
-                + L"'is missing mandatory information and will not be scrobbled.").c_str());
-        // We don't want to log the same message twice...
-        logCurrentTrackWontScrobbleOnNextTrack = false;
-    }
-
-    delete[] wFilePath;
 }
 
 // Calculate the expected time until the end of the current track from the desired position.

@@ -47,6 +47,7 @@ static void WINAPI DSP_NewTitle(void* inst, const char* title);
 /* Plugin functions: */
 
 static void CompleteCurrentTrack();
+static void InitializeCurrentTrackInfo();
 static void TrackStartsPlaying();
 static bool CanScrobble(TrackInfo* trackInfo);
 static void ReleaseTrackInfo(TrackInfo* trackInfo);
