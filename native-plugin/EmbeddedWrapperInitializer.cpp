@@ -1,4 +1,4 @@
-﻿// Copyright(c) 2015 Melvyn Laïly
+// Copyright(c) 2015 Melvyn Laïly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -21,7 +21,7 @@
 #include <windows.h>
 #include <delayimp.h>
 
-#include "EmbeddedWrapperInitializer.h"
+#include "resource.h"
 #include "AssemblyInitializer.h"
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
