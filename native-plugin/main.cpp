@@ -26,7 +26,8 @@
 #include "xmpdsp.h"
 #include "xmpfunc.h"
 
-#include "SharpScrobblerWrapper.h"
+#include "clr-initializer.h"
+#include "managed-exports.h"
 #include "main.h"
 
 // > 30 seconds ?
@@ -42,9 +43,9 @@ static HINSTANCE hDll;
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
 
-static ScrobblerConfig scrobblerConf;
+static ICLRRuntimeHost* CLRRuntimeHost;
 
-static SharpScrobblerWrapper* scrobbler = NULL;
+static ScrobblerConfig scrobblerConf;
 
 static const char* currentFilePath = NULL;
 
@@ -91,11 +92,6 @@ static XMPDSP dsp =
     DSP_NewTitle
 };
 
-static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs)
-{
-    xmpfmisc->ShowBubble(text, displayTimeMs);
-}
-
 static void WINAPI DSP_About(HWND win)
 {
     // Native dialog allowing to download .Net
@@ -107,7 +103,7 @@ static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
     switch (msg)
     {
     case WM_INITDIALOG:
-        SetDlgItemText(hWnd, IDC_ABOUT_DOTNET_LINK, ABOUT_DIALOG_TEXT);
+        SetDlgItemText(hWnd, IDC_ABOUT_DOTNET_LINK, utf8_decode(ABOUT_DIALOG_TEXT).c_str());
         break;
     case WM_NOTIFY:
     {
@@ -118,7 +114,7 @@ static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             if ((pnmh->code == NM_CLICK) || (pnmh->code == NM_RETURN))
             {
                 // Take the user to the .Net 4.6 offline installer download page.
-                ShellExecute(NULL, "open", "http://www.microsoft.com/en-us/download/details.aspx?id=48137", NULL, NULL, SW_SHOWNORMAL);
+                ShellExecute(NULL, L"open", L"http://www.microsoft.com/en-us/download/details.aspx?id=48137", NULL, NULL, SW_SHOWNORMAL);
             }
         }
         break;
@@ -143,28 +139,37 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 
 static void* WINAPI DSP_New()
 {
-    scrobbler = new SharpScrobblerWrapper();
-    SharpScrobblerWrapper::InitializeShowBubbleInfo(ShowInfoBubble);
-    SharpScrobblerWrapper::LogInfo("****************************************************************************************************");
-    SharpScrobblerWrapper::LogInfo(PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
+    CLRRuntimeHost = InitializeCLRRuntimeHost();
+
+    InitializeAssembly(CLRRuntimeHost, L"xmp-sharp-scrobbler-managed.dll");
+
+    pManagedExports->LogInfo(L"****************************************************************************************************");
+    pManagedExports->LogInfo(L"" PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
     return (void*)1;
 }
 
 static void WINAPI DSP_Free(void* inst)
 {
     ReleaseTrackInfo(currentTrackInfo);
-    delete scrobbler;
+
+    pManagedExports->Free();
+    pManagedExports = NULL;
+
+    // Not sure whether it's enough, but we can't call Stop()
+    // in case other plugins still depend on the CLR...
+    CLRRuntimeHost->Release();
+    CLRRuntimeHost = NULL;
 }
 
 // Called after a click on the plugin Config button.
 static void WINAPI DSP_Config(void* inst, HWND win)
 {
-    const char* sessionKey = scrobbler->AskUserForNewAuthorizedSessionKey(win);
+    const char* sessionKey = pManagedExports->AskUserForNewAuthorizedSessionKey(win);
     if (sessionKey != NULL)
     {
         // If the new session key is valid, save it.
         memcpy(scrobblerConf.sessionKey, sessionKey, sizeof(scrobblerConf.sessionKey));
-        scrobbler->SetSessionKey(scrobblerConf.sessionKey);
+        pManagedExports->SetSessionKey(scrobblerConf.sessionKey);
     }
 }
 
@@ -179,7 +184,7 @@ static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
     memcpy(&scrobblerConf, config, sizeof(ScrobblerConfig));
-    scrobbler->SetSessionKey(scrobblerConf.sessionKey);
+    pManagedExports->SetSessionKey(scrobblerConf.sessionKey);
     return TRUE;
 }
 
@@ -291,7 +296,7 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
         // Do we have enough information to scrobble?
         if (CanScrobble(currentTrackInfo))
         {
-            scrobbler->OnTrackCanScrobble(
+            pManagedExports->OnTrackCanScrobble(
                 currentTrackInfo->artist,
                 currentTrackInfo->title,
                 currentTrackInfo->album,
@@ -306,16 +311,15 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
             // but because of the aforementioned problem (in some cases we don't have the tags at this moment)
             // we were logging false positives.
             // Doing it here should work all the time.
-            wchar_t* wFilePath = GetStringW(currentFilePath);
-            SharpScrobblerWrapper::LogWarning(
+            auto wFilePath = utf8_decode(currentFilePath);
+            pManagedExports->LogWarning(
                 (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
                     + L"', artist: '" + NullCheck(currentTrackInfo->artist)
                     + L"', album: '" + NullCheck(currentTrackInfo->album)
-                    + L"', from file '" + NullCheck(wFilePath)
-                    + L"'is missing mandatory information and will not be scrobbled. (This might)").c_str());
+                    + L"', from file '" + wFilePath
+                    + L"'is missing mandatory information and will not be scrobbled.").c_str());
             // We don't want to log the same message twice...
             logCurrentTrackWontScrobbleOnNextTrack = false;
-            delete[] wFilePath;
         }
         scrobbleCurrentTrackInfoOnEnd = true;
     }
@@ -332,12 +336,12 @@ static void CompleteCurrentTrack()
 {
     if (scrobbleCurrentTrackInfoOnEnd)
     {
-        scrobbler->OnTrackCompletes();
+        pManagedExports->OnTrackCompletes();
         scrobbleCurrentTrackInfoOnEnd = false;
     }
     else if (logCurrentTrackWontScrobbleOnNextTrack)
     {
-        SharpScrobblerWrapper::LogInfo("The previous track did not play long enough to be scrobbled.");
+        pManagedExports->LogInfo(L"The previous track did not play long enough to be scrobbled.");
     }
 
     logCurrentTrackWontScrobbleOnNextTrack = false;
@@ -364,7 +368,7 @@ static void TrackStartsPlaying()
     // Do we have enough information to scrobble?
     if (CanScrobble(currentTrackInfo))
     {
-        scrobbler->OnTrackStartsPlaying(
+        pManagedExports->OnTrackStartsPlaying(
             currentTrackInfo->artist,
             currentTrackInfo->title,
             currentTrackInfo->album,
@@ -374,16 +378,15 @@ static void TrackStartsPlaying()
 
         if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
         {
-            wchar_t* wFilePath = GetStringW(currentFilePath);
-            SharpScrobblerWrapper::LogWarning(
+            auto wFilePath = utf8_decode(currentFilePath);
+            pManagedExports->LogWarning(
                 (std::wstring(L"Track: '") + NullCheck(currentTrackInfo->title)
                     + L"', artist: '" + NullCheck(currentTrackInfo->artist)
                     + L"', album: '" + NullCheck(currentTrackInfo->album)
-                    + L"', from file '" + NullCheck(wFilePath)
+                    + L"', from file '" + wFilePath
                     + L"' is too short (it must be longer than 30 seconds) and will not be scrobbled.").c_str());
             // We don't want to log the same message twice...
             logCurrentTrackWontScrobbleOnNextTrack = false;
-            delete[] wFilePath;
         }
     }
 }
@@ -472,11 +475,28 @@ static wchar_t* GetTagW(const char* tag)
     return wValue;
 }
 
+// https://stackoverflow.com/questions/215963/how-do-you-properly-use-widechartomultibyte/3999597#3999597
+static std::string utf8_encode(const std::wstring& wstr)
+{
+    if (wstr.empty()) return std::string();
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+static std::wstring utf8_decode(const std::string& str)
+{
+    if (str.empty()) return std::wstring();
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
+}
+
 static std::wstring NullCheck(wchar_t* string)
 {
     return string ? std::wstring(string) : std::wstring();
 }
-
 
 // Get the plugin's XMPDSP interface.
 XMPDSP* WINAPI XMPDSP_GetInterface2(DWORD face, InterfaceProc faceproc)
@@ -495,4 +515,9 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
         hDll = hDLL;
     }
     return 1;
+}
+
+void WINAPI ShowInfoBubble(LPCWSTR text, int displayTimeMs)
+{
+    xmpfmisc->ShowBubble(utf8_encode(text).c_str(), displayTimeMs);
 }

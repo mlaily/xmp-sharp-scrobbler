@@ -17,18 +17,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler_managed
+#include "clr-initializer.h"
+
+ICLRRuntimeHost* InitializeCLRRuntimeHost()
 {
-    public static class Util
-    {
-        public static void ShowInfoBubble(string text, TimeSpan? displayTime = null)
-            => Plugin.ShowInfoBubble(text, displayTime == null ? 0 : (int)displayTime.Value.TotalMilliseconds);
-    }
+	ICLRMetaHost* metaHost = NULL;
+	ICLRRuntimeInfo* runtimeInfo = NULL;
+	ICLRRuntimeHost* runtimeHost = NULL;
+	if (CLRCreateInstance(CLSID_CLRMetaHost, IID_PPV_ARGS(&metaHost)) == S_OK)
+		if (metaHost->GetRuntime(L"v4.0.30319", IID_PPV_ARGS(&runtimeInfo)) == S_OK)
+			if (runtimeInfo->GetInterface(CLSID_CLRRuntimeHost, IID_PPV_ARGS(&runtimeHost)) == S_OK)
+			{
+				// Will fail if the CLR is already loaded by another plugin.
+				// We should be able to safely ignore this error...
+				HRESULT startResult = runtimeHost->Start();
+
+				if (runtimeInfo != NULL)
+					runtimeInfo->Release();
+				if (metaHost != NULL)
+					metaHost->Release();
+				return runtimeHost;
+			}
+	return NULL;
 }

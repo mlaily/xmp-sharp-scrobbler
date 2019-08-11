@@ -14,21 +14,21 @@
     <ProjectGuid>{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}</ProjectGuid>
     <RootNamespace>xmpsharpscrobbler</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>xmp-sharp-scrobbler-native</ProjectName>
+    <ProjectName>xmp-sharp-scrobbler</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -54,17 +54,19 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)\xmp-sharp-scrobbler-wrapper;$(SolutionDir)\xmp-sdk-headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\xmp-sdk-headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>Debug</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;$(ProjectDir)\WrapperBuildResult\xmp-sharp-scrobbler-wrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\xmp-sdk-headers\xmpdsp.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DelayLoadDLLs>xmp-sharp-scrobbler-wrapper.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /RY "$(SolutionDir)xmplay.exe" "$(TargetDir)"</Command>
@@ -80,37 +82,45 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\xmp-sharp-scrobbler-wrapper;$(SolutionDir)\xmp-sdk-headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\xmp-sdk-headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <SDLCheck>true</SDLCheck>
       <StringPooling>true</StringPooling>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;$(ProjectDir)\WrapperBuildResult\xmp-sharp-scrobbler-wrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>..\xmp-sdk-headers\xmpdsp.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <DelayLoadDLLs>xmp-sharp-scrobbler-wrapper.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PreBuildEvent>
-      <Command>xcopy /RY "$(SolutionDir)\xmp-sharp-scrobbler-wrapper\bin\$(Configuration)\xmp-sharp-scrobbler-wrapper.dll" "$(ProjectDir)\WrapperBuildResult\"
-xcopy /RY "$(SolutionDir)\xmp-sharp-scrobbler-wrapper\bin\$(Configuration)\xmp-sharp-scrobbler-wrapper.lib" "$(ProjectDir)\WrapperBuildResult\"
-</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>xcopy /RY "$(SolutionDir)xmplay.exe" "$(TargetDir)"
-mkdir "$(SolutionDir)\Plugin-Release\"
-xcopy /RY "$(TargetPath)" "$(SolutionDir)\Plugin-Release\xmp-sharp-scrobbler.dll"</Command>
+mkdir "$(SolutionDir)Plugin-Release\"
+xcopy /RY "$(TargetDir)xmp-sharp-scrobbler-managed.dll" "$(SolutionDir)Plugin-Release\"
+xcopy /RY "$(TargetPath)" "$(SolutionDir)Plugin-Release\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EmbeddedWrapperInitializer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="clr-initializer.cpp" />
+    <ClCompile Include="managed-exports.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="..\managed-plugin\build\xmp-sharp-scrobbler-managed.dll">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DeploymentContent>
+    </CopyFileToFolders>
     <None Include="..\xmp-sdk-headers\xmpdsp.def" />
-    <None Include="WrapperBuildResult\xmp-sharp-scrobbler-wrapper.dll" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -119,6 +129,8 @@ xcopy /RY "$(TargetPath)" "$(SolutionDir)\Plugin-Release\xmp-sharp-scrobbler.dll
     <ClInclude Include="..\xmp-sdk-headers\xmpdsp.h" />
     <ClInclude Include="..\xmp-sdk-headers\xmpfunc.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="clr-initializer.h" />
+    <ClInclude Include="managed-exports.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

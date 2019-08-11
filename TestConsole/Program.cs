@@ -1,4 +1,4 @@
-﻿using Scrobbling;
+using Scrobbling;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,6 +28,8 @@ namespace TestConsole
                 TrackNumber = "1/3",
                 Duration = new TimeSpan(0, 5, 16)
             };
+
+            var sessionKey = "";
 
             var updateNowPlayingResult = Track.UpdateNowPlaying(sessionKey, scrobble).Result;
 

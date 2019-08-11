@@ -1,4 +1,4 @@
-// Copyright(c) 2015 Melvyn Laïly
+// Copyright(c) 2019 Melvyn Laïly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -17,18 +17,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler_managed
+#include "managed-exports.h"
+
+
+ManagedExports* pManagedExports;
+
+void WINAPI InitializeManagedExports(ManagedExports* exports)
 {
-    public static class Util
-    {
-        public static void ShowInfoBubble(string text, TimeSpan? displayTime = null)
-            => Plugin.ShowInfoBubble(text, displayTime == null ? 0 : (int)displayTime.Value.TotalMilliseconds);
-    }
+    pManagedExports = exports;
 }

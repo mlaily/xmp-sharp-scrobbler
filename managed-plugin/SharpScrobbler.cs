@@ -1,4 +1,4 @@
-﻿// Copyright(c) 2015-2016 Melvyn Laïly
+// Copyright(c) 2015-2016 Melvyn Laïly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -29,7 +29,7 @@ using System.Windows.Forms;
 
 namespace xmp_sharp_scrobbler_managed
 {
-    public class SharpScrobbler
+    public class SharpScrobbler : IDisposable
     {
         private const string NullSessionKeyErrorMessage = "Please authenticate with Last.fm!";
         private static readonly TimeSpan DefaultErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
@@ -38,7 +38,8 @@ namespace xmp_sharp_scrobbler_managed
         private Scrobble lastPotentialScrobbleInCaseOfCacheFailure;
         private object lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
 
-        public string SessionKey { get; set; }
+        public string SessionKey { get; private set; }
+        public void SetSessionKey(string key) => SessionKey = key;
 
         public SharpScrobbler()
         {
@@ -242,5 +243,10 @@ namespace xmp_sharp_scrobbler_managed
                 TrackNumber = string.IsNullOrWhiteSpace(trackNumber) ? null : trackNumber,
                 Mbid = string.IsNullOrWhiteSpace(mbid) ? null : mbid,
             };
+
+        public void Dispose()
+        {
+            cache.Dispose();
+        }
     }
 }

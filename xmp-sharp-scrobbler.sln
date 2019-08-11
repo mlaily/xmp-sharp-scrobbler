@@ -1,19 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmp-sharp-scrobbler-native", "native-plugin\xmp-sharp-scrobbler-native.vcxproj", "{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmp-sharp-scrobbler", "native-plugin\xmp-sharp-scrobbler-native.vcxproj", "{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848} = {10238D4E-B185-4CC6-8FB5-D0BC7A19D848}
-		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2} = {B9BD977A-5527-4BD5-A84C-23E05C8A38B2}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xmp-sharp-scrobbler-managed", "managed-plugin\xmp-sharp-scrobbler-managed.csproj", "{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmp-sharp-scrobbler-wrapper", "xmp-sharp-scrobbler-wrapper\xmp-sharp-scrobbler-wrapper.vcxproj", "{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Scrobbling", "Scrobbling\Scrobbling.shproj", "{3EFFE537-A441-4021-890E-2E2490F351E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{3C2357E2-0321-4193-A9EC-93B7E369EC55}"
 EndProject
@@ -21,41 +16,42 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managed Plugin Implementati
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Native C++ Plugin", "Native C++ Plugin", "{77B35884-4306-4F8D-B6A2-E1A6D8B7B0F4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Mixed Native-Managed Assembly Bridge", "Mixed Native-Managed Assembly Bridge", "{BB8C5706-994C-47ED-A029-0787810F2308}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Scrobbling\Scrobbling.projitems*{3c2357e2-0321-4193-a9ec-93b7e369ec55}*SharedItemsImports = 4
-		Scrobbling\Scrobbling.projitems*{3effe537-a441-4021-890e-2e2490f351e4}*SharedItemsImports = 13
-		Scrobbling\Scrobbling.projitems*{10238d4e-b185-4cc6-8fb5-d0bc7a19d848}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x86.ActiveCfg = Debug|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x86.Build.0 = Debug|Win32
+		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|Any CPU.ActiveCfg = Release|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x86.ActiveCfg = Release|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x86.Build.0 = Release|Win32
+		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.ActiveCfg = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.Build.0 = Debug|x86
+		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|Any CPU.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.Build.0 = Release|x86
-		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Debug|x86.ActiveCfg = Debug|Win32
-		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Debug|x86.Build.0 = Debug|Win32
-		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Release|x86.ActiveCfg = Release|Win32
-		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2}.Release|x86.Build.0 = Release|Win32
+		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|x86.Build.0 = Debug|Any CPU
+		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|x86.ActiveCfg = Release|Any CPU
 		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|x86.Build.0 = Release|Any CPU
+		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|x86.ActiveCfg = Debug|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|x86.Build.0 = Debug|x86
+		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|Any CPU.ActiveCfg = Release|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|x86.ActiveCfg = Release|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
@@ -65,9 +61,10 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9} = {77B35884-4306-4F8D-B6A2-E1A6D8B7B0F4}
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848} = {4973CDEC-675E-42D4-9375-DF195743E720}
-		{B9BD977A-5527-4BD5-A84C-23E05C8A38B2} = {BB8C5706-994C-47ED-A029-0787810F2308}
-		{3EFFE537-A441-4021-890E-2E2490F351E4} = {4973CDEC-675E-42D4-9375-DF195743E720}
 		{3C2357E2-0321-4193-A9EC-93B7E369EC55} = {C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837} = {C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DFCDBF11-E29C-486F-9488-0ABE48D6760F}
 	EndGlobalSection
 EndGlobal

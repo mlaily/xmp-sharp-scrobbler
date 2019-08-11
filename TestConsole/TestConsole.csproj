@@ -50,7 +50,13 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <Import Project="..\Scrobbling\Scrobbling.projitems" Label="Shared" />
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\managed-plugin\xmp-sharp-scrobbler-managed.csproj">
+      <Project>{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}</Project>
+      <Name>xmp-sharp-scrobbler-managed</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

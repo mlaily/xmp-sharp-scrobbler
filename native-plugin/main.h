@@ -1,12 +1,12 @@
-﻿#pragma once
+#pragma once
 
 // WARNING: special characters will be mangled if this file does not stay encoded as UTF-8-BOM
 
 #include "time.h"
 
 #define PLUGIN_FRIENDLY_NAME    "XMPlay Sharp Scrobbler"
-#define PLUGIN_VERSION          0,5,0,0
-#define PLUGIN_VERSION_STRING   "0.5.0.0"
+#define PLUGIN_VERSION          0,6,0,0
+#define PLUGIN_VERSION_STRING   "0.6.0.0"
 #define IDD_ABOUT               1001
 #define IDC_ABOUT_DOTNET_LINK   1002
 #define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING \
@@ -55,8 +55,13 @@ static bool CanScrobble(TrackInfo* trackInfo);
 static void ReleaseTrackInfo(TrackInfo* trackInfo);
 static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
 static wchar_t* GetStringW(const char* string);
+static std::string utf8_encode(const std::wstring& wstr);
+static std::wstring utf8_decode(const std::string& str);
 static wchar_t* GetTagW(const char* tag);
 static std::wstring NullCheck(wchar_t* string);
-static void WINAPI ShowInfoBubble(const char* text, int displayTimeMs);
 
 static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+extern "C" {
+    __declspec(dllexport) void WINAPI ShowInfoBubble(LPCWSTR text, int displayTimeMs);
+}

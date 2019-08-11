@@ -53,7 +53,14 @@
     <Compile Include="Configuration.Designer.cs">
       <DependentUpon>Configuration.cs</DependentUpon>
     </Compile>
+    <Compile Include="Plugin.cs" />
     <Compile Include="ScrobbleSerializer.cs" />
+    <Compile Include="Scrobbling\ApiResponse.cs" />
+    <Compile Include="Scrobbling\Auth.cs" />
+    <Compile Include="Scrobbling\Common.cs" />
+    <Compile Include="Scrobbling\Track.cs" />
+    <Compile Include="Scrobbling\TrackModels.cs" />
+    <Compile Include="Scrobbling\Util.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Misc\Win32Window.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,7 +71,6 @@
       <DependentUpon>Configuration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Project="..\Scrobbling\Scrobbling.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
