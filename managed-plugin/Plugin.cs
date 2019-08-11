@@ -1,4 +1,4 @@
-// Copyright(c) 2015 Melvyn Laïly
+// Copyright(c) 2015-2019 Melvyn Laïly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -97,6 +97,9 @@ public static class Plugin
 
     [DllImport("xmp-sharp-scrobbler")]
     public static extern void ShowInfoBubble([MarshalAs(UnmanagedType.LPWStr)]string text, int displayTimeMs);
+
+    public static void ShowInfoBubble(string text, TimeSpan? displayTime = null)
+           => ShowInfoBubble(text, displayTime == null ? 0 : (int)displayTime.Value.TotalMilliseconds);
 }
 
 public delegate void Log([MarshalAs(UnmanagedType.LPWStr)]string text);

@@ -1,4 +1,4 @@
-// Copyright(c) 2015-2016 Melvyn Laïly
+// Copyright(c) 2015-2019 Melvyn Laïly
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -228,11 +228,11 @@ namespace xmp_sharp_scrobbler_managed
 
         private static void ShowErrorBubble(string message)
         {
-            Util.ShowInfoBubble($"Scrobbler Error! {message}", DefaultErrorBubbleDisplayTime);
+            Plugin.ShowInfoBubble($"Scrobbler Error! {message}", DefaultErrorBubbleDisplayTime);
         }
         private static void ShowErrorBubble(Exception ex)
         {
-            Util.ShowInfoBubble($"Scrobbler Error! {ex?.GetType()?.Name + " - " ?? ""}{ex.Message}", DefaultErrorBubbleDisplayTime);
+            Plugin.ShowInfoBubble($"Scrobbler Error! {ex?.GetType()?.Name + " - " ?? ""}{ex.Message}", DefaultErrorBubbleDisplayTime);
         }
 
         private static Scrobble CreateScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp = 0)

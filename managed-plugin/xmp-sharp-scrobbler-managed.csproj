@@ -61,7 +61,6 @@
     <Compile Include="Scrobbling\Track.cs" />
     <Compile Include="Scrobbling\TrackModels.cs" />
     <Compile Include="Scrobbling\Util.cs" />
-    <Compile Include="Util.cs" />
     <Compile Include="Misc\Win32Window.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SharpScrobbler.cs" />
