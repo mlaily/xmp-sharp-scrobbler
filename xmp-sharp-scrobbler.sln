@@ -10,8 +10,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xmp-sharp-scrobbler", "nati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xmp-sharp-scrobbler-managed", "managed-plugin\xmp-sharp-scrobbler-managed.csproj", "{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{3C2357E2-0321-4193-A9EC-93B7E369EC55}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managed Plugin Implementation", "Managed Plugin Implementation", "{4973CDEC-675E-42D4-9375-DF195743E720}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Native C++ Plugin", "Native C++ Plugin", "{77B35884-4306-4F8D-B6A2-E1A6D8B7B0F4}"
@@ -22,36 +20,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
-		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x86.ActiveCfg = Debug|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Debug|x86.Build.0 = Debug|Win32
-		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|Any CPU.ActiveCfg = Release|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x86.ActiveCfg = Release|Win32
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9}.Release|x86.Build.0 = Release|Win32
-		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.ActiveCfg = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.Build.0 = Debug|x86
-		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|Any CPU.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.Build.0 = Release|x86
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Debug|x86.Build.0 = Debug|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|x86.ActiveCfg = Release|Any CPU
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55}.Release|x86.Build.0 = Release|Any CPU
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|x86.ActiveCfg = Debug|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|x86.Build.0 = Debug|x86
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|Any CPU.ActiveCfg = Release|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|x86.ActiveCfg = Release|x86
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
@@ -61,7 +43,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9} = {77B35884-4306-4F8D-B6A2-E1A6D8B7B0F4}
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848} = {4973CDEC-675E-42D4-9375-DF195743E720}
-		{3C2357E2-0321-4193-A9EC-93B7E369EC55} = {C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}
 		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837} = {C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

@@ -61,10 +61,6 @@
       <Project>{10238d4e-b185-4cc6-8fb5-d0bc7a19d848}</Project>
       <Name>xmp-sharp-scrobbler-managed</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestConsole\TestConsole.csproj">
-      <Project>{3c2357e2-0321-4193-a9ec-93b7e369ec55}</Project>
-      <Name>TestConsole</Name>
-    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
