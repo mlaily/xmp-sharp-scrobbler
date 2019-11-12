@@ -114,12 +114,6 @@ xcopy /RY "$(TargetPath)" "$(SolutionDir)Plugin-Release\"</Command>
     <ClCompile Include="managed-exports.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\managed-plugin\build\xmp-sharp-scrobbler-managed.dll">
-      <DeploymentContent>true</DeploymentContent>
-      <FileType>Document</FileType>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</DeploymentContent>
-    </CopyFileToFolders>
     <None Include="..\xmp-sdk-headers\xmpdsp.def" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +126,11 @@ xcopy /RY "$(TargetPath)" "$(SolutionDir)Plugin-Release\"</Command>
     <ClInclude Include="clr-initializer.h" />
     <ClInclude Include="managed-exports.h" />
     <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\managed-plugin\xmp-sharp-scrobbler-managed.csproj">
+      <Project>{10238d4e-b185-4cc6-8fb5-d0bc7a19d848}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

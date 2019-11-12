@@ -38,7 +38,4 @@
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="..\managed-plugin\build\xmp-sharp-scrobbler-managed.dll" />
-  </ItemGroup>
 </Project>

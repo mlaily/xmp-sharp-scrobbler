@@ -91,6 +91,7 @@ public static class Plugin
     private static void LogWarning(string text) => Logger.Log(LogLevel.Warn, text);
     private static void LogVerbose(string text) => Logger.Log(LogLevel.Vrbs, text);
 
+    // Native methods available to the managed plugin are declared as DllImports here...
 
     [DllImport("xmp-sharp-scrobbler")]
     private static extern void InitializeManagedExports(IntPtr exports);
@@ -121,6 +122,9 @@ public delegate void OnTrackStartsPlaying(
     [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
     [MarshalAs(UnmanagedType.LPWStr)]string mbid);
 
+/// <summary>
+/// Managed methods available to the native plugin.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public class ManagedExports
 {
