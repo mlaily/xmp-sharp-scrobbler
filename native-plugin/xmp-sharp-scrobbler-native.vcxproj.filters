@@ -2,8 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="clr-initializer.cpp" />
-    <ClCompile Include="managed-exports.cpp" />
+    <ClCompile Include="managed-plugin-initializer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\xmp-sdk-headers\xmpdsp.h">
@@ -18,10 +17,7 @@
     <ClInclude Include="resource.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="clr-initializer.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="managed-exports.h">
+    <ClInclude Include="managed-plugin-initializer.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

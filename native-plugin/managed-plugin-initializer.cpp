@@ -18,7 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "clr-initializer.h"
+#include "managed-plugin-initializer.h"
+
+ICLRRuntimeHost* pCLRRuntimeHost;
+ManagedExports* pManagedExports;
 
 ICLRRuntimeHost* InitializeCLRRuntimeHost()
 {
@@ -42,12 +45,42 @@ ICLRRuntimeHost* InitializeCLRRuntimeHost()
     return NULL;
 }
 
-DWORD InitializeAssembly(ICLRRuntimeHost* runtimeHost, LPCWSTR assemblyPath, LPCWSTR arg)
+DWORD InitializeManagedPlugin(LPCWSTR assemblyPath, LPCWSTR arg)
 {
+    if (pCLRRuntimeHost != NULL)
+        return E_ABORT; // don't initialize more than once!
+
+    pCLRRuntimeHost = InitializeCLRRuntimeHost();
+
+    if (pCLRRuntimeHost == NULL)
+        return E_FAIL; // CLR initialization failed :/
+
+    DWORD pReturnValue;
+
     // To avoid the LoadFrom context, the dll must be in the GAC or in the current directory.
     // There might be another way: https://blogs.msdn.microsoft.com/junfeng/2006/03/27/override-clr-assembly-probing-logic-ihostassemblymanagerihostassemblystore/
 
-    DWORD pReturnValue;
-    runtimeHost->ExecuteInDefaultAppDomain(assemblyPath, L"Plugin", L"EntryPoint", arg, &pReturnValue);
+    pCLRRuntimeHost->ExecuteInDefaultAppDomain(assemblyPath, L"Plugin", L"EntryPoint", arg, &pReturnValue);
     return pReturnValue;
+}
+
+ULONG ReleaseManagedPlugin()
+{
+    if (pManagedExports != NULL)
+    {
+        pManagedExports->Free();
+        pManagedExports = NULL;
+    }
+
+    // Not sure whether it's enough, but we can't call Stop()
+    // in case other plugins still depend on the CLR...
+    ULONG result = pCLRRuntimeHost->Release();
+    pCLRRuntimeHost = NULL;
+
+    return result;
+}
+
+void WINAPI InitializeManagedExports(ManagedExports* exports)
+{
+    pManagedExports = exports;
 }

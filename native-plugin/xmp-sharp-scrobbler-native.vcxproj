@@ -110,8 +110,7 @@ xcopy /RY "$(TargetPath)" "$(SolutionDir)Plugin-Release\"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="clr-initializer.cpp" />
-    <ClCompile Include="managed-exports.cpp" />
+    <ClCompile Include="managed-plugin-initializer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\xmp-sdk-headers\xmpdsp.def" />
@@ -123,8 +122,7 @@ xcopy /RY "$(TargetPath)" "$(SolutionDir)Plugin-Release\"</Command>
     <ClInclude Include="..\xmp-sdk-headers\xmpdsp.h" />
     <ClInclude Include="..\xmp-sdk-headers\xmpfunc.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="clr-initializer.h" />
-    <ClInclude Include="managed-exports.h" />
+    <ClInclude Include="managed-plugin-initializer.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

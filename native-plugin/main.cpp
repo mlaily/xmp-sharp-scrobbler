@@ -26,8 +26,7 @@
 #include "xmpdsp.h"
 #include "xmpfunc.h"
 
-#include "clr-initializer.h"
-#include "managed-exports.h"
+#include "managed-plugin-initializer.h"
 #include "main.h"
 
 // > 30 seconds ?
@@ -42,8 +41,6 @@ static HINSTANCE hDll;
 
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
-
-static ICLRRuntimeHost* CLRRuntimeHost;
 
 static ScrobblerConfig scrobblerConf;
 
@@ -139,9 +136,7 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 
 static void* WINAPI DSP_New()
 {
-    CLRRuntimeHost = InitializeCLRRuntimeHost();
-
-    InitializeAssembly(CLRRuntimeHost, L"xmp-sharp-scrobbler-managed.dll");
+    InitializeManagedPlugin(L"xmp-sharp-scrobbler-managed.dll");
 
     pManagedExports->LogInfo(L"****************************************************************************************************");
     pManagedExports->LogInfo(L"" PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
@@ -152,13 +147,7 @@ static void WINAPI DSP_Free(void* inst)
 {
     ReleaseTrackInfo(currentTrackInfo);
 
-    pManagedExports->Free();
-    pManagedExports = NULL;
-
-    // Not sure whether it's enough, but we can't call Stop()
-    // in case other plugins still depend on the CLR...
-    CLRRuntimeHost->Release();
-    CLRRuntimeHost = NULL;
+    ReleaseManagedPlugin();
 }
 
 // Called after a click on the plugin Config button.
