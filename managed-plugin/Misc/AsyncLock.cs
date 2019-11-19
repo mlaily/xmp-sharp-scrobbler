@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler_managed
+namespace xmp_sharp_scrobbler
 {
     // Original code from Stephen Toub:
     // http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266983.aspx (AsyncSemaphore)

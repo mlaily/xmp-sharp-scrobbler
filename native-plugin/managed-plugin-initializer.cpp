@@ -68,7 +68,7 @@ ULONG ReleaseManagedPlugin()
 {
     if (pManagedExports != NULL)
     {
-        pManagedExports->Free();
+        pManagedExports->FreeManagedExports();
         pManagedExports = NULL;
     }
 

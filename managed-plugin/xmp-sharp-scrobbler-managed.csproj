@@ -53,7 +53,11 @@
     <Compile Include="Configuration.Designer.cs">
       <DependentUpon>Configuration.cs</DependentUpon>
     </Compile>
-    <Compile Include="Plugin.cs" />
+    <Compile Include="PluginInfrastructure\Imports.cs" />
+    <Compile Include="PluginInfrastructure\ManagedExports.cs" />
+    <Compile Include="PluginInfrastructure\NativeImports.cs" />
+    <Compile Include="PluginInfrastructure\Plugin.cs" />
+    <Compile Include="PluginInfrastructure\Structures.cs" />
     <Compile Include="ScrobbleSerializer.cs" />
     <Compile Include="Scrobbling\ApiResponse.cs" />
     <Compile Include="Scrobbling\Auth.cs" />

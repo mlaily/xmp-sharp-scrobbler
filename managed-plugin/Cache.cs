@@ -28,7 +28,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler_managed
+namespace xmp_sharp_scrobbler
 {
     /// <summary>
     /// Implements synchronized read/write access to a cache file

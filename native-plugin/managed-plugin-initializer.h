@@ -32,10 +32,10 @@ extern "C"
 {
     // Native declaration of the managed exported methods.
     __declspec(dllexport) typedef struct {
+        void (WINAPI* FreeManagedExports)();
         void (WINAPI* LogInfo)(LPCWSTR text);
         void (WINAPI* LogWarning)(LPCWSTR text);
         void (WINAPI* LogVerbose)(LPCWSTR text);
-        void (WINAPI* Free)();
         LPCSTR(WINAPI* AskUserForNewAuthorizedSessionKey)(HWND win);
         void (WINAPI* SetSessionKey)(LPCSTR text);
         void (WINAPI* OnTrackStartsPlaying)(

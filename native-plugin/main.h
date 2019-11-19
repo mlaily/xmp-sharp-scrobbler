@@ -52,7 +52,7 @@ static void CompleteCurrentTrack();
 static void InitializeCurrentTrackInfo();
 static void TrackStartsPlaying();
 static bool CanScrobble(TrackInfo* trackInfo);
-static void ReleaseTrackInfo(TrackInfo* trackInfo);
+static void FreeTrackInfo(TrackInfo* trackInfo);
 static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
 static wchar_t* GetStringW(const char* string);
 static std::string utf8_encode(const std::wstring& wstr);
@@ -62,6 +62,7 @@ static std::wstring NullCheck(wchar_t* string);
 
 static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+/* Exported functions: */
 extern "C" {
     __declspec(dllexport) void WINAPI ShowInfoBubble(LPCWSTR text, int displayTimeMs);
 }

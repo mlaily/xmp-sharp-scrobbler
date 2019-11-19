@@ -145,7 +145,7 @@ static void* WINAPI DSP_New()
 
 static void WINAPI DSP_Free(void* inst)
 {
-    ReleaseTrackInfo(currentTrackInfo);
+    FreeTrackInfo(currentTrackInfo);
 
     ReleaseManagedPlugin();
 }
@@ -383,7 +383,7 @@ static void TrackStartsPlaying()
 static void InitializeCurrentTrackInfo()
 {
     // (Re)initialize currentTrackInfo:
-    ReleaseTrackInfo(currentTrackInfo);
+    FreeTrackInfo(currentTrackInfo);
 
     TrackInfo* trackInfo = new TrackInfo();
     trackInfo->playStartTimestamp = time(NULL);
@@ -427,7 +427,7 @@ static bool CanScrobble(TrackInfo* trackInfo)
 }
 
 // Free an instance of TrackInfo.
-static void ReleaseTrackInfo(TrackInfo* trackInfo)
+static void FreeTrackInfo(TrackInfo* trackInfo)
 {
     if (trackInfo != NULL)
     {

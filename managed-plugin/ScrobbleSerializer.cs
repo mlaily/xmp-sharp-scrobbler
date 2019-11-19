@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler_managed
+namespace xmp_sharp_scrobbler
 {
     internal static class ScrobbleSerializer
     {

@@ -1,4 +1,4 @@
-﻿namespace xmp_sharp_scrobbler_managed
+﻿namespace xmp_sharp_scrobbler
 {
     partial class Configuration
     {

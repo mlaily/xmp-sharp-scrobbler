@@ -25,7 +25,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler_managed
+namespace xmp_sharp_scrobbler
 {
     public static class Logger
     {

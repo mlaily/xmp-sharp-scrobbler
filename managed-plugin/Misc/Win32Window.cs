@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace xmp_sharp_scrobbler_managed
+namespace xmp_sharp_scrobbler
 {
     internal class Win32Window : IWin32Window
     {

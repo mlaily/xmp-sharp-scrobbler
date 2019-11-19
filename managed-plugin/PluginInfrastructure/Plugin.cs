@@ -25,7 +25,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using xmp_sharp_scrobbler_managed;
+using xmp_sharp_scrobbler;
+using xmp_sharp_scrobbler.PluginInfrastructure;
 
 // Warning: do not add a namespace and keep the "Plugin" name.
 // This is the hardcoded type name when the native plugin loads the assembly and needs an entry point.
@@ -46,32 +47,33 @@ public static class Plugin
     public static int EntryPoint(string arg)
     {
         SharpScrobbler = new SharpScrobbler();
+        SharpScrobblerGCHandle = GCHandle.Alloc(SharpScrobbler);
+
         ManagedExports = new ManagedExports
         {
+            FreeManagedExports = FreeManagedExports,
             LogInfo = LogInfo,
             LogWarning = LogWarning,
             LogVerbose = LogVerbose,
-            Free = Free,
             AskUserForNewAuthorizedSessionKey = SharpScrobbler.AskUserForNewAuthorizedSessionKey,
             SetSessionKey = SharpScrobbler.SetSessionKey,
             OnTrackCanScrobble = SharpScrobbler.OnTrackCanScrobble,
             OnTrackStartsPlaying = SharpScrobbler.OnTrackStartsPlaying,
             OnTrackCompletes = SharpScrobbler.OnTrackCompletes,
         };
-
-        // Storing it in a static field should already be enough but better safe than sorry.
         ManagedExportsGCHandle = GCHandle.Alloc(ManagedExports);
-        SharpScrobblerGCHandle = GCHandle.Alloc(SharpScrobbler);
 
+        // ManagedExports is not blittable, so we need a copy.
+        // Making a copy in unmanaged memory from the managed side ensures the GC will not mess with it (I hope)
         pManagedExports = Marshal.AllocHGlobal(Marshal.SizeOf(ManagedExports));
         Marshal.StructureToPtr(ManagedExports, pManagedExports, false);
 
-        InitializeManagedExports(pManagedExports);
+        NativeImports.InitializeManagedExports(pManagedExports);
 
         return 0;
     }
 
-    private static void Free()
+    private static void FreeManagedExports()
     {
         Marshal.DestroyStructure<ManagedExports>(pManagedExports);
         Marshal.FreeHGlobal(pManagedExports);
@@ -90,52 +92,4 @@ public static class Plugin
     private static void LogInfo(string text) => Logger.Log(LogLevel.Info, text);
     private static void LogWarning(string text) => Logger.Log(LogLevel.Warn, text);
     private static void LogVerbose(string text) => Logger.Log(LogLevel.Vrbs, text);
-
-    // Native methods available to the managed plugin are declared as DllImports here...
-
-    [DllImport("xmp-sharp-scrobbler")]
-    private static extern void InitializeManagedExports(IntPtr exports);
-
-    [DllImport("xmp-sharp-scrobbler")]
-    public static extern void ShowInfoBubble([MarshalAs(UnmanagedType.LPWStr)]string text, int displayTimeMs);
-
-    public static void ShowInfoBubble(string text, TimeSpan? displayTime = null)
-           => ShowInfoBubble(text, displayTime == null ? 0 : (int)displayTime.Value.TotalMilliseconds);
 }
-
-public delegate void Log([MarshalAs(UnmanagedType.LPWStr)]string text);
-[return: MarshalAs(UnmanagedType.LPStr)] public delegate string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle);
-public delegate void SetSessionKey([MarshalAs(UnmanagedType.LPStr)]string key);
-public delegate void OnTrackCanScrobble(
-    [MarshalAs(UnmanagedType.LPWStr)]string artist,
-    [MarshalAs(UnmanagedType.LPWStr)]string track,
-    [MarshalAs(UnmanagedType.LPWStr)]string album,
-    int durationMs,
-    [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
-    [MarshalAs(UnmanagedType.LPWStr)]string mbid,
-    long utcUnixTimestamp);
-public delegate void OnTrackStartsPlaying(
-    [MarshalAs(UnmanagedType.LPWStr)]string artist,
-    [MarshalAs(UnmanagedType.LPWStr)]string track,
-    [MarshalAs(UnmanagedType.LPWStr)]string album,
-    int durationMs,
-    [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
-    [MarshalAs(UnmanagedType.LPWStr)]string mbid);
-
-/// <summary>
-/// Managed methods available to the native plugin.
-/// </summary>
-[StructLayout(LayoutKind.Sequential)]
-public class ManagedExports
-{
-    public Log LogInfo;
-    public Log LogWarning;
-    public Log LogVerbose;
-    public Action Free;
-    public AskUserForNewAuthorizedSessionKey AskUserForNewAuthorizedSessionKey;
-    public SetSessionKey SetSessionKey;
-    public OnTrackStartsPlaying OnTrackStartsPlaying;
-    public OnTrackCanScrobble OnTrackCanScrobble;
-    public Action OnTrackCompletes;
-}
-
