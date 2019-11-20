@@ -146,6 +146,7 @@ static void* WINAPI DSP_New()
 static void WINAPI DSP_Free(void* inst)
 {
     FreeTrackInfo(currentTrackInfo);
+    currentTrackInfo = NULL;
 
     ReleaseManagedPlugin();
 }
@@ -215,6 +216,12 @@ static void WINAPI DSP_Reset(void* inst)
 // And also to detect tracks starting or looping, and act accordingly...
 static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
 {
+    if (xmprateBy1000 == 0)
+    {
+        // Prevent division by zero below...
+        xmprateBy1000 = xmpfstatus->GetFormat(TRUE)->rate / 1000;
+    }
+
     // Check whether the processed track is a track just starting to play or not:
     if (processedSamplesForCurrentTrack == 0) msThresholdForNewTrack = count / xmprateBy1000;
     int calculatedPlayedMs = processedSamplesForCurrentTrack / xmprateBy1000;
@@ -382,6 +389,7 @@ static void InitializeCurrentTrackInfo()
 {
     // (Re)initialize currentTrackInfo:
     FreeTrackInfo(currentTrackInfo);
+    currentTrackInfo = NULL;
 
     TrackInfo* trackInfo = new TrackInfo();
     trackInfo->playStartTimestamp = time(NULL);
