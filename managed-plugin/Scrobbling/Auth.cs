@@ -47,6 +47,7 @@ namespace Scrobbling
 
         public Session(XElement xml)
         {
+            if (xml == null) throw new ArgumentNullException(nameof(xml));
             var sessionElement = xml.Element("session");
             UserName = sessionElement.Element("name").Value;
             Key = sessionElement.Element("key").Value;

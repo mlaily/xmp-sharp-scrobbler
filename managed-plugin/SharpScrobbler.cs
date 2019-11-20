@@ -18,17 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-using MoreLinq;
-using Scrobbling;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using xmp_sharp_scrobbler.PluginInfrastructure;
+using MoreLinq;
+using Scrobbling;
+using XmpSharpScrobbler.PluginInfrastructure;
 
-namespace xmp_sharp_scrobbler
+namespace XmpSharpScrobbler
 {
     public class SharpScrobbler : IDisposable
     {
@@ -49,13 +49,15 @@ namespace xmp_sharp_scrobbler
 
         public string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
         {
-            Configuration configurationForm = new Configuration();
-            if (configurationForm.ShowDialog(new Win32Window(ownerWindowHandle)) == DialogResult.OK)
+            using (var configurationForm = new Configuration())
             {
-                // refresh with the new session key
-                SessionKey = configurationForm.SessionKey;
+                if (configurationForm.ShowDialog(new Win32Window(ownerWindowHandle)) == DialogResult.OK)
+                {
+                    // refresh with the new session key
+                    SessionKey = configurationForm.SessionKey;
+                }
+                return SessionKey;
             }
-            return SessionKey;
         }
 
         public async void OnTrackStartsPlaying(string title, string artist, string album, string trackNumber, int durationMs)
@@ -248,7 +250,16 @@ namespace xmp_sharp_scrobbler
 
         public void Dispose()
         {
-            cache.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                cache.Dispose();
+            }
         }
     }
 }

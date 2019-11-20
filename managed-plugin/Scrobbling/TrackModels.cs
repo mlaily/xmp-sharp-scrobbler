@@ -61,7 +61,7 @@ namespace Scrobbling
         /// Return null if <see cref="Duration"/> is null.
         /// </summary>
         public string StringDuration
-            => Duration == null ? null : ((int)Math.Round(Duration.Value.TotalSeconds, MidpointRounding.AwayFromZero)).ToString();
+            => Duration == null ? null : ((int)Math.Round(Duration.Value.TotalSeconds, MidpointRounding.AwayFromZero)).ToString(CultureInfo.InvariantCulture);
 
         public NowPlaying(string track, string artist)
         {
@@ -110,12 +110,15 @@ namespace Scrobbling
             unchecked
             {
                 int hash = 17;
-                hash = hash * 23 + (string.IsNullOrEmpty(obj.Track) ? 0 : obj.Track.GetHashCode());
-                hash = hash * 23 + (string.IsNullOrEmpty(obj.Artist) ? 0 : obj.Artist.GetHashCode());
-                hash = hash * 23 + (string.IsNullOrEmpty(obj.Album) ? 0 : obj.Album.GetHashCode());
-                hash = hash * 23 + (string.IsNullOrEmpty(obj.AlbumArtist) ? 0 : obj.AlbumArtist.GetHashCode());
-                hash = hash * 23 + (string.IsNullOrEmpty(obj.Mbid) ? 0 : obj.Mbid.GetHashCode());
-                hash = hash * 23 + obj.Timestamp.GetHashCode();
+                if (obj != null)
+                {
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.Track) ? 0 : obj.Track.GetHashCode());
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.Artist) ? 0 : obj.Artist.GetHashCode());
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.Album) ? 0 : obj.Album.GetHashCode());
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.AlbumArtist) ? 0 : obj.AlbumArtist.GetHashCode());
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.Mbid) ? 0 : obj.Mbid.GetHashCode());
+                    hash = hash * 23 + obj.Timestamp.GetHashCode();
+                }
                 return hash;
             }
         }

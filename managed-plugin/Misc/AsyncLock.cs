@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler
+namespace XmpSharpScrobbler
 {
     // Original code from Stephen Toub:
     // http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266983.aspx (AsyncSemaphore)
@@ -52,7 +52,7 @@ namespace xmp_sharp_scrobbler
 
     public class AsyncSemaphore
     {
-        private readonly static Task s_completed = Task.FromResult(true);
+        private static readonly Task s_completed = Task.FromResult(true);
         private readonly Queue<TaskCompletionSource<bool>> m_waiters = new Queue<TaskCompletionSource<bool>>();
         private int m_currentCount;
 

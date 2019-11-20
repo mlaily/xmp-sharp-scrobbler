@@ -19,14 +19,15 @@
 // THE SOFTWARE.
 //
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-using System.Security.Cryptography;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.Net.Http.Headers;
 
 namespace Scrobbling
 {
@@ -86,7 +87,7 @@ namespace Scrobbling
                 sessionKey: sessionKey,
                 addSignature: true,
                 args: args);
-            var content = new FormUrlEncodedContent(completeParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value)));
+            using (var content = new FormUrlEncodedContent(completeParameters.Select(x => new KeyValuePair<string, string>(x.Name, x.Value))))
             using (var response = await HttpClient.PostAsync(ApiBaseAddress, content))
             {
                 var body = await response.Content.ReadAsStringAsync();
@@ -134,6 +135,7 @@ namespace Scrobbling
             return finalArgs;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5351:Do Not Use Broken Cryptographic Algorithms", Justification = "Well... it's not like I have a choice...")]
         private static ApiArg GetSignature(IEnumerable<ApiArg> args)
         {
             var sb = new StringBuilder();
@@ -147,18 +149,20 @@ namespace Scrobbling
             sb.Append(ApiSecret);
 
             // calculate the md5 hash of the UTF-8 encoded resulting string
-            var md5 = MD5.Create();
-            var buffer = Encoding.UTF8.GetBytes(sb.ToString());
-            var md5Result = md5.ComputeHash(buffer);
-
-            // format the result hash to an hexadecimal string
-            var sbMd5 = new StringBuilder(capacity: md5.HashSize / 8);
-            foreach (byte b in md5Result)
+            using (var md5 = MD5.Create())
             {
-                sbMd5.AppendFormat("{0:x2}", b);
-            }
+                var buffer = Encoding.UTF8.GetBytes(sb.ToString());
+                var md5Result = md5.ComputeHash(buffer);
 
-            return new ApiArg("api_sig", sbMd5.ToString());
+                // format the result hash to an hexadecimal string
+                var sbMd5 = new StringBuilder(capacity: md5.HashSize / 8);
+                foreach (byte b in md5Result)
+                {
+                    sbMd5.AppendFormat(CultureInfo.InvariantCulture, "{0:x2}", b);
+                }
+
+                return new ApiArg("api_sig", sbMd5.ToString());
+            }
         }
     }
 

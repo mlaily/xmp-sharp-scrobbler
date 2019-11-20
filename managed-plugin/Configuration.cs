@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-using Scrobbling;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,8 +28,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Scrobbling;
 
-namespace xmp_sharp_scrobbler
+namespace XmpSharpScrobbler
 {
     internal partial class Configuration : Form
     {

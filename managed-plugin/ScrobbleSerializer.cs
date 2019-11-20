@@ -18,15 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-using Scrobbling;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Scrobbling;
 
-namespace xmp_sharp_scrobbler
+namespace XmpSharpScrobbler
 {
     internal static class ScrobbleSerializer
     {
@@ -52,11 +53,11 @@ namespace xmp_sharp_scrobbler
             var encodedFields = serializedScrobble.Split(FieldSeparator);
             if (encodedFields.Length != 8) throw new ArgumentException("Wrong number of fields.", nameof(serializedScrobble));
 
-            DateTimeOffset timestamp = DateTimeOffset.FromUnixTimeSeconds(long.Parse(Decode(encodedFields[0])));
+            DateTimeOffset timestamp = DateTimeOffset.FromUnixTimeSeconds(long.Parse(Decode(encodedFields[0]), CultureInfo.InvariantCulture));
 
             TimeSpan? duration;
             string durationField = Decode(encodedFields[7]);
-            duration = string.IsNullOrWhiteSpace(durationField) ? (TimeSpan?)null : TimeSpan.FromSeconds(int.Parse(durationField));
+            duration = string.IsNullOrWhiteSpace(durationField) ? (TimeSpan?)null : TimeSpan.FromSeconds(int.Parse(durationField, CultureInfo.InvariantCulture));
 
             var result = new Scrobble(artist: Decode(encodedFields[2]), track: Decode(encodedFields[1]), timestamp: timestamp)
             {

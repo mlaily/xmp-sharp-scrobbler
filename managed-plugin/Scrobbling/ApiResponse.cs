@@ -20,6 +20,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 
@@ -64,6 +65,8 @@ namespace Scrobbling
         /// this function is expected to return an instance of <see cref="T"/>.</param>
         public ApiResponse(string rawResponse, Func<XElement, T> parse)
         {
+            if (parse == null) throw new ArgumentNullException(nameof(parse));
+
             RawResponse = rawResponse;
             // parse the <lfm> wrapper node
             XElement lfm = XElement.Parse(rawResponse);
@@ -80,7 +83,7 @@ namespace Scrobbling
                 // </lfm>
                 Success = false;
                 var error = lfm.Element("error");
-                int code = int.Parse(error.Attribute("code").Value);
+                int code = int.Parse(error.Attribute("code").Value, CultureInfo.InvariantCulture);
                 Error = new ApiError(code, error.Value);
             }
             else

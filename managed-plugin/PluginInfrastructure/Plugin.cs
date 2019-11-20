@@ -25,8 +25,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using xmp_sharp_scrobbler;
-using xmp_sharp_scrobbler.PluginInfrastructure;
+using XmpSharpScrobbler;
+using XmpSharpScrobbler.PluginInfrastructure;
 
 // Warning: do not add a namespace and keep the "Plugin" name.
 // This is the hardcoded type name when the native plugin loads the assembly and needs an entry point.
@@ -40,10 +40,12 @@ public static class Plugin
     private static SharpScrobbler SharpScrobbler;
     private static GCHandle SharpScrobblerGCHandle;
 
+
     /// <summary>
     /// This is the plugin entry point.
     /// This method is called by the native plugin immediately after it loads the CLR.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "This exact signature is required by the native caller.")]
     public static int EntryPoint(string arg)
     {
         SharpScrobbler = new SharpScrobbler();

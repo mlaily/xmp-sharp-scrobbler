@@ -5,8 +5,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace xmp_sharp_scrobbler.PluginInfrastructure
+namespace XmpSharpScrobbler.PluginInfrastructure
 {
+#pragma warning disable CA1051 // Do not declare visible instance fields
+
     /// <summary>
     /// Managed methods available to the native plugin.
     /// See managed-plugin-initializer.h for the native mirror.
@@ -44,4 +46,6 @@ namespace xmp_sharp_scrobbler.PluginInfrastructure
         [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
         int durationMs,
         long utcUnixTimestamp);
+
+#pragma warning restore CA1051 // Do not declare visible instance fields
 }

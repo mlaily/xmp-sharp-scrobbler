@@ -1,4 +1,4 @@
-﻿namespace xmp_sharp_scrobbler
+﻿namespace XmpSharpScrobbler
 {
     partial class Configuration
     {

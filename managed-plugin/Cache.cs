@@ -18,17 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-using Scrobbling;
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Scrobbling;
 
-namespace xmp_sharp_scrobbler
+namespace XmpSharpScrobbler
 {
     /// <summary>
     /// Implements synchronized read/write access to a cache file
@@ -76,6 +76,7 @@ namespace xmp_sharp_scrobbler
         /// Path to the underlying cache file.
         /// </summary>
         public string Location { get; }
+
 
         /// <summary>
         /// Creates an instance of <see cref="Cache"/> and try to acquire an exclusive lock on the underlying file.
@@ -246,7 +247,7 @@ namespace xmp_sharp_scrobbler
                     await fs.FlushAsync();
                 }
                 headerLength = header.Length;
-                if (header.StartsWith(HeaderSignature) == false)
+                if (header.StartsWith(HeaderSignature, StringComparison.Ordinal) == false)
                 {
                     throw new Exception("The cache file header does not match the expected signature!");
                 }
@@ -318,25 +319,31 @@ namespace xmp_sharp_scrobbler
         /// </summary>
         public void Dispose()
         {
-            // FIXME: this method is probably not thread safe regarding the asynchronous file operations.
-            lock (accquireFileLockLocker)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                if (fileLockAcquired)
+                // FIXME: this method is probably not thread safe regarding the asynchronous file operations.
+                lock (accquireFileLockLocker)
                 {
-                    try
+                    if (fileLockAcquired)
                     {
-                        fileStream.Dispose();
+                        try
+                        {
+                            fileStream.Dispose();
+                        }
+                        catch { }
+                        instanceDisposed = true;
                     }
-                    catch { }
-                    instanceDisposed = true;
                 }
             }
         }
 
-        ~Cache()
-        {
-            Dispose();
-        }
+        ~Cache() => Dispose(false);
     }
 
     public class CacheRetrievalResult

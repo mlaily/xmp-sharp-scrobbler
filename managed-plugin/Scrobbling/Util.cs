@@ -31,6 +31,8 @@ namespace Scrobbling
         /// </summary>
         public static IEnumerable<T> Append<T>(this IEnumerable<T> collection, T element)
         {
+            if (collection == null) throw new ArgumentNullException(nameof(collection));
+
             foreach (var item in collection)
             {
                 yield return item;

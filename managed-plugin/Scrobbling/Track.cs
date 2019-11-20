@@ -21,10 +21,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
 using System.Xml.Linq;
 
 namespace Scrobbling
@@ -36,8 +36,8 @@ namespace Scrobbling
         {
             if (sessionKey == null) throw new ArgumentNullException(nameof(sessionKey));
             if (nowPlaying == null) throw new ArgumentNullException(nameof(nowPlaying));
-            if (nowPlaying.Track == null) throw new ArgumentException("A required NowPlaying property was not provided.", nameof(nowPlaying.Track));
-            if (nowPlaying.Artist == null) throw new ArgumentException("A required NowPlaying property was not provided.", nameof(nowPlaying.Artist));
+            if (nowPlaying.Track == null) throw new ArgumentException($"The required property {nameof(nowPlaying.Track)} was not provided.", nameof(nowPlaying));
+            if (nowPlaying.Artist == null) throw new ArgumentException($"The required property {nameof(nowPlaying.Artist)} was not provided.", nameof(nowPlaying));
 
             List<ApiArg> args = new List<ApiArg>();
             // required

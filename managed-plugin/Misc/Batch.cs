@@ -1,4 +1,4 @@
-﻿#region License and Terms
+#region License and Terms
 // MoreLINQ - Extensions to LINQ to Objects
 // Copyright (c) 2008-2011 Jonathan Skeet. All rights reserved.
 // 
@@ -50,7 +50,7 @@ namespace MoreLinq
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (size <= 0) throw new ArgumentOutOfRangeException(nameof(size));
-            if (resultSelector == null) throw new ArgumentException(nameof(resultSelector));
+            if (resultSelector == null) throw new ArgumentNullException(nameof(resultSelector));
             return BatchImpl(source, size, resultSelector);
         }
 
