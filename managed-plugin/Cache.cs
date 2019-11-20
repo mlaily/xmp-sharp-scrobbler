@@ -52,25 +52,25 @@ namespace XmpSharpScrobbler
         /// <summary>
         /// Once <see cref="Dispose"/> is called, this instance cannot be re-used.
         /// </summary>
-        private bool instanceDisposed = false;
+        private bool _instanceDisposed = false;
         /// <summary>
         /// Used to lock around the FileStream creation and underlying file access.
         /// </summary>
-        private object accquireFileLockLocker = new object();
+        private object _accquireFileLockLocker = new object();
         /// <summary>
         /// Asynchronous lock to prevent concurrent access to a public cache operation.
         /// </summary>
-        private AsyncLock fileOperationAsyncLock = new AsyncLock();
+        private AsyncLock _fileOperationAsyncLock = new AsyncLock();
         /// <summary>
         /// Set to true once the FileStream is successfuly created, to avoid trying to re-create it.
         /// </summary>
-        private bool fileLockAcquired = false;
+        private bool _fileLockAcquired = false;
         /// <summary>
         /// Global FileStream for the cache file.
         /// The underlying handle prevents write access to the file from other processes.
         /// The lock is maintained for the life of the current instance.
         /// </summary>
-        private FileStream fileStream = null;
+        private FileStream _fileStream = null;
 
         /// <summary>
         /// Path to the underlying cache file.
@@ -94,7 +94,7 @@ namespace XmpSharpScrobbler
             }
             catch
             {
-                // Throwing in the constructor is not a really nice thing to do ;)
+                // Throwing in the constructor is not a really nice thing to do :)
             }
         }
 
@@ -107,7 +107,7 @@ namespace XmpSharpScrobbler
         {
             EnsureFileLockIsAcquired();
 
-            using (await fileOperationAsyncLock.LockAsync())
+            using (await _fileOperationAsyncLock.LockAsync())
             {
                 // Note about the file content:
                 // The file is line separated.
@@ -116,16 +116,16 @@ namespace XmpSharpScrobbler
                 // This way, we don't risk continuing a corrupted line without a proper line ending.
                 // Unreadable lines can then be discarded, and we lose only one record instead of two.
 
-                await EnsureCorrectHeaderAndGetFileVersionAsync(fileStream);
+                await EnsureCorrectHeaderAndGetFileVersionAsync(_fileStream);
 
                 // Skip to the end of the file to append a new scrobble.
-                fileStream.Seek(0, SeekOrigin.End);
+                _fileStream.Seek(0, SeekOrigin.End);
 
                 var serializedScrobble = ScrobbleSerializer.Serialize(scrobble);
                 byte[] buffer = Encoding.UTF8.GetBytes(serializedScrobble);
                 byte[] newLineBuffer = Encoding.UTF8.GetBytes("\n");
-                await fileStream.WriteAsync(newLineBuffer, 0, newLineBuffer.Length);
-                await fileStream.WriteAsync(buffer, 0, buffer.Length);
+                await _fileStream.WriteAsync(newLineBuffer, 0, newLineBuffer.Length);
+                await _fileStream.WriteAsync(buffer, 0, buffer.Length);
             }
         }
 
@@ -138,11 +138,11 @@ namespace XmpSharpScrobbler
         {
             EnsureFileLockIsAcquired();
 
-            using (await fileOperationAsyncLock.LockAsync())
+            using (await _fileOperationAsyncLock.LockAsync())
             {
-                await EnsureCorrectHeaderAndGetFileVersionAsync(fileStream);
+                await EnsureCorrectHeaderAndGetFileVersionAsync(_fileStream);
 
-                return await RetrieveInternalAsync(fileStream);
+                return await RetrieveInternalAsync(_fileStream);
             }
         }
 
@@ -155,15 +155,15 @@ namespace XmpSharpScrobbler
         {
             EnsureFileLockIsAcquired();
 
-            using (await fileOperationAsyncLock.LockAsync())
+            using (await _fileOperationAsyncLock.LockAsync())
             {
-                await EnsureCorrectHeaderAndGetFileVersionAsync(fileStream);
+                await EnsureCorrectHeaderAndGetFileVersionAsync(_fileStream);
 
                 // Find the scrobbles in the file not picked for deletion, that we have to rewrite.
-                var retrievalResult = await RetrieveInternalAsync(fileStream);
+                var retrievalResult = await RetrieveInternalAsync(_fileStream);
                 var remainingScrobbles = retrievalResult.Scrobbles.Except(scrobbles, new ScrobbleEqualityComparer());
                 // Rewrite the cache file entirely.
-                await OverwriteFileAsync(fileStream, remainingScrobbles);
+                await OverwriteFileAsync(_fileStream, remainingScrobbles);
             }
         }
 
@@ -292,14 +292,14 @@ namespace XmpSharpScrobbler
         /// </summary>
         private void EnsureFileLockIsAcquired()
         {
-            lock (accquireFileLockLocker)
+            lock (_accquireFileLockLocker)
             {
-                if (instanceDisposed)
+                if (_instanceDisposed)
                 {
                     throw new ObjectDisposedException(nameof(Cache));
                 }
 
-                if (fileLockAcquired)
+                if (_fileLockAcquired)
                 {
                     // We already have a file lock.
                     return;
@@ -308,8 +308,8 @@ namespace XmpSharpScrobbler
                 {
                     // Try to acquire an exclusive lock on the file.
                     var fs = new FileStream(Location, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
-                    fileStream = fs;
-                    fileLockAcquired = true;
+                    _fileStream = fs;
+                    _fileLockAcquired = true;
                 }
             }
         }
@@ -328,16 +328,16 @@ namespace XmpSharpScrobbler
             if (disposing)
             {
                 // FIXME: this method is probably not thread safe regarding the asynchronous file operations.
-                lock (accquireFileLockLocker)
+                lock (_accquireFileLockLocker)
                 {
-                    if (fileLockAcquired)
+                    if (_fileLockAcquired)
                     {
                         try
                         {
-                            fileStream.Dispose();
+                            _fileStream.Dispose();
                         }
                         catch { }
-                        instanceDisposed = true;
+                        _instanceDisposed = true;
                     }
                 }
             }

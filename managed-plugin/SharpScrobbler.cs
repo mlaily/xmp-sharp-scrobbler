@@ -35,16 +35,16 @@ namespace XmpSharpScrobbler
         private const string NullSessionKeyErrorMessage = "Please authenticate with Last.fm!";
         private static readonly TimeSpan DefaultErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
 
-        private Cache cache;
-        private Scrobble lastPotentialScrobbleInCaseOfCacheFailure;
-        private object lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
+        private Cache _cache;
+        private Scrobble _lastPotentialScrobbleInCaseOfCacheFailure;
+        private object _lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
 
         public string SessionKey { get; private set; }
         public void SetSessionKey(string key) => SessionKey = key;
 
         public SharpScrobbler()
         {
-            cache = new Cache();
+            _cache = new Cache();
         }
 
         public string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
@@ -86,13 +86,13 @@ namespace XmpSharpScrobbler
             // Cache the scrobble and wait for the end of the track to actually send it.
             try
             {
-                await cache.StoreAsync(scrobble);
+                await _cache.StoreAsync(scrobble);
             }
             catch (Exception ex)
             {
-                lock (lastPotentialScrobbleInCaseOfCacheFailureLock)
+                lock (_lastPotentialScrobbleInCaseOfCacheFailureLock)
                 {
-                    lastPotentialScrobbleInCaseOfCacheFailure = scrobble;
+                    _lastPotentialScrobbleInCaseOfCacheFailure = scrobble;
                 }
                 Logger.Log(LogLevel.Warn, $"An error occured while trying to store a scrobble into the cache file: {ex}");
                 ShowErrorBubble(ex);
@@ -104,12 +104,12 @@ namespace XmpSharpScrobbler
             // If caching failed and we have a track only in memory waiting to be scrobbled, try to do it now.
             // We copy the reference atomically to avoid locking while we try to execute the web request.
             Scrobble fromLastPotentialScrobbleInCaseOfCacheFailure = null;
-            lock (lastPotentialScrobbleInCaseOfCacheFailureLock)
+            lock (_lastPotentialScrobbleInCaseOfCacheFailureLock)
             {
-                if (lastPotentialScrobbleInCaseOfCacheFailure != null)
+                if (_lastPotentialScrobbleInCaseOfCacheFailure != null)
                 {
-                    fromLastPotentialScrobbleInCaseOfCacheFailure = lastPotentialScrobbleInCaseOfCacheFailure;
-                    lastPotentialScrobbleInCaseOfCacheFailure = null;
+                    fromLastPotentialScrobbleInCaseOfCacheFailure = _lastPotentialScrobbleInCaseOfCacheFailure;
+                    _lastPotentialScrobbleInCaseOfCacheFailure = null;
                 }
             }
             if (fromLastPotentialScrobbleInCaseOfCacheFailure != null)
@@ -136,7 +136,7 @@ namespace XmpSharpScrobbler
             // Try to scrobble the cache content.
             try
             {
-                var retrievalResult = await cache.RetrieveAsync();
+                var retrievalResult = await _cache.RetrieveAsync();
                 if (retrievalResult.Scrobbles.Any())
                 {
                     // We have something!
@@ -150,7 +150,7 @@ namespace XmpSharpScrobbler
                         if (success)
                         {
                             // Now we need to remove the successfully scrobbled tracks from the cache.
-                            await cache.RemoveScrobblesAsync(eagerPartition);
+                            await _cache.RemoveScrobblesAsync(eagerPartition);
                         }
                     }
                 }
@@ -258,7 +258,7 @@ namespace XmpSharpScrobbler
         {
             if (disposing)
             {
-                cache.Dispose();
+                _cache.Dispose();
             }
         }
     }
