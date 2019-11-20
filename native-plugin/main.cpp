@@ -42,7 +42,7 @@ static HINSTANCE hDll;
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
 
-static ScrobblerConfig scrobblerConf;
+static ScrobblerConfig pluginConfig;
 
 static const char* currentFilePath = NULL;
 
@@ -157,23 +157,23 @@ static void WINAPI DSP_Config(void* inst, HWND win)
     if (sessionKey != NULL)
     {
         // If the new session key is valid, save it.
-        memcpy(scrobblerConf.sessionKey, sessionKey, sizeof(scrobblerConf.sessionKey));
-        pManagedExports->SetSessionKey(scrobblerConf.sessionKey);
+        memcpy(pluginConfig.sessionKey, sessionKey, sizeof(pluginConfig.sessionKey));
+        pManagedExports->SetSessionKey(pluginConfig.sessionKey);
     }
 }
 
 // Get config from the plugin. (return size of config data)
 static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 {
-    memcpy(config, &scrobblerConf, sizeof(ScrobblerConfig));
+    memcpy(config, &pluginConfig, sizeof(ScrobblerConfig));
     return sizeof(ScrobblerConfig);
 }
 
 // Apply config to the plugin.
 static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
-    memcpy(&scrobblerConf, config, sizeof(ScrobblerConfig));
-    pManagedExports->SetSessionKey(scrobblerConf.sessionKey);
+    memcpy(&pluginConfig, config, sizeof(ScrobblerConfig));
+    pManagedExports->SetSessionKey(pluginConfig.sessionKey);
     return TRUE;
 }
 
@@ -439,12 +439,12 @@ static void FreeTrackInfo(TrackInfo* trackInfo)
 }
 
 // Get a wide string from an ansi string. (Don't forget to free it)
-static wchar_t* GetStringW(const char* string)
+static LPCWSTR GetStringW(const char* string)
 {
     if (string != NULL)
     {
         size_t requiredSize = Utf2Uni(string, AUTO_NULL_TERMINATED_LENGTH, NULL, 0);
-        wchar_t* buffer = new wchar_t[requiredSize];
+        LPWSTR buffer = new wchar_t[requiredSize];
         Utf2Uni(string, AUTO_NULL_TERMINATED_LENGTH, buffer, requiredSize);
         return buffer;
     }
@@ -452,10 +452,10 @@ static wchar_t* GetStringW(const char* string)
 }
 
 // Get an XMPlay tag as a wide string. (Don't forget to free it)
-static wchar_t* GetTagW(const char* tag)
+static LPCWSTR GetTagW(const char* tag)
 {
     char* value = xmpfmisc->GetTag(tag);
-    wchar_t* wValue = NULL;
+    LPCWSTR wValue = NULL;
     if (value != NULL)
         wValue = GetStringW(value);
     xmpfmisc->Free(value);
@@ -480,7 +480,7 @@ static std::wstring utf8_decode(const std::string& str)
     return wstrTo;
 }
 
-static std::wstring NullCheck(wchar_t* string)
+static std::wstring NullCheck(LPCWSTR string)
 {
     return string ? std::wstring(string) : std::wstring();
 }

@@ -24,10 +24,10 @@ typedef struct
 typedef struct
 {
     time_t playStartTimestamp;
-    wchar_t* title;
-    wchar_t* artist;
-    wchar_t* album;
-    wchar_t* trackNumber;
+    LPCWSTR title;
+    LPCWSTR artist;
+    LPCWSTR album;
+    LPCWSTR trackNumber;
 } TrackInfo;
 
 /* DSP functions: */
@@ -53,11 +53,11 @@ static void TrackStartsPlaying();
 static bool CanScrobble(TrackInfo* trackInfo);
 static void FreeTrackInfo(TrackInfo* trackInfo);
 static int GetExpectedEndOfCurrentTrackInMs(int fromPositionMs);
-static wchar_t* GetStringW(const char* string);
+static LPCWSTR GetStringW(const char* string);
 static std::string utf8_encode(const std::wstring& wstr);
 static std::wstring utf8_decode(const std::string& str);
-static wchar_t* GetTagW(const char* tag);
-static std::wstring NullCheck(wchar_t* string);
+static LPCWSTR GetTagW(const char* tag);
+static std::wstring NullCheck(LPCWSTR string);
 
 static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
