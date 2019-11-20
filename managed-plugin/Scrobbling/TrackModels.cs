@@ -28,13 +28,13 @@ namespace Scrobbling
     public class NowPlaying
     {
         /// <summary>
-        /// artist (Required) : The artist name.
-        /// </summary>
-        public string Artist { get; }
-        /// <summary>
         /// track (Required) : The track name.
         /// </summary>
         public string Track { get; }
+        /// <summary>
+        /// artist (Required) : The artist name.
+        /// </summary>
+        public string Artist { get; }
         /// <summary>
         /// album (Optional) : The album name.
         /// </summary>
@@ -63,10 +63,10 @@ namespace Scrobbling
         public string StringDuration
             => Duration == null ? null : ((int)Math.Round(Duration.Value.TotalSeconds, MidpointRounding.AwayFromZero)).ToString();
 
-        public NowPlaying(string artist, string track)
+        public NowPlaying(string track, string artist)
         {
-            Artist = artist;
             Track = track;
+            Artist = artist;
         }
     }
 
@@ -83,8 +83,8 @@ namespace Scrobbling
         /// </summary>
         public string StringTimestamp => Timestamp.ToUniversalTime().ToUnixTimeSeconds().ToString(NumberFormatInfo.InvariantInfo);
 
-        public Scrobble(string artist, string track, DateTimeOffset timestamp)
-            : base(artist, track)
+        public Scrobble(string track, string artist, DateTimeOffset timestamp)
+            : base(track, artist)
         {
             Timestamp = timestamp;
         }

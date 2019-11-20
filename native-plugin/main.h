@@ -28,7 +28,6 @@ typedef struct
     wchar_t* artist;
     wchar_t* album;
     wchar_t* trackNumber;
-    wchar_t* mbid;
 } TrackInfo;
 
 /* DSP functions: */

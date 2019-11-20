@@ -286,12 +286,11 @@ static DWORD WINAPI DSP_Process(void* inst, float* data, DWORD count)
         if (CanScrobble(currentTrackInfo))
         {
             pManagedExports->OnTrackCanScrobble(
-                currentTrackInfo->artist,
                 currentTrackInfo->title,
+                currentTrackInfo->artist,
                 currentTrackInfo->album,
-                currentTrackDurationMs,
                 currentTrackInfo->trackNumber,
-                NULL,
+                currentTrackDurationMs,
                 currentTrackInfo->playStartTimestamp);
         }
         else
@@ -358,12 +357,11 @@ static void TrackStartsPlaying()
     if (CanScrobble(currentTrackInfo))
     {
         pManagedExports->OnTrackStartsPlaying(
-            currentTrackInfo->artist,
             currentTrackInfo->title,
+            currentTrackInfo->artist,
             currentTrackInfo->album,
-            currentTrackDurationMs,
             currentTrackInfo->trackNumber,
-            NULL);
+            currentTrackDurationMs);
 
         if (currentTrackDurationMs <= TRACK_DURATION_THRESHOLD_MS)
         {

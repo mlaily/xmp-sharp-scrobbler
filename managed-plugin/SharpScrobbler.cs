@@ -58,11 +58,11 @@ namespace xmp_sharp_scrobbler
             return SessionKey;
         }
 
-        public async void OnTrackStartsPlaying(string artist, string track, string album, int durationMs, string trackNumber, string mbid)
+        public async void OnTrackStartsPlaying(string title, string artist, string album, string trackNumber, int durationMs)
         {
-            NowPlaying nowPlaying = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid);
+            NowPlaying nowPlaying = CreateScrobble(title, artist, album, trackNumber, null, durationMs);
 
-            Logger.Log(LogLevel.Info, $"Now playing: '{track}', artist: '{artist}', album: '{album}'");
+            Logger.Log(LogLevel.Info, $"Now playing: '{title}', artist: '{artist}', album: '{album}'");
 
             if (SessionKey != null)
             {
@@ -75,11 +75,11 @@ namespace xmp_sharp_scrobbler
             }
         }
 
-        public async void OnTrackCanScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp)
+        public async void OnTrackCanScrobble(string title, string artist, string album, string trackNumber, int durationMs, long utcUnixTimestamp)
         {
-            Scrobble scrobble = CreateScrobble(artist, track, album, durationMs, trackNumber, mbid, utcUnixTimestamp);
+            Scrobble scrobble = CreateScrobble(title, artist, album, trackNumber, null, durationMs, utcUnixTimestamp);
 
-            Logger.Log(LogLevel.Info, $"Track played on {scrobble.Timestamp.ToLocalTime():s} ready to scrobble: '{track}', artist: '{artist}', album: '{album}'");
+            Logger.Log(LogLevel.Info, $"Track played on {scrobble.Timestamp.ToLocalTime():s} ready to scrobble: '{title}', artist: '{artist}', album: '{album}'");
 
             // Cache the scrobble and wait for the end of the track to actually send it.
             try
@@ -160,6 +160,7 @@ namespace xmp_sharp_scrobbler
             }
         }
 
+        /// <returns>True on success, False otherwise.</returns>
         private async Task<bool> HandleScrobblingAsync(IReadOnlyCollection<Scrobble> scrobbles)
         {
             if (SessionKey == null)
@@ -236,13 +237,13 @@ namespace xmp_sharp_scrobbler
             Imports.ShowInfoBubble($"Scrobbler Error! {ex?.GetType()?.Name + " - " ?? ""}{ex.Message}", DefaultErrorBubbleDisplayTime);
         }
 
-        private static Scrobble CreateScrobble(string artist, string track, string album, int durationMs, string trackNumber, string mbid, long utcUnixTimestamp = 0)
-            => new Scrobble(artist, track, DateTimeOffset.FromUnixTimeSeconds(utcUnixTimestamp))
+        private static Scrobble CreateScrobble(string title, string artist, string album, string trackNumber, string mbid, int durationMs, long utcUnixTimestamp = 0)
+            => new Scrobble(title, artist, DateTimeOffset.FromUnixTimeSeconds(utcUnixTimestamp))
             {
                 Album = string.IsNullOrWhiteSpace(album) ? null : album,
-                Duration = durationMs <= 0 ? null : new TimeSpan?(TimeSpan.FromMilliseconds(durationMs)),
                 TrackNumber = string.IsNullOrWhiteSpace(trackNumber) ? null : trackNumber,
                 Mbid = string.IsNullOrWhiteSpace(mbid) ? null : mbid,
+                Duration = durationMs <= 0 ? null : new TimeSpan?(TimeSpan.FromMilliseconds(durationMs)),
             };
 
         public void Dispose()

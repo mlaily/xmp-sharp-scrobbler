@@ -36,13 +36,13 @@ namespace Scrobbling
         {
             if (sessionKey == null) throw new ArgumentNullException(nameof(sessionKey));
             if (nowPlaying == null) throw new ArgumentNullException(nameof(nowPlaying));
-            if (nowPlaying.Artist == null) throw new ArgumentException("A required NowPlaying property was not provided.", nameof(nowPlaying.Artist));
             if (nowPlaying.Track == null) throw new ArgumentException("A required NowPlaying property was not provided.", nameof(nowPlaying.Track));
+            if (nowPlaying.Artist == null) throw new ArgumentException("A required NowPlaying property was not provided.", nameof(nowPlaying.Artist));
 
             List<ApiArg> args = new List<ApiArg>();
             // required
-            args.Add(new ApiArg("artist", nowPlaying.Artist));
             args.Add(new ApiArg("track", nowPlaying.Track));
+            args.Add(new ApiArg("artist", nowPlaying.Artist));
             // optional
             if (nowPlaying.Album != null) args.Add(new ApiArg("album", nowPlaying.Album));
             if (nowPlaying.TrackNumber != null) args.Add(new ApiArg("trackNumber", nowPlaying.TrackNumber));
@@ -68,8 +68,8 @@ namespace Scrobbling
                     throw new ArgumentException("No more than 50 scrobbles can be sent in the same request.", nameof(scrobbles));
                 }
                 // required
-                args.Add(new ApiArg($"artist[{i}]", scrobble.Artist));
                 args.Add(new ApiArg($"track[{i}]", scrobble.Track));
+                args.Add(new ApiArg($"artist[{i}]", scrobble.Artist));
                 args.Add(new ApiArg($"timestamp[{i}]", scrobble.StringTimestamp));
                 // optional
                 if (scrobble.Album != null) args.Add(new ApiArg($"album[{i}]", scrobble.Album));

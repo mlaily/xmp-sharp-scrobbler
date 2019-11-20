@@ -39,19 +39,17 @@ extern "C"
         LPCSTR(WINAPI* AskUserForNewAuthorizedSessionKey)(HWND win);
         void (WINAPI* SetSessionKey)(LPCSTR text);
         void (WINAPI* OnTrackStartsPlaying)(
+            LPCWSTR title,
             LPCWSTR artist,
-            LPCWSTR track,
             LPCWSTR album,
-            int duration,
             LPCWSTR trackNumber,
-            LPCWSTR mbid);
+            int duration);
         void (WINAPI* OnTrackCanScrobble)(
+            LPCWSTR title,
             LPCWSTR artist,
-            LPCWSTR track,
             LPCWSTR album,
-            int duration,
             LPCWSTR trackNumber,
-            LPCWSTR mbid,
+            int duration,
             time_t utcUnixTimestamp);
         void (WINAPI* OnTrackCompletes)();
     } ManagedExports;

@@ -30,20 +30,18 @@ namespace xmp_sharp_scrobbler.PluginInfrastructure
     [return: MarshalAs(UnmanagedType.LPStr)] public delegate string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle);
     public delegate void SetSessionKey([MarshalAs(UnmanagedType.LPStr)]string key);
 
-    public delegate void OnTrackCanScrobble(
-        [MarshalAs(UnmanagedType.LPWStr)]string artist,
-        [MarshalAs(UnmanagedType.LPWStr)]string track,
-        [MarshalAs(UnmanagedType.LPWStr)]string album,
-        int durationMs,
-        [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
-        [MarshalAs(UnmanagedType.LPWStr)]string mbid,
-        long utcUnixTimestamp);
-
     public delegate void OnTrackStartsPlaying(
+        [MarshalAs(UnmanagedType.LPWStr)]string title,
         [MarshalAs(UnmanagedType.LPWStr)]string artist,
-        [MarshalAs(UnmanagedType.LPWStr)]string track,
         [MarshalAs(UnmanagedType.LPWStr)]string album,
-        int durationMs,
         [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
-        [MarshalAs(UnmanagedType.LPWStr)]string mbid);
+        int durationMs);
+
+    public delegate void OnTrackCanScrobble(
+        [MarshalAs(UnmanagedType.LPWStr)]string title,
+        [MarshalAs(UnmanagedType.LPWStr)]string artist,
+        [MarshalAs(UnmanagedType.LPWStr)]string album,
+        [MarshalAs(UnmanagedType.LPWStr)]string trackNumber,
+        int durationMs,
+        long utcUnixTimestamp);
 }
