@@ -54,7 +54,7 @@ namespace XmpSharpScrobbler
             txtStatus.Text = $"Click the '{btnReAuth.Text}' button\nto start the authentication process...";
         }
 
-        private async void btnReAuth_Click(object sender, EventArgs e)
+        private async void BtnReAuth_Click(object sender, EventArgs e)
         {
             btnReAuth.Enabled = false;
             try
@@ -62,11 +62,11 @@ namespace XmpSharpScrobbler
                 const string getTokenErrorMessage = "An error occured while trying to get an authentication token from Last.fm!";
                 const string getSessionKeyErrorMessage = "An error occured while trying to get an authenticated session key from Last.fm!";
 
-                Action<string> showFatalError = (string message) =>
+                void ShowFatalError(string message)
                 {
                     MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtStatus.Text = "Authentication aborted.";
-                };
+                }
 
                 // First we have to get a token to authorize...
 
@@ -78,12 +78,12 @@ namespace XmpSharpScrobbler
                 }
                 catch (Exception ex)
                 {
-                    showFatalError($"{getTokenErrorMessage}\n\nDetails: {ex}");
+                    ShowFatalError($"{getTokenErrorMessage}\n\nDetails: {ex}");
                     return;
                 }
                 if (!tokenResponse.Success)
                 {
-                    showFatalError($"{getTokenErrorMessage}\n\nDetails: {tokenResponse.Error.Code}: {tokenResponse.Error.Message}");
+                    ShowFatalError($"{getTokenErrorMessage}\n\nDetails: {tokenResponse.Error.Code}: {tokenResponse.Error.Message}");
                     return;
                 }
 
@@ -96,12 +96,12 @@ namespace XmpSharpScrobbler
 
                 // Enable the 'Complete authentication' button and wait until the user clicks it.
                 TaskCompletionSource<bool> waitForUserClick = new TaskCompletionSource<bool>();
-                EventHandler completeButtonClicked = (s, e2) => waitForUserClick.TrySetResult(true);
-                btnGetSessionKey.Click += completeButtonClicked;
+                void CompleteButtonClicked(object s, EventArgs e2) => waitForUserClick.TrySetResult(true);
+                btnGetSessionKey.Click += CompleteButtonClicked;
                 btnGetSessionKey.Enabled = true;
                 await waitForUserClick.Task;
                 btnGetSessionKey.Enabled = false;
-                btnGetSessionKey.Click -= completeButtonClicked;
+                btnGetSessionKey.Click -= CompleteButtonClicked;
 
                 ApiResponse<Session> sessionKeyResponse;
                 try
@@ -111,12 +111,12 @@ namespace XmpSharpScrobbler
                 }
                 catch (Exception ex)
                 {
-                    showFatalError($"{getSessionKeyErrorMessage}\n\nDetails: {ex}");
+                    ShowFatalError($"{getSessionKeyErrorMessage}\n\nDetails: {ex}");
                     return;
                 }
                 if (!sessionKeyResponse.Success)
                 {
-                    showFatalError($"{getSessionKeyErrorMessage}\n\nDetails: {sessionKeyResponse.Error.Code}: {sessionKeyResponse.Error.Message}");
+                    ShowFatalError($"{getSessionKeyErrorMessage}\n\nDetails: {sessionKeyResponse.Error.Code}: {sessionKeyResponse.Error.Message}");
                     return;
                 }
 
@@ -130,19 +130,19 @@ namespace XmpSharpScrobbler
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private void BtnSave_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
             Close();
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void BtnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();
         }
 
-        private void openLogLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void OpenLogLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var startInfo = new ProcessStartInfo(Logger.GetDefaultPath()) { UseShellExecute = true };
             try

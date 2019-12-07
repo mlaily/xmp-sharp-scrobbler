@@ -13,17 +13,17 @@ namespace XmpSharpScrobbler.PluginInfrastructure
     /// </summary>
     internal static class NativeImports
     {
-        private const string dllName = "xmp-sharp-scrobbler";
+        private const string DllName = "xmp-sharp-scrobbler";
 
         /// <summary>
         /// See managed-plugin-initializer.h for the native export of this method.
         /// </summary>
-        [DllImport(dllName)]
+        [DllImport(DllName)]
         internal static extern void InitializeManagedExports([In, Out]IntPtr exports);
 
         //
 
-        [DllImport(dllName)]
+        [DllImport(DllName)]
         internal static extern void ShowInfoBubble([In, MarshalAs(UnmanagedType.LPWStr)]string text, int displayTimeMs);
     }
 }

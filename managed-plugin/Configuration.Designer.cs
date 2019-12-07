@@ -44,7 +44,7 @@
             this.btnReAuth.TabIndex = 0;
             this.btnReAuth.Text = "Authenticate with Last.fm...";
             this.btnReAuth.UseVisualStyleBackColor = true;
-            this.btnReAuth.Click += new System.EventHandler(this.btnReAuth_Click);
+            this.btnReAuth.Click += new System.EventHandler(this.BtnReAuth_Click);
             // 
             // btnSave
             // 
@@ -55,7 +55,7 @@
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
             // btnCancel
             // 
@@ -67,7 +67,7 @@
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // txtStatus
             // 
@@ -98,7 +98,7 @@
             this.openLogLink.TabIndex = 5;
             this.openLogLink.TabStop = true;
             this.openLogLink.Text = "Open log file";
-            this.openLogLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.openLogLink_LinkClicked);
+            this.openLogLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.OpenLogLink_LinkClicked);
             // 
             // Configuration
             // 

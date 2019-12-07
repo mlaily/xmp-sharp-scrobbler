@@ -56,11 +56,11 @@ namespace XmpSharpScrobbler
         /// <summary>
         /// Used to lock around the FileStream creation and underlying file access.
         /// </summary>
-        private object _accquireFileLockLocker = new object();
+        private readonly object _accquireFileLockLocker = new object();
         /// <summary>
         /// Asynchronous lock to prevent concurrent access to a public cache operation.
         /// </summary>
-        private AsyncLock _fileOperationAsyncLock = new AsyncLock();
+        private readonly AsyncLock _fileOperationAsyncLock = new AsyncLock();
         /// <summary>
         /// Set to true once the FileStream is successfuly created, to avoid trying to re-create it.
         /// </summary>

@@ -11,6 +11,8 @@ namespace XmpSharpScrobbler
     // http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266983.aspx (AsyncSemaphore)
     // http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266988.aspx (AsyncLock)
 
+#pragma warning disable IDE1006 // Naming Styles
+
     /// <remarks>
     /// Warning: unlike the lock keyword, this lock is not reentrant.
     /// </remarks>
@@ -95,3 +97,4 @@ namespace XmpSharpScrobbler
         }
     }
 }
+#pragma warning restore IDE1006 // Naming Styles

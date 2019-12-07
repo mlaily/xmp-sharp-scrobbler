@@ -32,12 +32,12 @@ namespace XmpSharpScrobbler
 {
     public class SharpScrobbler : IDisposable
     {
+        public static readonly TimeSpan DefaultErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
         private const string NullSessionKeyErrorMessage = "Please authenticate with Last.fm!";
-        private static readonly TimeSpan DefaultErrorBubbleDisplayTime = TimeSpan.FromSeconds(5);
 
-        private Cache _cache;
+        private readonly Cache _cache;
         private Scrobble _lastPotentialScrobbleInCaseOfCacheFailure;
-        private object _lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
+        private readonly object _lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
 
         public string SessionKey { get; private set; }
         public void SetSessionKey(string key) => SessionKey = key;

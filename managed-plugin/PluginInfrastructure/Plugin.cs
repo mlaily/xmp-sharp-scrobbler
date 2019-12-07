@@ -33,12 +33,12 @@ using XmpSharpScrobbler.PluginInfrastructure;
 
 public static class Plugin
 {
-    private static ManagedExports ManagedExports;
-    private static GCHandle ManagedExportsGCHandle;
-    private static IntPtr pManagedExports;
+    private static ManagedExports _managedExports;
+    private static GCHandle _managedExportsGCHandle;
+    private static IntPtr _pManagedExports;
 
-    private static SharpScrobbler SharpScrobbler;
-    private static GCHandle SharpScrobblerGCHandle;
+    private static SharpScrobbler _sharpScrobbler;
+    private static GCHandle _sharpScrobblerGCHandle;
 
 
     /// <summary>
@@ -46,49 +46,50 @@ public static class Plugin
     /// This method is called by the native plugin immediately after it loads the CLR.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1801:Review unused parameters", Justification = "This exact signature is required by the native caller.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "This exact signature is required by the native caller.")]
     public static int EntryPoint(string arg)
     {
-        SharpScrobbler = new SharpScrobbler();
-        SharpScrobblerGCHandle = GCHandle.Alloc(SharpScrobbler);
+        _sharpScrobbler = new SharpScrobbler();
+        _sharpScrobblerGCHandle = GCHandle.Alloc(_sharpScrobbler);
 
-        ManagedExports = new ManagedExports
+        _managedExports = new ManagedExports
         {
             FreeManagedExports = FreeManagedExports,
             LogInfo = LogInfo,
             LogWarning = LogWarning,
             LogVerbose = LogVerbose,
-            AskUserForNewAuthorizedSessionKey = SharpScrobbler.AskUserForNewAuthorizedSessionKey,
-            SetSessionKey = SharpScrobbler.SetSessionKey,
-            OnTrackCanScrobble = SharpScrobbler.OnTrackCanScrobble,
-            OnTrackStartsPlaying = SharpScrobbler.OnTrackStartsPlaying,
-            OnTrackCompletes = SharpScrobbler.OnTrackCompletes,
+            AskUserForNewAuthorizedSessionKey = _sharpScrobbler.AskUserForNewAuthorizedSessionKey,
+            SetSessionKey = _sharpScrobbler.SetSessionKey,
+            OnTrackCanScrobble = _sharpScrobbler.OnTrackCanScrobble,
+            OnTrackStartsPlaying = _sharpScrobbler.OnTrackStartsPlaying,
+            OnTrackCompletes = _sharpScrobbler.OnTrackCompletes,
         };
-        ManagedExportsGCHandle = GCHandle.Alloc(ManagedExports);
+        _managedExportsGCHandle = GCHandle.Alloc(_managedExports);
 
         // ManagedExports is not blittable, so we need a copy.
         // Making a copy in unmanaged memory from the managed side ensures the GC will not mess with it (I hope)
-        pManagedExports = Marshal.AllocHGlobal(Marshal.SizeOf(ManagedExports));
-        Marshal.StructureToPtr(ManagedExports, pManagedExports, false);
+        _pManagedExports = Marshal.AllocHGlobal(Marshal.SizeOf(_managedExports));
+        Marshal.StructureToPtr(_managedExports, _pManagedExports, false);
 
-        NativeImports.InitializeManagedExports(pManagedExports);
+        NativeImports.InitializeManagedExports(_pManagedExports);
 
         return 0;
     }
 
     private static void FreeManagedExports()
     {
-        Marshal.DestroyStructure<ManagedExports>(pManagedExports);
-        Marshal.FreeHGlobal(pManagedExports);
+        Marshal.DestroyStructure<ManagedExports>(_pManagedExports);
+        Marshal.FreeHGlobal(_pManagedExports);
 
-        ManagedExportsGCHandle.Free();
-        SharpScrobblerGCHandle.Free();
+        _managedExportsGCHandle.Free();
+        _sharpScrobblerGCHandle.Free();
 
-        SharpScrobbler?.Dispose();
-        SharpScrobbler = null;
-        SharpScrobblerGCHandle = default;
-        ManagedExports = null;
-        ManagedExportsGCHandle = default;
-        pManagedExports = default;
+        _sharpScrobbler?.Dispose();
+        _sharpScrobbler = null;
+        _sharpScrobblerGCHandle = default;
+        _managedExports = null;
+        _managedExportsGCHandle = default;
+        _pManagedExports = default;
     }
 
     private static void LogInfo(string text) => Logger.Log(LogLevel.Info, text);

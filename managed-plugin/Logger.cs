@@ -31,6 +31,7 @@ namespace XmpSharpScrobbler
     {
         public const string DefaultFileName = "SharpScrobbler.log";
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static void Log(LogLevel level, string message)
         {
             try
