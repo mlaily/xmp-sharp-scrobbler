@@ -74,9 +74,9 @@ namespace XmpSharpScrobbler
 
             Logger.Log(LogLevel.Info, $"Now playing: '{title}', artist: '{artist}', album: '{album}'");
 
-            if (ScrobblerConfig?.sessionKey != null)
+            if (!string.IsNullOrWhiteSpace(ScrobblerConfig?.SessionKey))
             {
-                await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(ScrobblerConfig.sessionKey, nowPlaying));
+                await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(ScrobblerConfig.SessionKey, nowPlaying));
             }
             else
             {
@@ -127,12 +127,12 @@ namespace XmpSharpScrobbler
                 // If this scrobble fails, it will be lost anyway.
                 try
                 {
-                    if (ScrobblerConfig?.sessionKey == null)
+                    if (string.IsNullOrWhiteSpace(ScrobblerConfig?.SessionKey))
                     {
                         ShowErrorBubble(NullSessionKeyErrorMessage);
                         return;
                     }
-                    await Track.Scrobble(ScrobblerConfig.sessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
+                    await Track.Scrobble(ScrobblerConfig.SessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
                 }
                 catch
                 {
@@ -173,7 +173,7 @@ namespace XmpSharpScrobbler
         /// <returns>True on success, False otherwise.</returns>
         private async Task<bool> HandleScrobblingAsync(IReadOnlyCollection<Scrobble> scrobbles)
         {
-            if (ScrobblerConfig?.sessionKey == null)
+            if (string.IsNullOrWhiteSpace(ScrobblerConfig?.SessionKey))
             {
                 ShowErrorBubble(NullSessionKeyErrorMessage);
                 return false;
@@ -182,7 +182,7 @@ namespace XmpSharpScrobbler
             {
                 // Try scrobbling the current scrobble(s).
                 Logger.Log(LogLevel.Vrbs, $"Sending {scrobbles.Count} scrobble{(scrobbles.Count > 1 ? "s" : "")}.");
-                var scrobblingResult = await Track.Scrobble(ScrobblerConfig.sessionKey, scrobbles);
+                var scrobblingResult = await Track.Scrobble(ScrobblerConfig.SessionKey, scrobbles);
                 if (scrobblingResult.Success)
                 {
                     return true;

@@ -9,28 +9,46 @@ namespace XmpSharpScrobbler.PluginInfrastructure
 {
 #pragma warning disable CA1051 // Do not declare visible instance fields
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    [StructLayout(LayoutKind.Sequential)]
     public class ScrobblerConfig
     {
         /// <summary>
-        /// chars, but ansi, so also bytes.
+        /// bytes. This is an ansi string.
         /// </summary>
         private const int SessionKeySize = 32;
 
         /// <summary>
-        /// bytes. Should have been a unicode string, but the marshaller does not allow mixing different fixed size strings of different charsets in a structure...
+        /// bytes. This is a unicode string.
         /// </summary>
         private const int UserNameSize = 128 * 2;
 
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SessionKeySize)]
-        public string sessionKey;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = SessionKeySize)]
+        public readonly byte[] sessionKey;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = UserNameSize)]
         public readonly byte[] userName;
 
         public ScrobblerConfig()
         {
+            sessionKey = new byte[SessionKeySize];
             userName = new byte[UserNameSize];
+        }
+
+        public string SessionKey
+        {
+            get => Encoding.ASCII.GetString(sessionKey).TrimEnd('\0');
+            set
+            {
+                if (value == null)
+                {
+                    Array.Clear(sessionKey, 0, SessionKeySize);
+                }
+                else
+                {
+                    var bytes = Encoding.ASCII.GetBytes(value);
+                    Array.Copy(bytes, 0, sessionKey, 0, Math.Min(SessionKeySize, bytes.Length));
+                }
+            }
         }
 
         public string UserName

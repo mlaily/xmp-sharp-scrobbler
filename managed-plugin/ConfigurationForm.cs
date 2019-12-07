@@ -130,7 +130,7 @@ namespace XmpSharpScrobbler
                 }
 
                 // We have a new valid session key!
-                ScrobblerConfig = new ScrobblerConfig { sessionKey = sessionKeyResponse.Result.Key, UserName = sessionKeyResponse.Result.UserName };
+                ScrobblerConfig = new ScrobblerConfig { SessionKey = sessionKeyResponse.Result.Key, UserName = sessionKeyResponse.Result.UserName };
                 BtnSave.Enabled = true;
                 TxtStatus.Text = $"{sessionKeyResponse.Result.UserName} is now successfully authenticated.";
             }
