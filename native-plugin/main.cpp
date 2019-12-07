@@ -154,12 +154,12 @@ static void WINAPI DSP_Free(void* inst)
 // Called after a click on the plugin Config button.
 static void WINAPI DSP_Config(void* inst, HWND win)
 {
-    const char* sessionKey = pManagedExports->AskUserForNewAuthorizedSessionKey(win);
-    if (sessionKey != NULL)
+    ScrobblerConfig* newConfig = pManagedExports->AskUserForNewAuthorizedSessionKey(win);
+    if (newConfig != NULL)
     {
         // If the new session key is valid, save it.
-        memcpy(pluginConfig.sessionKey, sessionKey, sizeof(pluginConfig.sessionKey));
-        pManagedExports->SetSessionKey(pluginConfig.sessionKey);
+        memcpy(&pluginConfig, newConfig, sizeof(ScrobblerConfig));
+        pManagedExports->SetSessionKey(&pluginConfig);
     }
 }
 
@@ -173,8 +173,8 @@ static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 // Apply config to the plugin.
 static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
-    memcpy(&pluginConfig, config, sizeof(ScrobblerConfig));
-    pManagedExports->SetSessionKey(pluginConfig.sessionKey);
+    memcpy(&pluginConfig, config, size);
+    pManagedExports->SetSessionKey(&pluginConfig);
     return TRUE;
 }
 

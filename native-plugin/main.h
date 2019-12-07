@@ -12,13 +12,6 @@
 #define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING \
 " - 2019\n\nBy Melvyn Laïly\n\nThis plugin requires the .Net Framework 4.6 to be installed to run.\n\n<a>Download .Net 4.6</a>"
 
-
-// Config structure, as stored by XMPlay.
-typedef struct
-{
-    char sessionKey[32];
-} ScrobblerConfig;
-
 // Gather information required to scrobble a track.
 // All the text fields are expected to be UTF-16.
 typedef struct

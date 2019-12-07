@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Scrobbling;
+using XmpSharpScrobbler.PluginInfrastructure;
 
 namespace XmpSharpScrobbler
 {
@@ -46,13 +47,19 @@ namespace XmpSharpScrobbler
             }
         }
 
-        public string SessionKey { get; private set; }
+        public ScrobblerConfig ScrobblerConfig { get; private set; }
 
-        public ConfigurationForm()
+        public ConfigurationForm(ScrobblerConfig existingConfig)
         {
             InitializeComponent();
             BtnSave.Enabled = false;
-            TxtStatus.Text = $"Click the '{BtnReAuth.Text}' button\nto start the authentication process...";
+            ScrobblerConfig = existingConfig;
+            string alreadyLoggedUserText = "";
+            if (!string.IsNullOrWhiteSpace(existingConfig?.UserName))
+            {
+                alreadyLoggedUserText = $"Last authenticated user: {existingConfig.UserName}\n";
+            }
+            TxtStatus.Text = $"{alreadyLoggedUserText}Click the '{BtnReAuth.Text}' button\nto start a new authentication process...";
         }
 
         private async void BtnReAuth_Click(object sender, EventArgs e)
@@ -100,6 +107,7 @@ namespace XmpSharpScrobbler
                 void CompleteButtonClicked(object s, EventArgs e2) => waitForUserClick.TrySetResult(true);
                 BtnGetSessionKey.Click += CompleteButtonClicked;
                 BtnGetSessionKey.Enabled = true;
+                BtnGetSessionKey.Focus();
                 await waitForUserClick.Task;
                 BtnGetSessionKey.Enabled = false;
                 BtnGetSessionKey.Click -= CompleteButtonClicked;
@@ -122,7 +130,7 @@ namespace XmpSharpScrobbler
                 }
 
                 // We have a new valid session key!
-                SessionKey = sessionKeyResponse.Result.Key;
+                ScrobblerConfig = new ScrobblerConfig { sessionKey = sessionKeyResponse.Result.Key, UserName = sessionKeyResponse.Result.UserName };
                 BtnSave.Enabled = true;
                 TxtStatus.Text = $"{sessionKeyResponse.Result.UserName} is now successfully authenticated.";
             }

@@ -60,6 +60,7 @@
     <Compile Include="PluginInfrastructure\ManagedExports.cs" />
     <Compile Include="PluginInfrastructure\NativeImports.cs" />
     <Compile Include="PluginInfrastructure\Plugin.cs" />
+    <Compile Include="PluginInfrastructure\Structures.cs" />
     <Compile Include="ScrobbleSerializer.cs" />
     <Compile Include="Scrobbling\ApiResponse.cs" />
     <Compile Include="Scrobbling\Auth.cs" />

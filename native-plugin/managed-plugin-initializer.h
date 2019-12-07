@@ -30,14 +30,21 @@
 
 extern "C"
 {
+    // Config structure, as stored by XMPlay.
+    typedef struct
+    {
+        char sessionKey[32]; // 32 bytes
+        WCHAR userName[128]; // 256 bytes
+    } ScrobblerConfig;
+
     // Native declaration of the managed exported methods.
     __declspec(dllexport) typedef struct {
         void (WINAPI* FreeManagedExports)();
         void (WINAPI* LogInfo)(LPCWSTR text);
         void (WINAPI* LogWarning)(LPCWSTR text);
         void (WINAPI* LogVerbose)(LPCWSTR text);
-        LPCSTR(WINAPI* AskUserForNewAuthorizedSessionKey)(HWND win);
-        void (WINAPI* SetSessionKey)(LPCSTR text);
+        ScrobblerConfig* (WINAPI* AskUserForNewAuthorizedSessionKey)(HWND win);
+        void (WINAPI* SetSessionKey)(ScrobblerConfig* config);
         void (WINAPI* OnTrackStartsPlaying)(
             LPCWSTR title,
             LPCWSTR artist,

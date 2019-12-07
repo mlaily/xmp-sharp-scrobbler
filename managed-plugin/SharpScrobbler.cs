@@ -39,24 +39,32 @@ namespace XmpSharpScrobbler
         private Scrobble _lastPotentialScrobbleInCaseOfCacheFailure;
         private readonly object _lastPotentialScrobbleInCaseOfCacheFailureLock = new object();
 
-        public string SessionKey { get; private set; }
-        public void SetSessionKey(string key) => SessionKey = key;
+        public ScrobblerConfig ScrobblerConfig { get; private set; }
 
         public SharpScrobbler()
         {
             _cache = new Cache();
         }
 
-        public string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
+        public void SetSessionKey(ScrobblerConfig scrobblerConfig)
         {
-            using (var configurationForm = new ConfigurationForm())
+            ScrobblerConfig = scrobblerConfig ?? new ScrobblerConfig();
+        }
+
+        public ScrobblerConfig AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
+        {
+            using (var configurationForm = new ConfigurationForm(ScrobblerConfig))
             {
                 if (configurationForm.ShowDialog(new Win32Window(ownerWindowHandle)) == DialogResult.OK)
                 {
                     // refresh with the new session key
-                    SessionKey = configurationForm.SessionKey;
+                    ScrobblerConfig = configurationForm.ScrobblerConfig;
+                    return ScrobblerConfig;
                 }
-                return SessionKey;
+                else
+                {
+                    return null;
+                }
             }
         }
 
@@ -66,9 +74,9 @@ namespace XmpSharpScrobbler
 
             Logger.Log(LogLevel.Info, $"Now playing: '{title}', artist: '{artist}', album: '{album}'");
 
-            if (SessionKey != null)
+            if (ScrobblerConfig?.sessionKey != null)
             {
-                await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(SessionKey, nowPlaying));
+                await ShowBubbleOnErrorAsync(Track.UpdateNowPlaying(ScrobblerConfig.sessionKey, nowPlaying));
             }
             else
             {
@@ -119,12 +127,12 @@ namespace XmpSharpScrobbler
                 // If this scrobble fails, it will be lost anyway.
                 try
                 {
-                    if (SessionKey == null)
+                    if (ScrobblerConfig?.sessionKey == null)
                     {
                         ShowErrorBubble(NullSessionKeyErrorMessage);
                         return;
                     }
-                    await Track.Scrobble(SessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
+                    await Track.Scrobble(ScrobblerConfig.sessionKey, fromLastPotentialScrobbleInCaseOfCacheFailure);
                 }
                 catch
                 {
@@ -165,7 +173,7 @@ namespace XmpSharpScrobbler
         /// <returns>True on success, False otherwise.</returns>
         private async Task<bool> HandleScrobblingAsync(IReadOnlyCollection<Scrobble> scrobbles)
         {
-            if (SessionKey == null)
+            if (ScrobblerConfig?.sessionKey == null)
             {
                 ShowErrorBubble(NullSessionKeyErrorMessage);
                 return false;
@@ -174,7 +182,7 @@ namespace XmpSharpScrobbler
             {
                 // Try scrobbling the current scrobble(s).
                 Logger.Log(LogLevel.Vrbs, $"Sending {scrobbles.Count} scrobble{(scrobbles.Count > 1 ? "s" : "")}.");
-                var scrobblingResult = await Track.Scrobble(SessionKey, scrobbles);
+                var scrobblingResult = await Track.Scrobble(ScrobblerConfig.sessionKey, scrobbles);
                 if (scrobblingResult.Success)
                 {
                     return true;

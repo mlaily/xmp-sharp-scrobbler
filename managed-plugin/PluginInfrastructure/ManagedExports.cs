@@ -29,8 +29,8 @@ namespace XmpSharpScrobbler.PluginInfrastructure
 
     public delegate void Log([MarshalAs(UnmanagedType.LPWStr)]string text);
 
-    [return: MarshalAs(UnmanagedType.LPStr)] public delegate string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle);
-    public delegate void SetSessionKey([MarshalAs(UnmanagedType.LPStr)]string key);
+    public delegate ScrobblerConfig AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle);
+    public delegate void SetSessionKey(ScrobblerConfig scrobblerConfig);
 
     public delegate void OnTrackStartsPlaying(
         [MarshalAs(UnmanagedType.LPWStr)]string title,
