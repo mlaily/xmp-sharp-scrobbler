@@ -51,12 +51,13 @@ namespace XmpSharpScrobbler
         public Configuration()
         {
             InitializeComponent();
-            txtStatus.Text = $"Click the '{btnReAuth.Text}' button\nto start the authentication process...";
+            BtnSave.Enabled = false;
+            TxtStatus.Text = $"Click the '{BtnReAuth.Text}' button\nto start the authentication process...";
         }
 
         private async void BtnReAuth_Click(object sender, EventArgs e)
         {
-            btnReAuth.Enabled = false;
+            BtnReAuth.Enabled = false;
             try
             {
                 const string getTokenErrorMessage = "An error occured while trying to get an authentication token from Last.fm!";
@@ -65,7 +66,7 @@ namespace XmpSharpScrobbler
                 void ShowFatalError(string message)
                 {
                     MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    txtStatus.Text = "Authentication aborted.";
+                    TxtStatus.Text = "Authentication aborted.";
                 }
 
                 // First we have to get a token to authorize...
@@ -73,7 +74,7 @@ namespace XmpSharpScrobbler
                 ApiResponse<string> tokenResponse;
                 try
                 {
-                    txtStatus.Text = "Requesting a token from Last.fm...";
+                    TxtStatus.Text = "Requesting a token from Last.fm...";
                     tokenResponse = await Auth.GetToken();
                 }
                 catch (Exception ex)
@@ -87,26 +88,26 @@ namespace XmpSharpScrobbler
                     return;
                 }
 
-                // Then the user has to authorize the token in its browser,
+                // Then the user has to authorize the token in their browser,
                 // and then we can complete the process by getting a session key...
 
                 var url = Auth.GetAuthorizeTokenUrl(tokenResponse.Result);
                 Process.Start(url);
-                txtStatus.Text = "Please click the 'Complete authentication' button\nonce you have authorized the plugin in your browser...";
+                TxtStatus.Text = "Please click the 'Complete authentication' button\nonce you have authorized the plugin in your browser...";
 
                 // Enable the 'Complete authentication' button and wait until the user clicks it.
                 TaskCompletionSource<bool> waitForUserClick = new TaskCompletionSource<bool>();
                 void CompleteButtonClicked(object s, EventArgs e2) => waitForUserClick.TrySetResult(true);
-                btnGetSessionKey.Click += CompleteButtonClicked;
-                btnGetSessionKey.Enabled = true;
+                BtnGetSessionKey.Click += CompleteButtonClicked;
+                BtnGetSessionKey.Enabled = true;
                 await waitForUserClick.Task;
-                btnGetSessionKey.Enabled = false;
-                btnGetSessionKey.Click -= CompleteButtonClicked;
+                BtnGetSessionKey.Enabled = false;
+                BtnGetSessionKey.Click -= CompleteButtonClicked;
 
                 ApiResponse<Session> sessionKeyResponse;
                 try
                 {
-                    txtStatus.Text = "Completing authentication...";
+                    TxtStatus.Text = "Completing authentication...";
                     sessionKeyResponse = await Auth.GetSession(tokenResponse.Result);
                 }
                 catch (Exception ex)
@@ -122,11 +123,12 @@ namespace XmpSharpScrobbler
 
                 // We have a new valid session key!
                 SessionKey = sessionKeyResponse.Result.Key;
-                txtStatus.Text = $"{sessionKeyResponse.Result.UserName} is now successfully authenticated.";
+                BtnSave.Enabled = true;
+                TxtStatus.Text = $"{sessionKeyResponse.Result.UserName} is now successfully authenticated.";
             }
             finally
             {
-                btnReAuth.Enabled = true;
+                BtnReAuth.Enabled = true;
             }
         }
 
