@@ -32,7 +32,7 @@ using Scrobbling;
 
 namespace XmpSharpScrobbler
 {
-    internal partial class Configuration : Form
+    internal partial class ConfigurationForm : Form
     {
         protected override CreateParams CreateParams
         {
@@ -48,7 +48,7 @@ namespace XmpSharpScrobbler
 
         public string SessionKey { get; private set; }
 
-        public Configuration()
+        public ConfigurationForm()
         {
             InitializeComponent();
             BtnSave.Enabled = false;

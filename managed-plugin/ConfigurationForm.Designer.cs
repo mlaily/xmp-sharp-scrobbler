@@ -1,6 +1,6 @@
 ﻿namespace XmpSharpScrobbler
 {
-    partial class Configuration
+    partial class ConfigurationForm
     {
         /// <summary>
         /// Required designer variable.

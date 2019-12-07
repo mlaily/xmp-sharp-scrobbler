@@ -50,11 +50,11 @@
     <Compile Include="Misc\AsyncLock.cs" />
     <Compile Include="Misc\Batch.cs" />
     <Compile Include="Cache.cs" />
-    <Compile Include="Configuration.cs">
+    <Compile Include="ConfigurationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Configuration.Designer.cs">
-      <DependentUpon>Configuration.cs</DependentUpon>
+    <Compile Include="ConfigurationForm.Designer.cs">
+      <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PluginInfrastructure\Imports.cs" />
     <Compile Include="PluginInfrastructure\ManagedExports.cs" />
@@ -72,8 +72,8 @@
     <Compile Include="SharpScrobbler.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Configuration.resx">
-      <DependentUpon>Configuration.cs</DependentUpon>
+    <EmbeddedResource Include="ConfigurationForm.resx">
+      <DependentUpon>ConfigurationForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

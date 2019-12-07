@@ -49,7 +49,7 @@ namespace XmpSharpScrobbler
 
         public string AskUserForNewAuthorizedSessionKey(IntPtr ownerWindowHandle)
         {
-            using (var configurationForm = new Configuration())
+            using (var configurationForm = new ConfigurationForm())
             {
                 if (configurationForm.ShowDialog(new Win32Window(ownerWindowHandle)) == DialogResult.OK)
                 {
