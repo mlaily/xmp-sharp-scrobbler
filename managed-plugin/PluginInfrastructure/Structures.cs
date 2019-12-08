@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using XmpSharpScrobbler.Misc;
 
 namespace XmpSharpScrobbler.PluginInfrastructure
 {
@@ -12,60 +13,22 @@ namespace XmpSharpScrobbler.PluginInfrastructure
     [StructLayout(LayoutKind.Sequential)]
     public class ScrobblerConfig
     {
-        /// <summary>
-        /// bytes. This is an ansi string.
-        /// </summary>
-        private const int SessionKeySize = 32;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+        public readonly byte[] sessionKey = new byte[32];
 
-        /// <summary>
-        /// bytes. This is a unicode string.
-        /// </summary>
-        private const int UserNameSize = 128 * 2;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = SessionKeySize)]
-        public readonly byte[] sessionKey;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = UserNameSize)]
-        public readonly byte[] userName;
-
-        public ScrobblerConfig()
-        {
-            sessionKey = new byte[SessionKeySize];
-            userName = new byte[UserNameSize];
-        }
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+        public readonly byte[] userName = new byte[128];
 
         public string SessionKey
         {
-            get => Encoding.ASCII.GetString(sessionKey).TrimEnd('\0');
-            set
-            {
-                if (value == null)
-                {
-                    Array.Clear(sessionKey, 0, SessionKeySize);
-                }
-                else
-                {
-                    var bytes = Encoding.ASCII.GetBytes(value);
-                    Array.Copy(bytes, 0, sessionKey, 0, Math.Min(SessionKeySize, bytes.Length));
-                }
-            }
+            get => InteropHelper.GetStringFromNativeBuffer(sessionKey, Encoding.ASCII);
+            set => InteropHelper.SetNativeString(sessionKey, Encoding.ASCII, value);
         }
 
         public string UserName
         {
-            get => Encoding.Unicode.GetString(userName).TrimEnd('\0');
-            set
-            {
-                if (value == null)
-                {
-                    Array.Clear(userName, 0, UserNameSize);
-                }
-                else
-                {
-                    var bytes = Encoding.Unicode.GetBytes(value);
-                    Array.Copy(bytes, 0, userName, 0, Math.Min(UserNameSize, bytes.Length));
-                }
-            }
+            get => InteropHelper.GetStringFromNativeBuffer(userName, Encoding.UTF8);
+            set => InteropHelper.SetNativeString(userName, Encoding.UTF8, value);
         }
     }
 }

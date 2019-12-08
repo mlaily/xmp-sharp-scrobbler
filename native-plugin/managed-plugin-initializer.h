@@ -33,8 +33,8 @@ extern "C"
     // Config structure, as stored by XMPlay.
     typedef struct
     {
-        char sessionKey[32]; // 32 bytes
-        WCHAR userName[128]; // 256 bytes
+        byte sessionKey[32];
+        byte userName[128];
     } ScrobblerConfig;
 
     // Native declaration of the managed exported methods.
