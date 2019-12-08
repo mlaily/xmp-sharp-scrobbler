@@ -47,7 +47,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void SetNativeString_Writes_ASCII_To_Backing_Field()
+        public void EncodeToNativeBuffer_Writes_ASCII_To_Backing_Field()
         {
             // Arrange
 
@@ -56,7 +56,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.ASCII, value);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value);
 
             // Assert
 
@@ -66,7 +66,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void SetNativeString_Writes_UTF16_To_Backing_Field()
+        public void EncodeToNativeBuffer_Writes_UTF16_To_Backing_Field()
         {
             // Arrange
 
@@ -75,7 +75,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.Unicode, value);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.Unicode, value);
 
             // Assert
 
@@ -85,7 +85,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void SetNativeString_Clears_Backing_Field_When_Value_Null()
+        public void EncodeToNativeBuffer_Clears_Backing_Field_When_Value_Null()
         {
             // Arrange
 
@@ -94,7 +94,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.ASCII, value);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value);
 
             // Assert
 
@@ -104,7 +104,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void SetNativeString_Clears_Backing_Field_When_Value_Empty()
+        public void EncodeToNativeBuffer_Clears_Backing_Field_When_Value_Empty()
         {
             // Arrange
 
@@ -113,7 +113,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.ASCII, value);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value);
 
             // Assert
 
@@ -123,7 +123,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void SetNativeString_Clears_Backing_Field_When_Value_Null_Chars()
+        public void EncodeToNativeBuffer_Clears_Backing_Field_When_Value_Null_Chars()
         {
             // Arrange
 
@@ -132,7 +132,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.ASCII, value);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value);
 
             // Assert
 
@@ -142,7 +142,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void SetNativeString_Defaults_To_Clearing_Backing_Field_When_Value_Too_Large()
+        public void EncodeToNativeBuffer_Defaults_To_Clearing_Backing_Field_When_Value_Too_Large()
         {
             // Arrange
 
@@ -151,7 +151,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.ASCII, value);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value);
 
             // Assert
 
@@ -162,7 +162,7 @@ namespace UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void SetNativeString_Throws_If_Requested_When_Value_Too_Large()
+        public void EncodeToNativeBuffer_Throws_If_Requested_When_Value_Too_Large()
         {
             // Arrange
 
@@ -171,7 +171,7 @@ namespace UnitTests
 
             // Act
 
-            InteropHelper.SetNativeString(_testBackingField, Encoding.ASCII, value, throwOnBufferTooSmall: true);
+            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value, throwOnBufferTooSmall: true);
 
             // Assert
 
@@ -179,14 +179,14 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_ASCII_Value()
+        public void DecodeNativeBuffer_Returns_Expected_ASCII_Value()
         {
             // Arrange
 
             var buffer = new byte[] { 97, 98, 99, 0, 0 };
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.ASCII);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.ASCII);
 
             // Assert
 
@@ -194,7 +194,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_ASCII_Value_For_Max_Buffer_Length()
+        public void DecodeNativeBuffer_Returns_Expected_ASCII_Value_For_Max_Buffer_Length()
         {
             // Arrange
 
@@ -202,7 +202,7 @@ namespace UnitTests
 
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.ASCII);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.ASCII);
 
             // Assert
 
@@ -210,14 +210,14 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_ASCII_Value_For_Empty_String()
+        public void DecodeNativeBuffer_Returns_Expected_ASCII_Value_For_Empty_String()
         {
             // Arrange
 
             var buffer = new byte[] { 0, 0, 0, 0, 0 };
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.ASCII);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.ASCII);
 
             // Assert
 
@@ -225,7 +225,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_UTF8_Value()
+        public void DecodeNativeBuffer_Returns_Expected_UTF8_Value()
         {
             // Arrange
 
@@ -233,7 +233,7 @@ namespace UnitTests
 
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.UTF8);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.UTF8);
 
             // Assert
 
@@ -241,7 +241,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_UTF8_Value_For_Max_Buffer_Length()
+        public void DecodeNativeBuffer_Returns_Expected_UTF8_Value_For_Max_Buffer_Length()
         {
             // Arrange
 
@@ -249,7 +249,7 @@ namespace UnitTests
 
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.UTF8);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.UTF8);
 
             // Assert
 
@@ -257,7 +257,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_UTF16_Value_For_Empty_String()
+        public void DecodeNativeBuffer_Returns_Expected_UTF16_Value_For_Empty_String()
         {
             // Arrange
 
@@ -265,7 +265,7 @@ namespace UnitTests
 
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.Unicode);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.Unicode);
 
             // Assert
 
@@ -273,7 +273,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_UTF16_Value()
+        public void DecodeNativeBuffer_Returns_Expected_UTF16_Value()
         {
             // Arrange
 
@@ -281,7 +281,7 @@ namespace UnitTests
 
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.Unicode);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.Unicode);
 
             // Assert
 
@@ -289,7 +289,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void GetStringFromNativeBuffer_Returns_Expected_UTF32_Value()
+        public void DecodeNativeBuffer_Returns_Expected_UTF32_Value()
         {
             // Arrange
 
@@ -298,7 +298,7 @@ namespace UnitTests
 
             // Act
 
-            var actual = InteropHelper.GetStringFromNativeBuffer(buffer, Encoding.UTF32);
+            var actual = InteropHelper.DecodeNativeBuffer(buffer, Encoding.UTF32);
 
             // Assert
 

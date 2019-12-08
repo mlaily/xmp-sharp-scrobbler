@@ -28,7 +28,7 @@ namespace XmpSharpScrobbler.Misc
 {
     public static class InteropHelper
     {
-        public static string GetStringFromNativeBuffer(byte[] source, Encoding encoding)
+        public static string DecodeNativeBuffer(byte[] source, Encoding encoding)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));
@@ -47,7 +47,7 @@ namespace XmpSharpScrobbler.Misc
         /// If <paramref name="throwOnBufferTooSmall"/> is false and the buffer is too small for <paramref name="value"/>,
         /// <paramref name="backingField"/> is cleared.
         /// </summary>
-        public static void SetNativeString(byte[] backingField, Encoding encoding, string value, bool throwOnBufferTooSmall = false)
+        public static void EncodeToNativeBuffer(byte[] backingField, Encoding encoding, string value, bool throwOnBufferTooSmall = false)
         {
             if (backingField == null) throw new ArgumentNullException(nameof(backingField));
             if (encoding == null) throw new ArgumentNullException(nameof(encoding));

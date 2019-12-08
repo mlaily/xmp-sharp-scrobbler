@@ -41,14 +41,14 @@ namespace XmpSharpScrobbler.PluginInfrastructure
 
         public string SessionKey
         {
-            get => InteropHelper.GetStringFromNativeBuffer(sessionKey, Encoding.ASCII);
-            set => InteropHelper.SetNativeString(sessionKey, Encoding.ASCII, value);
+            get => InteropHelper.DecodeNativeBuffer(sessionKey, Encoding.ASCII);
+            set => InteropHelper.EncodeToNativeBuffer(sessionKey, Encoding.ASCII, value);
         }
 
         public string UserName
         {
-            get => InteropHelper.GetStringFromNativeBuffer(userName, Encoding.UTF8);
-            set => InteropHelper.SetNativeString(userName, Encoding.UTF8, value);
+            get => InteropHelper.DecodeNativeBuffer(userName, Encoding.UTF8);
+            set => InteropHelper.EncodeToNativeBuffer(userName, Encoding.UTF8, value);
         }
     }
 }
