@@ -173,7 +173,7 @@ static DWORD WINAPI DSP_GetConfig(void* inst, void* config)
 // Apply config to the plugin.
 static BOOL WINAPI DSP_SetConfig(void* inst, void* config, DWORD size)
 {
-    memcpy(&pluginConfig, config, size);
+    memcpy(&pluginConfig, config, min(size, sizeof(ScrobblerConfig)));
     pManagedExports->SetSessionKey(&pluginConfig);
     return TRUE;
 }
