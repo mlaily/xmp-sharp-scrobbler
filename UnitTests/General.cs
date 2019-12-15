@@ -1,18 +1,17 @@
 using System;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scrobbling;
+using Xunit;
 
 namespace UnitTests
 {
-    [TestClass]
     public class General
     {
-        [TestMethod]
+        [Fact]
         public void Debug()
         {
-            Assert.Inconclusive();
             return;
+
 
             var tokenResult = Auth.GetToken().Result;
             var url = Auth.GetAuthorizeTokenUrl(tokenResult.Result);
@@ -37,7 +36,7 @@ namespace UnitTests
             var scrobbleResult = Track.Scrobble(sessionKey, scrobble).Result;
         }
 
-        [TestMethod]
+        [Fact(Skip = "Not implemented")]
         public void CheckApiFormat()
         {
             // TODO: unit test checking the same request both in xml and json, and comparing them.

@@ -16,12 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Native C++ Plugin", "Native
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9E3B76D2-F0A7-49EE-8BA1-2D8111830EF1}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{EB6B061A-8776-4506-817C-DAF24276E210}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +37,10 @@ Global
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Debug|x86.Build.0 = Debug|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.ActiveCfg = Release|x86
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848}.Release|x86.Build.0 = Release|x86
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|x86.ActiveCfg = Debug|x86
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Debug|x86.Build.0 = Debug|x86
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|x86.ActiveCfg = Release|x86
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837}.Release|x86.Build.0 = Release|x86
+		{EB6B061A-8776-4506-817C-DAF24276E210}.Debug|x86.ActiveCfg = Debug|x86
+		{EB6B061A-8776-4506-817C-DAF24276E210}.Debug|x86.Build.0 = Debug|x86
+		{EB6B061A-8776-4506-817C-DAF24276E210}.Release|x86.ActiveCfg = Release|x86
+		{EB6B061A-8776-4506-817C-DAF24276E210}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,7 +48,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3D7B84EE-9CCB-4216-B0AD-BF60D03A7AC9} = {77B35884-4306-4F8D-B6A2-E1A6D8B7B0F4}
 		{10238D4E-B185-4CC6-8FB5-D0BC7A19D848} = {4973CDEC-675E-42D4-9375-DF195743E720}
-		{1ACE1DB3-33C0-4D7A-BE84-806BEB137837} = {C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}
+		{EB6B061A-8776-4506-817C-DAF24276E210} = {C04C8F9B-83B4-44E9-85DE-B57818D6F7C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DFCDBF11-E29C-486F-9488-0ABE48D6760F}

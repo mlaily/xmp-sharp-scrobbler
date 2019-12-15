@@ -21,13 +21,12 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Scrobbling;
 using XmpSharpScrobbler.Misc;
+using Xunit;
 
 namespace UnitTests
 {
-    [TestClass]
     public class InteropHelperTests
     {
         private const int BufferSize = 5;
@@ -42,11 +41,11 @@ namespace UnitTests
             _testBackingField[4] = 42;
 
             // Sanity checks
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 42, 42, 42, 42, 42 }, _testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 42, 42, 42, 42, 42 }, _testBackingField);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodeToNativeBuffer_Writes_ASCII_To_Backing_Field()
         {
             // Arrange
@@ -60,12 +59,12 @@ namespace UnitTests
 
             // Assert
 
-            Assert.IsNotNull(_testBackingField);
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 97, 98, 0, 0, 0 }, _testBackingField);
+            Assert.NotNull(_testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 97, 98, 0, 0, 0 }, _testBackingField);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodeToNativeBuffer_Writes_UTF16_To_Backing_Field()
         {
             // Arrange
@@ -79,12 +78,12 @@ namespace UnitTests
 
             // Assert
 
-            Assert.IsNotNull(_testBackingField);
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 97, 0, 98, 0, 0 }, _testBackingField);
+            Assert.NotNull(_testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 97, 0, 98, 0, 0 }, _testBackingField);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodeToNativeBuffer_Clears_Backing_Field_When_Value_Null()
         {
             // Arrange
@@ -98,12 +97,12 @@ namespace UnitTests
 
             // Assert
 
-            Assert.IsNotNull(_testBackingField);
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
+            Assert.NotNull(_testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodeToNativeBuffer_Clears_Backing_Field_When_Value_Empty()
         {
             // Arrange
@@ -117,12 +116,12 @@ namespace UnitTests
 
             // Assert
 
-            Assert.IsNotNull(_testBackingField);
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
+            Assert.NotNull(_testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodeToNativeBuffer_Clears_Backing_Field_When_Value_Null_Chars()
         {
             // Arrange
@@ -136,12 +135,12 @@ namespace UnitTests
 
             // Assert
 
-            Assert.IsNotNull(_testBackingField);
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
+            Assert.NotNull(_testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodeToNativeBuffer_Defaults_To_Clearing_Backing_Field_When_Value_Too_Large()
         {
             // Arrange
@@ -155,13 +154,12 @@ namespace UnitTests
 
             // Assert
 
-            Assert.IsNotNull(_testBackingField);
-            Assert.AreEqual(BufferSize, _testBackingField.Length);
-            CollectionAssert.AreEquivalent(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
+            Assert.NotNull(_testBackingField);
+            Assert.Equal(BufferSize, _testBackingField.Length);
+            Assert.Equal(new byte[] { 0, 0, 0, 0, 0 }, _testBackingField);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void EncodeToNativeBuffer_Throws_If_Requested_When_Value_Too_Large()
         {
             // Arrange
@@ -170,15 +168,13 @@ namespace UnitTests
             var value = "abcdefgh";
 
             // Act
-
-            InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value, throwOnBufferTooSmall: true);
-
             // Assert
 
-            Assert.Fail("Expected to throw.");
+            Assert.Throws<ArgumentException>(
+                () => InteropHelper.EncodeToNativeBuffer(_testBackingField, Encoding.ASCII, value, throwOnBufferTooSmall: true));
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_ASCII_Value()
         {
             // Arrange
@@ -190,10 +186,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("abc", actual);
+            Assert.Equal("abc", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_ASCII_Value_For_Max_Buffer_Length()
         {
             // Arrange
@@ -206,10 +202,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("abcde", actual);
+            Assert.Equal("abcde", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_ASCII_Value_For_Empty_String()
         {
             // Arrange
@@ -221,10 +217,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("", actual);
+            Assert.Equal("", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_UTF8_Value()
         {
             // Arrange
@@ -237,10 +233,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("abc", actual);
+            Assert.Equal("abc", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_UTF8_Value_For_Max_Buffer_Length()
         {
             // Arrange
@@ -253,10 +249,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("abcde", actual);
+            Assert.Equal("abcde", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_UTF16_Value_For_Empty_String()
         {
             // Arrange
@@ -269,10 +265,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("", actual);
+            Assert.Equal("", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_UTF16_Value()
         {
             // Arrange
@@ -285,10 +281,10 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("ab", actual);
+            Assert.Equal("ab", actual);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecodeNativeBuffer_Returns_Expected_UTF32_Value()
         {
             // Arrange
@@ -302,8 +298,7 @@ namespace UnitTests
 
             // Assert
 
-            Assert.AreEqual("a", actual);
+            Assert.Equal("a", actual);
         }
-
     }
 }
