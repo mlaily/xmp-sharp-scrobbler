@@ -102,7 +102,9 @@ namespace Scrobbling
                 && (x.Album ?? "") == (y.Album ?? "")
                 && (x.AlbumArtist ?? "") == (y.AlbumArtist ?? "")
                 && (x.Mbid ?? "") == (y.Mbid ?? "")
-                && x.Timestamp == y.Timestamp;
+                && (x.TrackNumber ?? "") == (y.TrackNumber ?? "")
+                && x.StringDuration == y.StringDuration
+                && x.StringTimestamp == y.StringTimestamp;
         }
 
         public int GetHashCode(Scrobble obj)
@@ -117,7 +119,9 @@ namespace Scrobbling
                     hash = hash * 23 + (string.IsNullOrEmpty(obj.Album) ? 0 : obj.Album.GetHashCode());
                     hash = hash * 23 + (string.IsNullOrEmpty(obj.AlbumArtist) ? 0 : obj.AlbumArtist.GetHashCode());
                     hash = hash * 23 + (string.IsNullOrEmpty(obj.Mbid) ? 0 : obj.Mbid.GetHashCode());
-                    hash = hash * 23 + obj.Timestamp.GetHashCode();
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.TrackNumber) ? 0 : obj.TrackNumber.GetHashCode());
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.StringDuration) ? 0 : obj.StringDuration.GetHashCode());
+                    hash = hash * 23 + (string.IsNullOrEmpty(obj.StringTimestamp) ? 0 : obj.StringTimestamp.GetHashCode());
                 }
                 return hash;
             }

@@ -29,11 +29,14 @@ using Scrobbling;
 
 namespace XmpSharpScrobbler
 {
-    internal static class ScrobbleSerializer
+    public static class ScrobbleSerializer
     {
         private const char FieldSeparator = '&';
+
         public static string Serialize(Scrobble scrobble)
         {
+            if (scrobble == null) throw new ArgumentNullException(nameof(scrobble));
+
             var sb = new StringBuilder();
             sb.Append(Encode(scrobble.StringTimestamp)); sb.Append(FieldSeparator);
             sb.Append(Encode(scrobble.Track)); sb.Append(FieldSeparator);

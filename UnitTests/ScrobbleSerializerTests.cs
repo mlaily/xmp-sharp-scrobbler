@@ -19,9 +19,12 @@
 // THE SOFTWARE.
 //
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using Scrobbling;
+using XmpSharpScrobbler;
 using XmpSharpScrobbler.Misc;
 using Xunit;
 
@@ -29,10 +32,86 @@ namespace UnitTests
 {
     public class ScrobbleSerializerTests
     {
-        [Fact]
-        public void Serialize_Returns_Expected_Result()
-        {
+        private static readonly IEqualityComparer<Scrobble> _equalityComparer = new ScrobbleEqualityComparer();
 
+        public static IEnumerable<object[]> SerializationTestData()
+        {
+            {
+                var scrobble = new Scrobble("", "", DateTimeOffset.FromUnixTimeMilliseconds(0));
+                var serialized = "0&&&&&&&";
+                yield return new object[] { scrobble, serialized };
+            }
+
+            {
+                var scrobble = new Scrobble("track", "artist", DateTimeOffset.FromUnixTimeMilliseconds(123_456))
+                {
+                    Album = "album",
+                    AlbumArtist = "albumArtist",
+                    Duration = TimeSpan.FromSeconds(789),
+                    Mbid = "mbid",
+                    TrackNumber = "trackNumber"
+                };
+                var serialized = "123&track&artist&album&albumArtist&trackNumber&mbid&789";
+                yield return new object[] { scrobble, serialized };
+            }
+
+            {
+                var scrobble = new Scrobble("♥", "♥", DateTimeOffset.FromUnixTimeMilliseconds(123_456))
+                {
+                    Album = "♥",
+                    AlbumArtist = "♥",
+                    Duration = TimeSpan.FromSeconds(789),
+                    Mbid = "♥",
+                    TrackNumber = "♥"
+                };
+                var serialized = "123&%E2%99%A5&%E2%99%A5&%E2%99%A5&%E2%99%A5&%E2%99%A5&%E2%99%A5&789";
+                yield return new object[] { scrobble, serialized };
+            }
+
+            {
+                var scrobble = new Scrobble("&♥", "&♥", DateTimeOffset.FromUnixTimeMilliseconds(123_456))
+                {
+                    Album = "&♥",
+                    AlbumArtist = "&♥",
+                    Duration = TimeSpan.FromSeconds(789),
+                    Mbid = "&♥",
+                    TrackNumber = "&♥"
+                };
+                var serialized = "123&%26%E2%99%A5&%26%E2%99%A5&%26%E2%99%A5&%26%E2%99%A5&%26%E2%99%A5&%26%E2%99%A5&789";
+                yield return new object[] { scrobble, serialized };
+            }
+
+            {
+                var scrobble = new Scrobble(default, default, default);
+                var serialized = "-62135596800&&&&&&&";
+                yield return new object[] { scrobble, serialized };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(SerializationTestData))]
+        public void Serialize_Returns_Expected_Result(Scrobble scrobble, string expected)
+        {
+            // Act
+
+            var actual = ScrobbleSerializer.Serialize(scrobble);
+
+            // Assert
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [MemberData(nameof(SerializationTestData))]
+        public void Deerialize_Returns_Expected_Result(Scrobble expected, string serialized)
+        {
+            // Act
+
+            var actual = ScrobbleSerializer.Deserialize(serialized);
+
+            // Assert
+
+            Assert.Equal(expected, actual, _equalityComparer);
         }
     }
 }
