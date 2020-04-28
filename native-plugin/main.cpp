@@ -38,6 +38,7 @@
 #define AUTO_NULL_TERMINATED_LENGTH     -1
 
 static HINSTANCE hDll;
+static LPWSTR pluginDirectoryPath;
 
 static XMPFUNC_MISC* xmpfmisc;
 static XMPFUNC_STATUS* xmpfstatus;
@@ -136,7 +137,10 @@ static const char* WINAPI DSP_GetDescription(void* inst)
 
 static void* WINAPI DSP_New()
 {
-    InitializeManagedPlugin(L"xmp-sharp-scrobbler-managed.dll");
+    InitializeManagedPlugin((std::wstring(pluginDirectoryPath) + L"\\xmp-sharp-scrobbler-managed.dll").c_str());
+
+    if (!pManagedExports)
+        return NULL;
 
     pManagedExports->LogInfo(L"****************************************************************************************************");
     pManagedExports->LogInfo(L"" PLUGIN_FRIENDLY_NAME " " PLUGIN_VERSION_STRING " started!");
@@ -508,6 +512,14 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     {
         DisableThreadLibraryCalls(hDLL);
         hDll = hDLL;
+
+        DWORD bufferSize = GetCurrentDirectory(0, NULL);
+        pluginDirectoryPath = new wchar_t[bufferSize];
+        if (!GetCurrentDirectory(bufferSize, pluginDirectoryPath))
+        {
+            delete[] pluginDirectoryPath;
+            pluginDirectoryPath = NULL;
+        }
     }
     return 1;
 }
