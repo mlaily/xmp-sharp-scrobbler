@@ -7,10 +7,11 @@
 #define PLUGIN_FRIENDLY_NAME    "XMPlay Sharp Scrobbler"
 #define PLUGIN_VERSION          0,6,0,0
 #define PLUGIN_VERSION_STRING   "0.6.0.0"
+#define PLUGIN_COPYRIGHT_STRING "Copyright (C) Melvyn Laïly 2016-2020"
 #define IDD_ABOUT               1001
 #define IDC_ABOUT_DOTNET_LINK   1002
-#define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING \
-" - 2019\n\nBy Melvyn Laïly\n\nThis plugin requires the .Net Framework 4.6 to be installed to run.\n\n<a>Download .Net 4.6</a>"
+#define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING "\n" \
+PLUGIN_COPYRIGHT_STRING "\n\nThis plugin requires the .NET Framework 4.6 or superior.\n\n<a>Download .Net 4.6</a>"
 
 // Gather information required to scrobble a track.
 // All the text fields are expected to be UTF-16.

@@ -1,5 +1,7 @@
-// Microsoft Visual C++ generated resource script.
-//
+
+// UTF-8 without BOM (?)
+#pragma code_page(65001)
+
 #include "windows.h"
 #include "resource.h"
 #include "main.h"
@@ -41,10 +43,10 @@ BEGIN
     BEGIN
         BLOCK "040004b0"
         BEGIN
-            VALUE "CompanyName", "Melvyn Laïly"
+            VALUE "CompanyName", "Melvyn LaÃ¯ly"
             VALUE "FileDescription", "XMPlay scrobbling plugin"
             VALUE "FileVersion", PLUGIN_VERSION_STRING
-            VALUE "LegalCopyright", "Copyright (C) Melvyn Laïly 2016-2019"
+            VALUE "LegalCopyright", PLUGIN_COPYRIGHT_STRING
             VALUE "ProductName", PLUGIN_FRIENDLY_NAME
             VALUE "ProductVersion", PLUGIN_VERSION_STRING
         END
