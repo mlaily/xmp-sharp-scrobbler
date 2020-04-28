@@ -11,7 +11,7 @@
 #define IDD_ABOUT               1001
 #define IDC_ABOUT_DOTNET_LINK   1002
 #define ABOUT_DIALOG_TEXT PLUGIN_FRIENDLY_NAME "\n\nA Last.fm scrobbling plugin for XMPlay.\n\nVersion " PLUGIN_VERSION_STRING "\n" \
-PLUGIN_COPYRIGHT_STRING "\n\nThis plugin requires the .NET Framework 4.6 or superior.\n\n<a>Download .Net 4.6</a>"
+PLUGIN_COPYRIGHT_STRING "\n\nThis plugin requires the .NET Framework 4.6 or superior.\n\n<a>Download .NET 4.6</a>"
 
 // Gather information required to scrobble a track.
 // All the text fields are expected to be UTF-16.

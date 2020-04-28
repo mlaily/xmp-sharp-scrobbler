@@ -111,7 +111,7 @@ static BOOL CALLBACK AboutDialogProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
             // Check for click or return key.
             if ((pnmh->code == NM_CLICK) || (pnmh->code == NM_RETURN))
             {
-                // Take the user to the .Net 4.6 offline installer download page.
+                // Take the user to the .NET 4.6 offline installer download page.
                 ShellExecute(NULL, L"open", L"http://www.microsoft.com/en-us/download/details.aspx?id=48137", NULL, NULL, SW_SHOWNORMAL);
             }
         }
