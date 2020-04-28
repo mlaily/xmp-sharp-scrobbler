@@ -13,12 +13,11 @@ This is the result.
 
 ## Requirements ##
 
-- [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145) (Only the x86 version is required)
-- [.Net 4.6](http://www.microsoft.com/en-us/download/details.aspx?id=48137) (Link to the offline installer)
+- [.NET 4.6](https://www.microsoft.com/en-us/download/details.aspx?id=48137) (Link to the offline installer - already installed on Windows 10)
 
-*Warning*: the .Net 4.6 dependency means this plugin won't work on XP or lower.
+*Warning*: the .NET 4.6 dependency means this plugin won't work on XP or lower.
 
-This plugin was developed with the XMPlay 3.8 API. It is likely to work with an older version, but I make no guarantee.
+This plugin was developed with the XMPlay 3.8 API. It is likely to work with an older version, but there is no guarantee.
 
 ## Features ##
 
@@ -38,7 +37,7 @@ This plugin is open source and released under the MIT license.
 
 ## Notes ##
 
-Yes, I'm using .Net.
+Yes, I'm using .NET.
 Most of the useful stuff in this plugin is actually written in C#.
 I don't think C or C++ are really appropriate for high level asynchronous code querying a REST web API, so I created a native C++ wrapper around a C# library handling most of the web related stuff.
 There remains a relatively small part in pure C++ handling the track playing duration detection and the tag extraction from XMPLay.
